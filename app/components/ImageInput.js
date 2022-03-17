@@ -17,7 +17,7 @@ function ImageInput({ imageUri, onChangeImage }) {
   }, []);
 
   const requestPermission = async () => {
-    const { granted } = await ImagePicker.requestCameraRollPermissionsAsync();
+    const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!granted) alert("You need to enable permission to access the library.");
   };
 
@@ -48,7 +48,7 @@ function ImageInput({ imageUri, onChangeImage }) {
         {!imageUri && (
           <MaterialCommunityIcons
             color={colors.medium}
-            name="camera"
+            name='camera'
             size={40}
           />
         )}

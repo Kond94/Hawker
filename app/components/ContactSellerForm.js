@@ -34,11 +34,11 @@ function ContactSellerForm({ listing }) {
       <FormField
         maxLength={255}
         multiline
-        name="message"
+        name='message'
         numberOfLines={3}
-        placeholder="Message..."
+        placeholder='Message...'
       />
-      <SubmitButton title="Contact Seller" />
+      <SubmitButton title='Contact Seller' />
     </Form>
   );
 }

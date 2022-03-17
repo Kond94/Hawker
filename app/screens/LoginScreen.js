@@ -23,7 +23,10 @@ function LoginScreen(props) {
 
   const handleSubmit = async ({ email, password }) => {
     const result = await authApi.login(email, password);
-    if (!result.ok) return setLoginFailed(true);
+
+    if (!result.ok) {
+      return setLoginFailed(true);
+    }
     setLoginFailed(false);
     auth.logIn(result.data);
   };
@@ -38,28 +41,28 @@ function LoginScreen(props) {
         validationSchema={validationSchema}
       >
         <ErrorMessage
-          error="Invalid email and/or password."
+          error='Invalid email and/or password.'
           visible={loginFailed}
         />
         <FormField
-          autoCapitalize="none"
+          autoCapitalize='none'
           autoCorrect={false}
-          icon="email"
-          keyboardType="email-address"
-          name="email"
-          placeholder="Email"
-          textContentType="emailAddress"
+          icon='email'
+          keyboardType='email-address'
+          name='email'
+          placeholder='Email'
+          textContentType='emailAddress'
         />
         <FormField
-          autoCapitalize="none"
+          autoCapitalize='none'
           autoCorrect={false}
-          icon="lock"
-          name="password"
-          placeholder="Password"
+          icon='lock'
+          name='password'
+          placeholder='Password'
           secureTextEntry
-          textContentType="password"
+          textContentType='password'
         />
-        <SubmitButton title="Login" />
+        <SubmitButton title='Login' />
       </Form>
     </Screen>
   );

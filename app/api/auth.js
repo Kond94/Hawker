@@ -1,6 +1,7 @@
 import client from "./client";
 
-const login = (email, password) => client.post("/auth", { email, password });
+const login = (identifier, password) =>
+  client.post("/auth/local", { identifier, password });
 
 export default {
   login,

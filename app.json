@@ -21,6 +21,9 @@
     "description": "A marketplace for selling the stuff you don't need anymore.",
     "notification": {
       "iosDisplayInForeground": true
+    },
+    "android": {
+      "package": "com.kond94.Hawker"
     }
   }
 }

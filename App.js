@@ -9,17 +9,20 @@ import AuthNavigator from "./app/navigation/AuthNavigator";
 import AuthContext from "./app/auth/context";
 import authStorage from "./app/auth/storage";
 import { navigationRef } from "./app/navigation/rootNavigation";
+import useDatabase from "./app/hooks/useDatabase";
+import { ListingContextProvider } from "./app/context/ListingContext";
 
 export default function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);
+  const isDBLoadingComplete = useDatabase();
 
   const restoreUser = async () => {
     const user = await authStorage.getUser();
     if (user) setUser(user);
   };
 
-  if (!isReady)
+  if (!isReady && !isDBLoadingComplete)
     return (
       <AppLoading
         startAsync={restoreUser}
@@ -31,9 +34,11 @@ export default function App() {
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       <OfflineNotice />
-      <NavigationContainer ref={navigationRef} theme={navigationTheme}>
-        {user ? <AppNavigator /> : <AuthNavigator />}
-      </NavigationContainer>
+      <ListingContextProvider>
+        <NavigationContainer ref={navigationRef} theme={navigationTheme}>
+          {user ? <AppNavigator /> : <AuthNavigator />}
+        </NavigationContainer>
+      </ListingContextProvider>
     </AuthContext.Provider>
   );
 }
