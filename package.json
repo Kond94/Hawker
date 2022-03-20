@@ -39,10 +39,13 @@
     "react-native-expo-image-cache": "^2.0.1",
     "react-native-fast-image": "^8.5.11",
     "react-native-gesture-handler": "~2.1.0",
+    "react-native-image-slider-box": "^1.1.20",
+    "react-native-image-viewing": "^0.2.1",
     "react-native-progress": "^4.1.2",
     "react-native-reanimated": "~2.4.1",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
+    "react-native-sqlite-2": "^3.5.2",
     "react-native-web": "0.17.1",
     "yup": "^0.28.5"
   },

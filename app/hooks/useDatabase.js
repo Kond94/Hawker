@@ -12,7 +12,6 @@ export default function useDatabase() {
       try {
         // await database.dropDatabaseTablesAsync();
         await database.setupDatabaseAsync();
-        // await database.setupListingsAsync();
 
         setDBLoadingComplete(true);
       } catch (e) {

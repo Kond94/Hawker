@@ -1,3 +1,4 @@
+import apiClient from "./client";
 import client from "./client";
 
 const endpoint = "/listings?populate=*";
@@ -11,7 +12,14 @@ const mapListings = (listings) => {
       title: listing.attributes.title,
       description: listing.attributes.description,
       price: listing.attributes.price,
-      imageUrl: listing.attributes.images.data[0].attributes.formats.large.url,
+      images: listing.attributes.images.data.map((image) => {
+        return {
+          id: image.id,
+          url:
+            apiClient.getBaseURL().replace("/api", "") +
+            image.attributes.formats.large.url,
+        };
+      }),
     };
   });
 };

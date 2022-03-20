@@ -9,19 +9,20 @@ import routes from "../navigation/routes";
 import Screen from "../components/Screen";
 import AppText from "../components/Text";
 import useApi from "../hooks/useApi";
-import imagesApi from "../api/imagesApi";
 import { ListingContext } from "../context/ListingContext";
-
 function ListingsScreen({ navigation }) {
   const { listings, addNewListing } = useContext(ListingContext);
 
   const getListingsApi = useApi(listingsApi.getListings);
-  const apiListings = listingsApi.mapListings(getListingsApi.data);
-  console.log(listings);
 
-  for (let index = 0; index < apiListings.length; index++) {
-    addNewListing(apiListings[index]);
-  }
+  const refreshListings = () => {
+    const apiListings = listingsApi.mapListings(getListingsApi.data);
+    console.log(apiListings);
+    apiListings.forEach((listing) => {
+      addNewListing(listing);
+    });
+  };
+
   useEffect(async () => {
     getListingsApi.request();
   }, []);
@@ -38,6 +39,8 @@ function ListingsScreen({ navigation }) {
         )}
         <FlatList
           showsVerticalScrollIndicator={false}
+          refreshing={getListingsApi.loading}
+          onRefresh={refreshListings}
           data={listings}
           keyExtractor={(listing) => listing.id.toString()}
           renderItem={({ item }) => {
@@ -45,7 +48,7 @@ function ListingsScreen({ navigation }) {
               <Card
                 title={item.title}
                 subTitle={"$" + item.price}
-                imageUrl={item.imageUrl}
+                imageUrl={item.images[0]}
                 onPress={() =>
                   navigation.navigate(routes.LISTING_DETAILS, item)
                 }
