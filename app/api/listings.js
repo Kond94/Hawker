@@ -1,5 +1,6 @@
 import apiClient from "./client";
 import client from "./client";
+import { v4 as uuidv4 } from "uuid";
 
 const endpoint = "/listings?populate=*";
 
@@ -24,27 +25,50 @@ const mapListings = (listings) => {
   });
 };
 export const addListing = (listing, onUploadProgress) => {
-  const data = new FormData();
-  data.append("title", listing.title);
-  data.append("price", listing.price);
-  data.append("categoryId", listing.category.value);
-  data.append("description", listing.description);
+  // listing = {
+  //   ...listing,
+  //   images: listing.images.map((image) => {
+  //     return { name: uuidv4(), type: "image/jpeg", uri: image };
+  //   }),
+  // };
+  const data = {
+    data: {
+      title: listing.title,
+      price: listing.price,
+      description: listing.description,
+    },
+  };
 
-  listing.images.forEach((image, index) =>
-    data.append("images", {
-      name: "image" + index,
-      type: "image/jpeg",
-      uri: image,
+  // if (listing.location)
+  //   data.append("location", JSON.stringify(listing.location));
+
+  return client
+    .post("/listings", data, {
+      onUploadProgress: (progress) =>
+        onUploadProgress(progress.loaded / progress.total),
     })
-  );
+    .then((res) => {
+      // const imageData = new FormData();
 
-  if (listing.location)
-    data.append("location", JSON.stringify(listing.location));
-
-  return client.post(endpoint, data, {
-    onUploadProgress: (progress) =>
-      onUploadProgress(progress.loaded / progress.total),
-  });
+      // imageData.append("files", listing.images);
+      // imageData.append("refId", res.data.data.id);
+      // imageData.append("ref", "listing");
+      // imageData.append("field", "images");
+      const imageData = {
+        files: listing.images,
+        refId: res.data.data.id,
+        ref: "listing",
+        field: "images",
+      };
+      client
+        .post("/upload/", imageData, {
+          onUploadProgress: (progress) =>
+            onUploadProgress(progress.loaded / progress.total),
+        })
+        .then((res) => {
+          console.log("result: ", res);
+        });
+    });
 };
 
 export default {

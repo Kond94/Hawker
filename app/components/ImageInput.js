@@ -32,9 +32,9 @@ function ImageInput({ imageUri, onChangeImage }) {
 
   const selectImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.5,
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        mediaTypes: "Images",
       });
       if (!result.cancelled) onChangeImage(result.uri);
     } catch (error) {

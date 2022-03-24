@@ -86,6 +86,7 @@ function ListingEditScreen() {
   const [progress, setProgress] = useState(0);
 
   const handleSubmit = async (listing, { resetForm }) => {
+    console.log(listing);
     setProgress(0);
     setUploadVisible(true);
     const result = await listingsApi.addListing(
@@ -94,6 +95,8 @@ function ListingEditScreen() {
     );
 
     if (!result.ok) {
+      console.log(result);
+
       setUploadVisible(false);
       return alert("Could not save the listing");
     }
@@ -119,31 +122,31 @@ function ListingEditScreen() {
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
       >
-        <FormImagePicker name="images" />
-        <FormField maxLength={255} name="title" placeholder="Title" />
+        <FormImagePicker name='images' />
+        <FormField maxLength={255} name='title' placeholder='Title' />
         <FormField
-          keyboardType="numeric"
+          keyboardType='numeric'
           maxLength={8}
-          name="price"
-          placeholder="Price"
+          name='price'
+          placeholder='Price'
           width={120}
         />
         <Picker
           items={categories}
-          name="category"
+          name='category'
           numberOfColumns={3}
           PickerItemComponent={CategoryPickerItem}
-          placeholder="Category"
-          width="50%"
+          placeholder='Category'
+          width='50%'
         />
         <FormField
           maxLength={255}
           multiline
-          name="description"
+          name='description'
           numberOfLines={3}
-          placeholder="Description"
+          placeholder='Description'
         />
-        <SubmitButton title="Post" />
+        <SubmitButton title='Post' />
       </Form>
     </Screen>
   );
