@@ -17,7 +17,6 @@ function ListingsScreen({ navigation }) {
 
   const refreshListings = () => {
     const apiListings = listingsApi.mapListings(getListingsApi.data);
-    console.log(apiListings);
     apiListings.forEach((listing) => {
       addNewListing(listing);
     });

@@ -1,6 +1,7 @@
 import apiClient from "./client";
 import client from "./client";
 import { v4 as uuidv4 } from "uuid";
+import { stringify } from "uuid";
 
 const endpoint = "/listings?populate=*";
 
@@ -24,50 +25,40 @@ const mapListings = (listings) => {
     };
   });
 };
-export const addListing = (listing, onUploadProgress) => {
-  // listing = {
-  //   ...listing,
-  //   images: listing.images.map((image) => {
-  //     return { name: uuidv4(), type: "image/jpeg", uri: image };
-  //   }),
-  // };
-  const data = {
-    data: {
-      title: listing.title,
-      price: listing.price,
-      description: listing.description,
-    },
+
+const addListing = (listing, onUploadProgress) => {
+  const listingData = {
+    title: listing.title,
+    description: listing.description,
+    price: listing.price,
   };
-
-  // if (listing.location)
-  //   data.append("location", JSON.stringify(listing.location));
-
   return client
-    .post("/listings", data, {
-      onUploadProgress: (progress) =>
-        onUploadProgress(progress.loaded / progress.total),
-    })
-    .then((res) => {
-      // const imageData = new FormData();
+    .post(
+      "/listings",
+      { data: listingData },
+      {
+        onUploadProgress: (progress) =>
+          onUploadProgress(progress.loaded / progress.total),
+      }
+    )
+    .then((result) => {
+      const data = new FormData();
 
-      // imageData.append("files", listing.images);
-      // imageData.append("refId", res.data.data.id);
-      // imageData.append("ref", "listing");
-      // imageData.append("field", "images");
-      const imageData = {
-        files: listing.images,
-        refId: res.data.data.id,
-        ref: "listing",
-        field: "images",
-      };
-      client
-        .post("/upload/", imageData, {
-          onUploadProgress: (progress) =>
-            onUploadProgress(progress.loaded / progress.total),
-        })
-        .then((res) => {
-          console.log("result: ", res);
+      listing.images.forEach((image) => {
+        data.append("files", {
+          uri: image,
+          name: uuidv4(),
+          type: "image/jpeg",
         });
+      });
+      data.append("refId", result.data.data.id);
+      data.append("ref", "api::listing.listing");
+      data.append("field", "images");
+
+      return client.post("/upload", data, {
+        onUploadProgress: (progress) =>
+          onUploadProgress(progress.loaded / progress.total),
+      });
     });
 };
 
