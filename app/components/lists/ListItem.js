@@ -5,6 +5,7 @@ import Swipeable from "react-native-gesture-handler/Swipeable";
 
 import Text from "../Text";
 import colors from "../../config/colors";
+import FastImage from "react-native-fast-image";
 
 function ListItem({
   title,
@@ -19,7 +20,7 @@ function ListItem({
       <TouchableHighlight underlayColor={colors.light} onPress={onPress}>
         <View style={styles.container}>
           {IconComponent}
-          {image && <Image style={styles.image} source={image} />}
+          {image && <FastImage style={styles.image} source={image} />}
           <View style={styles.detailsContainer}>
             <Text style={styles.title} numberOfLines={1}>
               {title}
@@ -32,7 +33,7 @@ function ListItem({
           </View>
           <MaterialCommunityIcons
             color={colors.medium}
-            name="chevron-right"
+            name='chevron-right'
             size={25}
           />
         </View>

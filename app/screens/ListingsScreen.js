@@ -12,12 +12,12 @@ import useApi from "../hooks/useApi";
 import { ListingContext } from "../context/ListingContext";
 function ListingsScreen({ navigation }) {
   const { listings, addNewListing } = useContext(ListingContext);
-
   const getListingsApi = useApi(listingsApi.getListings);
+  console.log(listings);
 
   const refreshListings = () => {
-    const apiListings = listingsApi.mapListings(getListingsApi.data);
-    apiListings.forEach((listing) => {
+    getListingsApi.request();
+    getListingsApi.data.data.forEach((listing) => {
       addNewListing(listing);
     });
   };
@@ -39,7 +39,7 @@ function ListingsScreen({ navigation }) {
         <FlatList
           showsVerticalScrollIndicator={false}
           refreshing={getListingsApi.loading}
-          onRefresh={refreshListings}
+          onRefresh={() => refreshListings()}
           data={listings}
           keyExtractor={(listing) => listing.id.toString()}
           renderItem={({ item }) => {
@@ -47,7 +47,7 @@ function ListingsScreen({ navigation }) {
               <Card
                 title={item.title}
                 subTitle={"$" + item.price}
-                imageUrl={item.images[0]}
+                imageUrl={"http://192.168.43.100:1337" + item.images[0]}
                 onPress={() =>
                   navigation.navigate(routes.LISTING_DETAILS, item)
                 }

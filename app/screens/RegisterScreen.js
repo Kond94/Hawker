@@ -1,19 +1,28 @@
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Image } from "react-native";
 import * as Yup from "yup";
 
 import Screen from "../components/Screen";
-import usersApi from "../api/users";
-import authApi from "../api/auth";
-import useAuth from "../auth/useAuth";
+import Text from "../components/Text";
+import Icon from "../components/Icon";
+
 import {
   ErrorMessage,
   Form,
   FormField,
   SubmitButton,
 } from "../components/forms";
-import useApi from "../hooks/useApi";
+import uploadImageFromDevice from "../utility/uploadImageFromDevice";
+import getBlobFromUri from "../utility/getBlobFroUri";
+import manageFileUpload from "../utility/manageFileUpload";
 import ActivityIndicator from "../components/ActivityIndicator";
+import Firebase from "../../config/firebase";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import FastImage from "react-native-fast-image";
+
+const usersCollection = Firebase.firestore().collection("Users");
+const auth = Firebase.auth();
+const firestore = Firebase.firestore();
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required().label("Username"),
@@ -22,37 +31,133 @@ const validationSchema = Yup.object().shape({
 });
 
 function RegisterScreen() {
-  const registerApi = useApi(usersApi.register);
-  const loginApi = useApi(authApi.login);
-  const auth = useAuth();
+  const [imgURI, setImageURI] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [remoteURL, setRemoteURL] = useState("");
+
   const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (userInfo) => {
-    const result = await registerApi.request(userInfo);
+  const handleLocalImageUpload = async () => {
+    const fileURI = await uploadImageFromDevice();
 
-    if (!result.ok) {
-      if (result.data) setError(result.data.error.message);
-      else {
-        setError("An unexpected error occurred.");
-        console.log(result);
-      }
-      return;
+    if (fileURI) {
+      setImageURI(fileURI);
+      console.log("here: ", imgURI);
     }
 
-    const { data: authToken } = await loginApi.request(
-      userInfo.email,
-      userInfo.password
-    );
-    auth.logIn(authToken);
+    await handleCloudImageUpload(fileURI);
+  };
+  const onStart = () => {
+    setIsUploading(true);
+  };
+
+  const onProgress = (progress) => {
+    setProgress(progress);
+  };
+  const onComplete = (fileUrl) => {
+    setRemoteURL(fileUrl);
+    setIsUploading(false);
+    setImageURI(null);
+  };
+
+  const onFail = (error) => {
+    setError(error);
+    setIsUploading(false);
+  };
+  const handleCloudImageUpload = async (fileURI) => {
+    if (!fileURI) return;
+
+    const blob = await getBlobFromUri(fileURI);
+
+    await manageFileUpload(blob, { onStart, onProgress, onComplete, onFail });
+    console.log(remoteURL);
+  };
+
+  const onHandleSignup = async ({ email, password, username }) => {
+    console.log(username);
+    setLoading(true);
+    try {
+      if (email !== "" && password !== "") {
+        await auth
+          .createUserWithEmailAndPassword(email, password)
+          .then((res) =>
+            res.user.updateProfile({
+              displayName: username,
+              photoURL: remoteURL,
+            })
+          )
+          .then((res) => {
+            firestore
+              .collection("Users")
+              .add({
+                name: username,
+                email: email,
+                photoURL: remoteURL,
+              })
+              .then(() => {
+                console.log("User added!");
+              });
+          });
+      }
+    } catch (error) {
+      setLoading(false);
+
+      return setError(error.message);
+    }
+    setLoading(false);
   };
 
   return (
     <>
-      <ActivityIndicator visible={registerApi.loading || loginApi.loading} />
+      <ActivityIndicator visible={loading} />
       <Screen style={styles.container}>
+        <Text style={styles.heading}>
+          Tap the{" "}
+          {remoteURL
+            ? "Image to change it"
+            : "Icon below to upload your picture or logo"}
+        </Text>
+        <View
+          style={{
+            alignSelf: "center",
+            width: 150,
+            height: 150,
+            borderRadius: 75,
+          }}
+        >
+          {remoteURL ? (
+            <TouchableOpacity onPress={handleLocalImageUpload}>
+              <FastImage
+                source={{ uri: remoteURL }}
+                resizeMode='contain'
+                style={{
+                  alignSelf: "center",
+                  width: 150,
+                  height: 150,
+                  borderRadius: 75,
+                }}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={handleLocalImageUpload}>
+              <Icon name='account' backgroundColor='silver' size={150} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {isUploading ? (
+          <View style={styles.uploadProgressContainer}>
+            <Text> Upload {progress} of 100% </Text>
+          </View>
+        ) : (
+          <></>
+        )}
+
         <Form
-          initialValues={{ name: "", email: "", password: "" }}
-          onSubmit={handleSubmit}
+          initialValues={{ username: "", email: "", password: "" }}
+          onSubmit={onHandleSignup}
           validationSchema={validationSchema}
         >
           <ErrorMessage error={error} visible={error} />
@@ -90,6 +195,24 @@ function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  row: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexDirection: "row",
+  },
+  uploadProgressContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heading: {
+    margin: 10,
+    fontSize: 15,
+    fontWeight: "100",
+    alignSelf: "center",
+    textAlign: "center",
   },
 });
 

@@ -18,13 +18,14 @@ import { useState } from "react/cjs/react.development";
 
 function ListingDetailsScreen({ route }) {
   const listing = route.params;
+  console.log(listing.images);
   const [visible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   return (
     <>
       <ImageView
         images={listing.images.map((image) => {
-          return { uri: image };
+          return { uri: "http://192.168.43.100:1337" + image };
         })}
         imageIndex={imageIndex}
         visible={visible}
@@ -36,13 +37,16 @@ function ListingDetailsScreen({ route }) {
       >
         <ScrollView>
           <SliderBox
+            circleLoop
             resizeMethod={"resize"}
             resizeMode='contain'
             autoplay
             imageLoadingColor={colors.primary}
             dotColor={colors.primary}
             ImageComponent={FastImage}
-            images={listing.images}
+            images={listing.images.map(
+              (imageUrl) => "http://192.168.43.100:1337" + imageUrl
+            )}
             onCurrentImagePressed={(index) => {
               setIsVisible(true);
               setImageIndex(index);
@@ -55,7 +59,7 @@ function ListingDetailsScreen({ route }) {
             <View style={styles.userContainer}>
               <ListItem
                 image={require("../assets/mosh.jpg")}
-                title='Mosh Hamedani'
+                title={listing.author.username}
                 subTitle='5 Listings'
               />
             </View>
