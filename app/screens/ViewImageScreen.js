@@ -8,17 +8,17 @@ function ViewImageScreen(props) {
   return (
     <View style={styles.container}>
       <View style={styles.closeIcon}>
-        <MaterialCommunityIcons name="close" color="white" size={35} />
+        <MaterialCommunityIcons name='close' color='white' size={35} />
       </View>
       <View style={styles.deleteIcon}>
         <MaterialCommunityIcons
-          name="trash-can-outline"
-          color="white"
+          name='trash-can-outline'
+          color='white'
           size={35}
         />
       </View>
       <Image
-        resizeMode="contain"
+        resizeMode='contain'
         style={styles.image}
         source={require("../assets/chair.jpg")}
       />

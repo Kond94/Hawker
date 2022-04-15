@@ -132,7 +132,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.kond94.Hawker'
+        applicationId 'com.kond94.hawker'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

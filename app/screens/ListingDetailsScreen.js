@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -14,18 +14,31 @@ import Text from "../components/Text";
 import FastImage from "react-native-fast-image";
 import { SliderBox } from "react-native-image-slider-box";
 import ImageView from "react-native-image-viewing";
-import { useState } from "react/cjs/react.development";
+import Firebase from "../config/firebase";
 
 function ListingDetailsScreen({ route }) {
-  const listing = route.params;
-  console.log(listing.images);
   const [visible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
+  const [user, setUser] = useState(0);
+  const listing = route.params;
+
+  useEffect(() => {
+    const subscriber = Firebase.firestore()
+      .collection("Users")
+      .doc(listing.author)
+      .onSnapshot((documentSnapshot) => {
+        setUser(documentSnapshot.data());
+      });
+    console.log(user);
+    // Stop listening for updates when no longer required
+    return () => subscriber();
+  }, []);
+
   return (
     <>
       <ImageView
         images={listing.images.map((image) => {
-          return { uri: "http://192.168.43.100:1337" + image };
+          return { uri: image };
         })}
         imageIndex={imageIndex}
         visible={visible}
@@ -44,9 +57,7 @@ function ListingDetailsScreen({ route }) {
             imageLoadingColor={colors.primary}
             dotColor={colors.primary}
             ImageComponent={FastImage}
-            images={listing.images.map(
-              (imageUrl) => "http://192.168.43.100:1337" + imageUrl
-            )}
+            images={listing.images.map((imageUrl) => imageUrl)}
             onCurrentImagePressed={(index) => {
               setIsVisible(true);
               setImageIndex(index);
@@ -58,9 +69,9 @@ function ListingDetailsScreen({ route }) {
             <Text style={styles.price}>${listing.price}</Text>
             <View style={styles.userContainer}>
               <ListItem
-                image={require("../assets/mosh.jpg")}
-                title={listing.author.username}
-                subTitle='5 Listings'
+                image={{ uri: user.photoURL }}
+                title={user.name}
+                subTitle='5 other Listings'
               />
             </View>
             <ContactSellerForm listing={listing} />

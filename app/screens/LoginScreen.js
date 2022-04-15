@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Image } from "react-native";
 import * as Yup from "yup";
-import Firebase from "../../config/firebase";
-const auth = Firebase.auth();
+import Firebase from "../config/firebase";
 
 import Screen from "../components/Screen";
 import {
@@ -20,25 +19,21 @@ const validationSchema = Yup.object().shape({
 
 function LoginScreen(props) {
   const [loginFailed, setLoginFailed] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const onLogin = async ({ email, password }) => {
-    setLoading(true);
     try {
       if (email !== "" && password !== "") {
-        await auth.signInWithEmailAndPassword(email, password);
+        await Firebase.auth().signInWithEmailAndPassword(email, password);
       }
     } catch (error) {
-      setLoading(false);
       return setLoginFailed(true);
     }
     setLoginFailed(false);
-    setLoading(false);
   };
 
   return (
     <>
-      <ActivityIndicator visible={loading} />
+      <ActivityIndicator visible={false} />
       <Screen style={styles.container}>
         <Image style={styles.logo} source={require("../assets/logo-red.png")} />
 

@@ -6,7 +6,7 @@ import colors from "../config/colors";
 import Icon from "../components/Icon";
 import routes from "../navigation/routes";
 import Screen from "../components/Screen";
-import Firebase from "../../config/firebase";
+import Firebase from "../config/firebase";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 
 const auth = Firebase.auth();
@@ -30,7 +30,6 @@ const menuItems = [
 
 function AccountScreen({ navigation }) {
   const { user } = useContext(AuthenticatedUserContext);
-  console.log(user);
   const handleSignOut = async () => {
     try {
       await auth.signOut();
@@ -45,7 +44,11 @@ function AccountScreen({ navigation }) {
         <ListItem
           title={user.displayName}
           subTitle={user.email}
-          image={{ uri: user.photoURL }}
+          image={{
+            uri: user.photoURL
+              ? user.photoURL
+              : "https://avatars.dicebear.com/api/:human/:seed.svg",
+          }}
         />
       </View>
       <View style={styles.container}>

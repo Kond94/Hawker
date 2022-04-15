@@ -18,7 +18,11 @@ let Firebase;
 
 if (firebase.apps.length === 0) {
   Firebase = firebase.initializeApp(firebaseConfig);
-  Firebase.firestore().settings({ experimentalForceLongPolling: true });
+  Firebase.firestore().settings({
+    experimentalForceLongPolling: true,
+    timestampsInSnapshot: true,
+    merge: true,
+  });
 }
 
 export default Firebase;

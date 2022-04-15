@@ -2,8 +2,9 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "Hawker",
-    slug: "Hawker",
+    name: "hawker",
+    slug: "hawker",
+    jsEngine: "hermes",
     platforms: ["ios", "android", "web"],
     version: "1.0.0",
     orientation: "portrait",
@@ -25,7 +26,7 @@ export default {
       iosDisplayInForeground: true,
     },
     android: {
-      package: "com.kond94.Hawker",
+      package: "com.kond94.hawker",
     },
     extra: {
       apiKey: process.env.API_KEY,

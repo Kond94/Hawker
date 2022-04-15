@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import * as Yup from "yup";
-
+import { v4 as uuidv4 } from "uuid";
 import {
   Form,
   FormField,
@@ -11,9 +11,14 @@ import {
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import Screen from "../components/Screen";
 import FormImagePicker from "../components/forms/FormImagePicker";
-import listingsApi from "../api/listings";
 import UploadScreen from "./UploadScreen";
-
+import Firebase from "../config/firebase";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
   price: Yup.number().required().min(1).max(10000).label("Price"),
@@ -22,90 +27,87 @@ const validationSchema = Yup.object().shape({
   images: Yup.array().min(1, "Please select at least one image."),
 });
 
-const categories = [
-  {
-    backgroundColor: "#fc5c65",
-    icon: "floor-lamp",
-    label: "Furniture",
-    value: 1,
-  },
-  {
-    backgroundColor: "#fd9644",
-    icon: "car",
-    label: "Cars",
-    value: 2,
-  },
-  {
-    backgroundColor: "#fed330",
-    icon: "camera",
-    label: "Cameras",
-    value: 3,
-  },
-  {
-    backgroundColor: "#26de81",
-    icon: "cards",
-    label: "Games",
-    value: 4,
-  },
-  {
-    backgroundColor: "#2bcbba",
-    icon: "shoe-heel",
-    label: "Clothing",
-    value: 5,
-  },
-  {
-    backgroundColor: "#45aaf2",
-    icon: "basketball",
-    label: "Sports",
-    value: 6,
-  },
-  {
-    backgroundColor: "#4b7bec",
-    icon: "headphones",
-    label: "Movies & Music",
-    value: 7,
-  },
-  {
-    backgroundColor: "#a55eea",
-    icon: "book-open-variant",
-    label: "Books",
-    value: 8,
-  },
-  {
-    backgroundColor: "#778ca3",
-    icon: "application",
-    label: "Other",
-    value: 9,
-  },
-];
-
 function ListingEditScreen() {
-  const [uploadVisible, setUploadVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState();
+  useEffect(() => {
+    const subscriber = Firebase.firestore()
+      .collection("Categories")
+      .onSnapshot((querySnapShot) => {
+        const categories = [];
+        querySnapShot.forEach(async (item) => {
+          const category = {
+            id: item.id,
+            label: item.data().label,
+            icon: item.data().icon,
+            backgroundColor: item.data().backgroundColor,
+          };
+          categories.push(category);
+          setCategories(categories);
+        });
+      });
+
+    // Unsubscribe from events when no longer in use
+    return () => subscriber();
+  }, []);
+
+  async function uploadImageAsync(uri) {
+    // Why are we using XMLHttpRequest? See:
+    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const fileRef = ref(getStorage(), uuidv4());
+
+    const uploadTask = await uploadBytesResumable(fileRef, blob);
+    return await getDownloadURL(fileRef);
+  }
 
   const handleSubmit = async (listing, { resetForm }) => {
-    setProgress(0);
-    setUploadVisible(true);
-    const result = await listingsApi.addListing({ ...listing }, (progress) =>
-      setProgress(progress)
-    );
-
-    if (!result.ok) {
-      console.log(result);
-
-      setUploadVisible(false);
-      return alert("Could not save the listing");
+    let imageUrls = [];
+    setIsUploading(true);
+    setUploadProgress(0);
+    for (const file of listing.images) {
+      const remoteURL = await uploadImageAsync(file);
+      imageUrls.push(remoteURL);
     }
-
-    resetForm();
+    if (imageUrls.length === listing.images.length) {
+      setUploadProgress(1);
+      Firebase.firestore()
+        .collection("Listings")
+        .add({
+          title: listing.title,
+          price: listing.price,
+          description: listing.description,
+          category: listing.category.id,
+          images: imageUrls,
+          author: Firebase.auth().currentUser.uid,
+        })
+        .then(() => {
+          resetForm();
+          setTimeout(() => setIsUploading(false), 500);
+        });
+    }
   };
 
   return (
     <Screen style={styles.container}>
       <UploadScreen
-        onDone={() => setUploadVisible(false)}
-        progress={progress}
-        visible={uploadVisible}
+        progress={uploadProgress}
+        onDone={() => console.log("Upload Done")}
+        visible={isUploading}
       />
       <Form
         initialValues={{

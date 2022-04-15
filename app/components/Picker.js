@@ -45,18 +45,18 @@ function AppPicker({
           )}
 
           <MaterialCommunityIcons
-            name="chevron-down"
+            name='chevron-down'
             size={20}
             color={defaultStyles.colors.medium}
           />
         </View>
       </TouchableWithoutFeedback>
-      <Modal visible={modalVisible} animationType="slide">
+      <Modal visible={modalVisible} animationType='slide'>
         <Screen>
-          <Button title="Close" onPress={() => setModalVisible(false)} />
+          <Button title='Close' onPress={() => setModalVisible(false)} />
           <FlatList
             data={items}
-            keyExtractor={(item) => item.value.toString()}
+            keyExtractor={(item) => item.id.toString()}
             numColumns={numberOfColumns}
             renderItem={({ item }) => (
               <PickerItemComponent

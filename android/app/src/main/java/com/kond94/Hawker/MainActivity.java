@@ -1,4 +1,4 @@
-package com.kond94.Hawker;
+package com.kond94.hawker;
 import expo.modules.devmenu.react.DevMenuAwareReactActivity;
 import android.content.Intent;
 import expo.modules.devlauncher.DevLauncherController;

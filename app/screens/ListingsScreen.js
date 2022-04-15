@@ -1,45 +1,53 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import ActivityIndicator from "../components/ActivityIndicator";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import colors from "../config/colors";
-import listingsApi from "../api/listings";
 import routes from "../navigation/routes";
 import Screen from "../components/Screen";
 import AppText from "../components/Text";
-import useApi from "../hooks/useApi";
-import { ListingContext } from "../context/ListingContext";
+import Firebase from "../config/firebase";
+
 function ListingsScreen({ navigation }) {
-  const { listings, addNewListing } = useContext(ListingContext);
-  const getListingsApi = useApi(listingsApi.getListings);
-  console.log(listings);
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const refreshListings = () => {
-    getListingsApi.request();
-    getListingsApi.data.data.forEach((listing) => {
-      addNewListing(listing);
-    });
-  };
+  useEffect(() => {
+    const subscriber = Firebase.firestore()
+      .collection("Listings")
+      .onSnapshot((querySnapShot) => {
+        const listings = [];
+        querySnapShot.forEach((item) => {
+          listings.push({ id: item.id, ...item.data() });
+        });
+        setListings(listings);
+        setLoading(false);
+      });
 
-  useEffect(async () => {
-    getListingsApi.request();
+    // Unsubscribe from events when no longer in use
+    return () => {
+      subscriber(); // This worked for me
+    };
   }, []);
 
   return (
     <>
-      <ActivityIndicator visible={getListingsApi.loading} />
+      <ActivityIndicator visible={false} />
       <Screen style={styles.screen}>
-        {getListingsApi.error && (
+        {false && (
           <>
             <AppText>Couldn't retrieve the listings.</AppText>
-            <Button title='Retry' onPress={getListingsApi.request} />
+            <Button
+              title='Retry'
+              onPress={() => console.log("Function to get listings")}
+            />
           </>
         )}
         <FlatList
           showsVerticalScrollIndicator={false}
-          refreshing={getListingsApi.loading}
-          onRefresh={() => refreshListings()}
+          refreshing={loading}
+          onRefresh={() => console.log("Pulled To Refresh")}
           data={listings}
           keyExtractor={(listing) => listing.id.toString()}
           renderItem={({ item }) => {
@@ -47,7 +55,7 @@ function ListingsScreen({ navigation }) {
               <Card
                 title={item.title}
                 subTitle={"$" + item.price}
-                imageUrl={"http://192.168.43.100:1337" + item.images[0]}
+                imageUrl={item.images[0]}
                 onPress={() =>
                   navigation.navigate(routes.LISTING_DETAILS, item)
                 }

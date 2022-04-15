@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AppLoading from "expo-app-loading";
 
-import Firebase from "../../config/firebase";
+import Firebase from "../config/firebase";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import AuthNavigator from "./AuthNavigator";
 import AppNavigator from "./AppNavigator";
@@ -11,6 +11,7 @@ const auth = Firebase.auth();
 
 export default function RootNavigator() {
   const { user, setUser } = useContext(AuthenticatedUserContext);
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function RootNavigator() {
             : setUser(null));
           setIsLoading(false);
         } catch (error) {
-          console.log(error);
+          console.log("ehe user err kuno", error);
         }
       }
     );
