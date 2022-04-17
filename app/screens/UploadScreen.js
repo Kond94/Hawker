@@ -8,21 +8,20 @@ import AppText from "../components/Text";
 
 function UploadScreen({ onDone, progress = 0, visible = false }) {
   return (
-    <Modal visible={visible}>
+    <Modal visible={visible} transparent>
       <View style={styles.container}>
         {progress === 0 ? (
           <>
-            <AppText>Uploading...</AppText>
             <LottieView
               autoPlay
               loop={true}
               source={require("../assets/animations/uploading.json")}
               style={styles.animation}
             />
+            {/* <AppText>Uploading...</AppText> */}
           </>
         ) : (
           <>
-            <AppText>Successful</AppText>
             <LottieView
               autoPlay
               loop={false}
@@ -30,6 +29,7 @@ function UploadScreen({ onDone, progress = 0, visible = false }) {
               source={require("../assets/animations/done.json")}
               style={styles.animation}
             />
+            <AppText>Successful</AppText>
           </>
         )}
       </View>
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     justifyContent: "center",
+    backgroundColor: "transparent",
   },
 });
 

@@ -1,8 +1,9 @@
-import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import "firebase/compat/storage";
+
 import Constants from "expo-constants";
+import firebase from "firebase/compat/app";
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -23,6 +24,7 @@ if (firebase.apps.length === 0) {
     timestampsInSnapshot: true,
     merge: true,
   });
+  Firebase.firestore().enablePersistence();
 }
 
 export default Firebase;

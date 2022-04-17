@@ -1,39 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
 import AppLoading from "expo-app-loading";
-
-import Firebase from "../config/firebase";
-import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
-import AuthNavigator from "./AuthNavigator";
 import AppNavigator from "./AppNavigator";
+import AuthNavigator from "./AuthNavigator";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import Firebase from "../config/firebase";
+import { NavigationContainer } from "@react-navigation/native";
 
-const auth = Firebase.auth();
+const auth = getAuth(Firebase);
 
 export default function RootNavigator() {
+  // Set an initializing state whilst Firebase connects
+  const [initializing, setInitializing] = useState(true);
   const { user, setUser } = useContext(AuthenticatedUserContext);
 
-  const [isLoading, setIsLoading] = useState(true);
+  function authStateChanged(user) {
+    setUser(user);
+    if (initializing) setInitializing(false);
+  }
 
   useEffect(() => {
-    // onAuthStateChanged returns an unsubscriber
-    const unsubscribeAuth = auth.onAuthStateChanged(
-      async (authenticatedUser) => {
-        try {
-          await (authenticatedUser
-            ? setUser(authenticatedUser)
-            : setUser(null));
-          setIsLoading(false);
-        } catch (error) {
-          console.log("ehe user err kuno", error);
-        }
-      }
-    );
-
-    // unsubscribe auth listener on unmount
-    return unsubscribeAuth;
+    const subscriber = auth.onAuthStateChanged(authStateChanged);
+    return subscriber; // unsubscribe on unmount
   }, []);
 
-  if (isLoading) {
+  if (initializing) {
     return (
       <AppLoading
         // startAsync={restoreUser}

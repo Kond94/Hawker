@@ -1,6 +1,6 @@
-import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
+import React from "react";
 import colors from "../config/colors";
 
 function AppButton({ title, onPress, color = "primary" }) {
@@ -17,7 +17,7 @@ function AppButton({ title, onPress, color = "primary" }) {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: colors.primary,
-    borderRadius: 25,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
     padding: 15,

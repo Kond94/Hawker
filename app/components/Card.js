@@ -1,7 +1,7 @@
-import React from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
-import FastImage from "react-native-fast-image";
+import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 
+import FastImage from "react-native-fast-image";
+import React from "react";
 import Text from "./Text";
 import colors from "../config/colors";
 
@@ -31,7 +31,7 @@ function Card({ title, subTitle, imageUrl, onPress }) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 15,
-    backgroundColor: colors.white,
+    backgroundColor: colors.light,
     marginBottom: 20,
     overflow: "hidden",
   },
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   subTitle: {
-    color: colors.secondary,
+    color: colors.medium,
     fontWeight: "bold",
   },
   title: {

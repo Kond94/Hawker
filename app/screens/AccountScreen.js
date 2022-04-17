@@ -1,13 +1,14 @@
-import React, { useContext } from "react";
-import { StyleSheet, View, FlatList } from "react-native";
-
+import { FlatList, StyleSheet, View } from "react-native";
 import { ListItem, ListItemSeparator } from "../components/lists";
-import colors from "../config/colors";
-import Icon from "../components/Icon";
-import routes from "../navigation/routes";
-import Screen from "../components/Screen";
-import Firebase from "../config/firebase";
+import React, { useContext } from "react";
+
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import Firebase from "../config/firebase";
+import Icon from "../components/Icon";
+import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import Screen from "../components/Screen";
+import colors from "../config/colors";
+import routes from "../navigation/routes";
 
 const auth = Firebase.auth();
 const menuItems = [
@@ -39,49 +40,55 @@ function AccountScreen({ navigation }) {
   };
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.container}>
+    <ImageBackground
+      blurRadius={0.5}
+      style={{ flex: 1 }}
+      source={require("../assets/app-background.png")}
+    >
+      <Screen style={styles.screen}>
+        <View style={styles.container}>
+          <ListItem
+            title={user.displayName}
+            subTitle={user.email}
+            image={{
+              uri: user.photoURL
+                ? user.photoURL
+                : "https://avatars.dicebear.com/api/:human/:seed.svg",
+            }}
+          />
+        </View>
+        <View style={styles.container}>
+          <FlatList
+            data={menuItems}
+            keyExtractor={(menuItem) => menuItem.title}
+            ItemSeparatorComponent={ListItemSeparator}
+            renderItem={({ item }) => (
+              <ListItem
+                title={item.title}
+                IconComponent={
+                  <Icon
+                    name={item.icon.name}
+                    backgroundColor={item.icon.backgroundColor}
+                  />
+                }
+                onPress={() => navigation.navigate(item.targetScreen)}
+              />
+            )}
+          />
+        </View>
         <ListItem
-          title={user.displayName}
-          subTitle={user.email}
-          image={{
-            uri: user.photoURL
-              ? user.photoURL
-              : "https://avatars.dicebear.com/api/:human/:seed.svg",
-          }}
+          title='Log Out'
+          IconComponent={<Icon name='logout' backgroundColor={colors.danger} />}
+          onPress={handleSignOut}
         />
-      </View>
-      <View style={styles.container}>
-        <FlatList
-          data={menuItems}
-          keyExtractor={(menuItem) => menuItem.title}
-          ItemSeparatorComponent={ListItemSeparator}
-          renderItem={({ item }) => (
-            <ListItem
-              title={item.title}
-              IconComponent={
-                <Icon
-                  name={item.icon.name}
-                  backgroundColor={item.icon.backgroundColor}
-                />
-              }
-              onPress={() => navigation.navigate(item.targetScreen)}
-            />
-          )}
-        />
-      </View>
-      <ListItem
-        title='Log Out'
-        IconComponent={<Icon name='logout' backgroundColor='#ffe66d' />}
-        onPress={handleSignOut}
-      />
-    </Screen>
+      </Screen>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: colors.light,
+    backgroundColor: "transparent",
   },
   container: {
     marginVertical: 20,

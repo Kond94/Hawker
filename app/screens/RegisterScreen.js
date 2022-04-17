@@ -1,11 +1,4 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Image } from "react-native";
 import * as Yup from "yup";
-import { v4 as uuidv4 } from "uuid";
-
-import Screen from "../components/Screen";
-import Text from "../components/Text";
-import Icon from "../components/Icon";
 
 import {
   ErrorMessage,
@@ -13,63 +6,65 @@ import {
   FormField,
   SubmitButton,
 } from "../components/forms";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+
 import ActivityIndicator from "../components/ActivityIndicator";
 import Firebase from "../config/firebase";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import FormCheckBox from "../components/forms/FormCheckBox";
+import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageInput from "../components/ImageInput";
+import Screen from "../components/Screen";
+import StoreForm from "../components/forms/StoreForm";
+import Text from "../components/Text";
 import UploadScreen from "./UploadScreen";
+import uploadFile from "../utility/uploadFile";
+
 const validationSchema = Yup.object().shape({
   username: Yup.string().required().label("Username"),
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(4).label("Password"),
+  hasStore: Yup.boolean().required(),
 });
 
 function RegisterScreen() {
-  const [remoteURL, setRemoteURL] = useState();
+  const [profilePhotoURL, setProfilePhotoURL] = useState(null);
+  const [storePhotoURL, setStorePhotoURL] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState();
   const [error, setError] = useState();
-
-  async function uploadImageAsync(uri) {
-    if (uri === null) return setRemoteURL(null);
+  const [loading, setLoading] = useState(false);
+  async function uploadProfilePhoto(uri) {
+    if (uri === null) return setProfilePhotoURL(null);
     setIsUploading(true);
     setUploadProgress(0);
-    // Why are we using XMLHttpRequest? See:
-    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
-
-    const fileRef = ref(getStorage(), "/listing_images/" + uuidv4());
-
-    const uploadTask = await uploadBytesResumable(fileRef, blob);
-    // We're done with the blob, close and release it
+    setProfilePhotoURL(await uploadFile(uri));
     setUploadProgress(1);
-
-    setRemoteURL(await getDownloadURL(fileRef));
-
-    return setTimeout(() => setIsUploading(false), 500);
+    setIsUploading(false);
   }
 
-  const onHandleSignup = async ({ email, password, username }) => {
+  async function uploadStorePhoto(uri) {
+    if (uri === null) return setStorePhotoURL(null);
+    setIsUploading(true);
+    setUploadProgress(0);
+    setStorePhotoURL(await uploadFile(uri));
+    setUploadProgress(1);
+    setIsUploading(false);
+  }
+
+  const onHandleSignup = async ({
+    email,
+    password,
+    username,
+    hasStore,
+    storeName,
+    storeDescription,
+  }) => {
     try {
       var uid = "";
       if (email !== "" && password !== "") {
+        setLoading(true);
+
         await Firebase.auth()
           .createUserWithEmailAndPassword(email, password)
           .then((res) => {
@@ -77,18 +72,29 @@ function RegisterScreen() {
             res.user
               .updateProfile({
                 displayName: username,
-                photoURL: remoteURL,
+                photoURL: profilePhotoURL,
               })
-              .then((res) =>
+              .then((res) => {
                 Firebase.firestore()
                   .collection("Users")
                   .doc(uid)
                   .set({
                     name: username,
                     email: email,
-                    photoURL: remoteURL ? remoteURL : "",
-                  })
-              );
+                    hasStore: hasStore,
+                    photoURL: profilePhotoURL ? profilePhotoURL : "",
+                  });
+
+                if (hasStore)
+                  Firebase.firestore()
+                    .collection("Stores")
+                    .add({
+                      storeName,
+                      storeDescription,
+                      storeLogo: storePhotoURL ? storePhotoURL : "",
+                      storeOwner: uid,
+                    });
+              });
           });
       }
     } catch (error) {
@@ -96,67 +102,123 @@ function RegisterScreen() {
 
       return setError(error.message);
     }
+    setLoading(false);
   };
 
   return (
     <>
-      <UploadScreen
-        progress={uploadProgress}
-        onDone={() => console.log("Done")}
-        visible={isUploading}
-      />
-      <ActivityIndicator visible={false} />
-      <Screen style={styles.container}>
-        <Text style={styles.heading}>
-          Tap the
-          {remoteURL
-            ? " Image to change it"
-            : " Icon below to upload your picture or logo"}
-        </Text>
-        <View
-          style={{
-            alignSelf: "center",
-            width: 150,
-            height: 150,
-            borderRadius: 75,
-          }}
-        >
-          <ImageInput imageUri={remoteURL} onChangeImage={uploadImageAsync} />
-        </View>
+      <ImageBackground
+        blurRadius={0.5}
+        style={{ flex: 1 }}
+        source={require("../assets/app-background.png")}
+      >
+        <UploadScreen
+          progress={uploadProgress}
+          onDone={() => console.log("Done")}
+          visible={isUploading}
+        />
+        {loading && <ActivityIndicator visible={loading} />}
+        <Screen style={styles.container}>
+          <ScrollView>
+            <Text style={styles.heading}>
+              Tap the
+              {profilePhotoURL
+                ? " Image to change it"
+                : " Icons below to upload a display picture"}
+            </Text>
+            <View
+              style={{
+                alignSelf: "center",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 120,
+                borderRadius: 75,
+              }}
+            >
+              <ImageInput
+                imageURI={profilePhotoURL}
+                setImageURI={uploadProfilePhoto}
+              />
+            </View>
 
-        <Form
-          initialValues={{ username: "", email: "", password: "" }}
-          onSubmit={onHandleSignup}
-          validationSchema={validationSchema}
-        >
-          <ErrorMessage error={error} visible={error} />
-          <FormField
-            autoCorrect={false}
-            icon='account'
-            name='username'
-            placeholder='Username'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='email'
-            keyboardType='email-address'
-            name='email'
-            placeholder='Email'
-            textContentType='emailAddress'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='lock'
-            name='password'
-            placeholder='Password'
-            secureTextEntry
-            textContentType='password'
-          />
-          <SubmitButton title='Register' />
-        </Form>
-      </Screen>
+            <Form
+              initialValues={{
+                username: "",
+                email: "",
+                password: "",
+                hasStore: false,
+              }}
+              onSubmit={onHandleSignup}
+              validationSchema={validationSchema}
+            >
+              <ErrorMessage error={error} visible={error} />
+
+              <FormField
+                autoCorrect={false}
+                icon='account'
+                name='username'
+                placeholder='Username'
+              />
+              <FormField
+                autoCapitalize='none'
+                autoCorrect={false}
+                icon='email'
+                keyboardType='email-address'
+                name='email'
+                placeholder='Email'
+                textContentType='emailAddress'
+              />
+              <FormField
+                autoCapitalize='none'
+                autoCorrect={false}
+                icon='lock'
+                name='password'
+                placeholder='Password'
+                secureTextEntry
+                textContentType='password'
+              />
+              <FormCheckBox name='hasStore' text='I have a Store/Brand' />
+
+              <StoreForm>
+                <Text style={styles.heading}>
+                  Tap the
+                  {storePhotoURL
+                    ? " Logo to change it"
+                    : " Icons below to upload your store's Logo"}
+                </Text>
+                <View
+                  style={{
+                    alignSelf: "center",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 120,
+                    borderRadius: 75,
+                  }}
+                >
+                  <ImageInput
+                    imageURI={storePhotoURL}
+                    setImageURI={uploadStorePhoto}
+                  />
+                </View>
+                <FormField
+                  autoCorrect={false}
+                  icon='store'
+                  name='storeName'
+                  placeholder='Store Name'
+                />
+                <FormField
+                  maxLength={255}
+                  multiline
+                  name='storeDescription'
+                  numberOfLines={3}
+                  placeholder='Store Description'
+                />
+              </StoreForm>
+              <SubmitButton title='Register' />
+            </Form>
+          </ScrollView>
+        </Screen>
+      </ImageBackground>
     </>
   );
 }

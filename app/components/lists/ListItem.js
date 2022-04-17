@@ -1,11 +1,11 @@
-import React from "react";
-import { View, StyleSheet, Image, TouchableHighlight } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Swipeable from "react-native-gesture-handler/Swipeable";
+import { Image, StyleSheet, TouchableHighlight, View } from "react-native";
 
+import FastImage from "react-native-fast-image";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import Text from "../Text";
 import colors from "../../config/colors";
-import FastImage from "react-native-fast-image";
 
 function ListItem({
   title,
@@ -32,7 +32,7 @@ function ListItem({
             )}
           </View>
           <MaterialCommunityIcons
-            color={colors.medium}
+            color={colors.danger}
             name='chevron-right'
             size={25}
           />

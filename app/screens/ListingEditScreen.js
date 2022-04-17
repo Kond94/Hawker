@@ -1,24 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet } from "react-native";
 import * as Yup from "yup";
-import { v4 as uuidv4 } from "uuid";
+
 import {
   Form,
   FormField,
   FormPicker as Picker,
   SubmitButton,
 } from "../components/forms";
-import CategoryPickerItem from "../components/CategoryPickerItem";
-import Screen from "../components/Screen";
-import FormImagePicker from "../components/forms/FormImagePicker";
-import UploadScreen from "./UploadScreen";
-import Firebase from "../config/firebase";
+import React, { useEffect, useState } from "react";
 import {
+  getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
-  getDownloadURL,
 } from "firebase/storage";
+
+import ActivityIndicator from "../components/ActivityIndicator";
+import CategoryPickerItem from "../components/CategoryPickerItem";
+import Firebase from "../config/firebase";
+import FormImagePicker from "../components/forms/FormImagePicker";
+import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import Screen from "../components/Screen";
+import { StyleSheet } from "react-native";
+import UploadScreen from "./UploadScreen";
+import { v4 as uuidv4 } from "uuid";
+
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
   price: Yup.number().required().min(1).max(10000).label("Price"),
@@ -29,6 +34,7 @@ const validationSchema = Yup.object().shape({
 
 function ListingEditScreen() {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState();
   useEffect(() => {
@@ -83,76 +89,84 @@ function ListingEditScreen() {
       const remoteURL = await uploadImageAsync(file);
       imageUrls.push(remoteURL);
     }
+    setTimeout(() => setIsUploading(false), 500);
+
     if (imageUrls.length === listing.images.length) {
+      setLoading(true);
       setUploadProgress(1);
-      Firebase.firestore()
-        .collection("Listings")
-        .add({
-          title: listing.title,
-          price: listing.price,
-          description: listing.description,
-          category: listing.category.id,
-          images: imageUrls,
-          author: Firebase.auth().currentUser.uid,
-        })
-        .then(() => {
-          resetForm();
-          setTimeout(() => setIsUploading(false), 500);
-        });
+      await Firebase.firestore().collection("Listings").add({
+        title: listing.title,
+        price: listing.price,
+        description: listing.description,
+        category: listing.category.id,
+        images: imageUrls,
+        author: Firebase.auth().currentUser.uid,
+      });
+
+      resetForm();
+      setLoading(false);
     }
   };
 
   return (
-    <Screen style={styles.container}>
-      <UploadScreen
-        progress={uploadProgress}
-        onDone={() => console.log("Upload Done")}
-        visible={isUploading}
-      />
-      <Form
-        initialValues={{
-          title: "",
-          price: "",
-          description: "",
-          category: null,
-          images: [],
-        }}
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-      >
-        <FormImagePicker name='images' />
-        <FormField maxLength={255} name='title' placeholder='Title' />
-        <FormField
-          keyboardType='numeric'
-          maxLength={8}
-          name='price'
-          placeholder='Price'
-          width={120}
+    <ImageBackground
+      blurRadius={0.5}
+      style={{ flex: 1 }}
+      source={require("../assets/app-background.png")}
+    >
+      {loading && <ActivityIndicator visible={loading} />}
+      <Screen style={styles.container}>
+        <UploadScreen
+          progress={uploadProgress}
+          onDone={() => console.log("Upload Done")}
+          visible={isUploading}
         />
-        <Picker
-          items={categories}
-          name='category'
-          numberOfColumns={3}
-          PickerItemComponent={CategoryPickerItem}
-          placeholder='Category'
-          width='50%'
-        />
-        <FormField
-          maxLength={255}
-          multiline
-          name='description'
-          numberOfLines={3}
-          placeholder='Description'
-        />
-        <SubmitButton title='Post' />
-      </Form>
-    </Screen>
+        <Form
+          initialValues={{
+            title: "",
+            price: "",
+            description: "",
+            category: null,
+            images: [],
+          }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          <FormImagePicker name='images' />
+          <FormField maxLength={255} name='title' placeholder='Title' />
+          <FormField
+            keyboardType='numeric'
+            maxLength={8}
+            name='price'
+            placeholder='Price'
+            width={120}
+          />
+          <Picker
+            items={categories}
+            name='category'
+            numberOfColumns={3}
+            PickerItemComponent={CategoryPickerItem}
+            placeholder='Category'
+            width='50%'
+          />
+          <FormField
+            maxLength={255}
+            multiline
+            name='description'
+            numberOfLines={3}
+            placeholder='Description'
+          />
+          <SubmitButton title='Post' />
+        </Form>
+      </Screen>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+    backgroundColor: "transparent",
   },
 });
 export default ListingEditScreen;

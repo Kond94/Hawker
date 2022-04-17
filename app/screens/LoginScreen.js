@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { StyleSheet, Image } from "react-native";
 import * as Yup from "yup";
-import Firebase from "../config/firebase";
 
-import Screen from "../components/Screen";
 import {
   ErrorMessage,
   Form,
   FormField,
   SubmitButton,
 } from "../components/forms";
+import { Image, StyleSheet } from "react-native";
+import React, { useState } from "react";
+
 import ActivityIndicator from "../components/ActivityIndicator";
+import Firebase from "../config/firebase";
+import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import Screen from "../components/Screen";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -19,65 +21,87 @@ const validationSchema = Yup.object().shape({
 
 function LoginScreen(props) {
   const [loginFailed, setLoginFailed] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onLogin = async ({ email, password }) => {
-    try {
-      if (email !== "" && password !== "") {
-        await Firebase.auth().signInWithEmailAndPassword(email, password);
-      }
-    } catch (error) {
-      return setLoginFailed(true);
+    setLoading(true);
+
+    if (email !== "" && password !== "") {
+      setLoginFailed(false);
+
+      await Firebase.auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(() => {
+          setLoginFailed(false);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
+          return setLoginFailed(true);
+        });
     }
-    setLoginFailed(false);
   };
 
   return (
     <>
-      <ActivityIndicator visible={false} />
-      <Screen style={styles.container}>
-        <Image style={styles.logo} source={require("../assets/logo-red.png")} />
-
-        <Form
-          initialValues={{ email: "", password: "" }}
-          onSubmit={onLogin}
-          validationSchema={validationSchema}
-        >
-          <ErrorMessage
-            error='Invalid email and/or password.'
-            visible={loginFailed}
+      <ImageBackground
+        blurRadius={0.5}
+        style={{ flex: 1 }}
+        source={require("../assets/app-background.png")}
+      >
+        {loading && <ActivityIndicator visible={loading} />}
+        <Screen style={styles.container}>
+          <Image
+            style={styles.logo}
+            source={require("../assets/logo-primary.png")}
           />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='email'
-            keyboardType='email-address'
-            name='email'
-            placeholder='Email'
-            textContentType='emailAddress'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='lock'
-            name='password'
-            placeholder='Password'
-            secureTextEntry
-            textContentType='password'
-          />
-          <SubmitButton title='Login' />
-        </Form>
-      </Screen>
+          <Form
+            initialValues={{ email: "", password: "" }}
+            onSubmit={onLogin}
+            validationSchema={validationSchema}
+          >
+            <ErrorMessage
+              error='Invalid email and/or password.'
+              visible={loginFailed}
+            />
+            <FormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='email'
+              keyboardType='email-address'
+              name='email'
+              placeholder='Email'
+              textContentType='emailAddress'
+            />
+            <FormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='lock'
+              name='password'
+              placeholder='Password'
+              secureTextEntry
+              textContentType='password'
+            />
+            <SubmitButton title='Login' />
+          </Form>
+        </Screen>
+      </ImageBackground>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
   container: {
     padding: 10,
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 110,
+    height: 110,
     alignSelf: "center",
     marginTop: 50,
     marginBottom: 20,

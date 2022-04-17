@@ -12,7 +12,7 @@ export default {
     splash: {
       image: "./app/assets/splash.png",
       resizeMode: "cover",
-      backgroundColor: "#e63c4b",
+      backgroundColor: "#FFF",
     },
     updates: {
       fallbackToCacheTimeout: 0,
@@ -20,6 +20,12 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./app/assets/adaptive-icon.png",
+        backgroundColor: "#FFF",
+      },
     },
     description: "A marketplace for selling the stuff you don't need anymore.",
     notification: {

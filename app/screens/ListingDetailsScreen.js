@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
 import {
-  View,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
+import React, { useEffect, useState } from "react";
 
-import colors from "../config/colors";
 import ContactSellerForm from "../components/ContactSellerForm";
-import ListItem from "../components/lists/ListItem";
-import Text from "../components/Text";
 import FastImage from "react-native-fast-image";
-import { SliderBox } from "react-native-image-slider-box";
-import ImageView from "react-native-image-viewing";
 import Firebase from "../config/firebase";
+import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import ImageView from "react-native-image-viewing";
+import ListItem from "../components/lists/ListItem";
+import { SliderBox } from "react-native-image-slider-box";
+import Text from "../components/Text";
+import colors from "../config/colors";
 
 function ListingDetailsScreen({ route }) {
   const [visible, setIsVisible] = useState(false);
@@ -36,48 +37,55 @@ function ListingDetailsScreen({ route }) {
 
   return (
     <>
-      <ImageView
-        images={listing.images.map((image) => {
-          return { uri: image };
-        })}
-        imageIndex={imageIndex}
-        visible={visible}
-        onRequestClose={() => setIsVisible(false)}
-      />
-      <KeyboardAvoidingView
-        behavior='position'
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 100}
+      <ImageBackground
+        blurRadius={0.5}
+        style={{ flex: 1 }}
+        source={require("../assets/app-background.png")}
       >
-        <ScrollView>
-          <SliderBox
-            circleLoop
-            resizeMethod={"resize"}
-            resizeMode='contain'
-            autoplay
-            imageLoadingColor={colors.primary}
-            dotColor={colors.primary}
-            ImageComponent={FastImage}
-            images={listing.images.map((imageUrl) => imageUrl)}
-            onCurrentImagePressed={(index) => {
-              setIsVisible(true);
-              setImageIndex(index);
-            }}
+        <View style={styles.userContainer}>
+          <ListItem
+            image={{ uri: user.photoURL }}
+            title={user.name}
+            subTitle='5 other Listings'
           />
+        </View>
+        <ImageView
+          images={listing.images.map((image) => {
+            return { uri: image };
+          })}
+          imageIndex={imageIndex}
+          visible={visible}
+          onRequestClose={() => setIsVisible(false)}
+        />
+        <KeyboardAvoidingView
+          behavior='position'
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 100}
+        >
+          <ScrollView>
+            <SliderBox
+              circleLoop
+              resizeMethod={"resize"}
+              resizeMode='contain'
+              autoplay
+              imageLoadingColor={colors.primary}
+              dotColor={colors.primary}
+              ImageComponent={FastImage}
+              images={listing.images.map((imageUrl) => imageUrl)}
+              onCurrentImagePressed={(index) => {
+                setIsVisible(true);
+                setImageIndex(index);
+              }}
+            />
 
-          <View style={styles.detailsContainer}>
-            <Text style={styles.title}>{listing.title}</Text>
-            <Text style={styles.price}>${listing.price}</Text>
-            <View style={styles.userContainer}>
-              <ListItem
-                image={{ uri: user.photoURL }}
-                title={user.name}
-                subTitle='5 other Listings'
-              />
+            <View style={styles.detailsContainer}>
+              <Text style={styles.title}>{listing.title}</Text>
+              <Text style={styles.price}>${listing.price}</Text>
+
+              <ContactSellerForm listing={listing} />
             </View>
-            <ContactSellerForm listing={listing} />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </>
   );
 }
@@ -101,7 +109,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   userContainer: {
-    marginVertical: 40,
+    marginVertical: 10,
   },
 });
 
