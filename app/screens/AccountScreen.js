@@ -3,14 +3,13 @@ import { ListItem, ListItemSeparator } from "../components/lists";
 import React, { useContext } from "react";
 
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
-import Firebase from "../config/firebase";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import Screen from "../components/Screen";
+import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 
-const auth = Firebase.auth();
 const menuItems = [
   {
     title: "My Listings",
@@ -30,13 +29,12 @@ const menuItems = [
 ];
 
 function AccountScreen({ navigation }) {
-  const { user } = useContext(AuthenticatedUserContext);
+  const user = auth().currentUser;
+  console.log(user);
   const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-    } catch (error) {
-      console.log(error);
-    }
+    auth()
+      .signOut()
+      .then(() => console.log("User signed out!"));
   };
 
   return (

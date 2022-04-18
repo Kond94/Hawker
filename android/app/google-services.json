@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "62268816372",
+    "firebase_url": "https://hawker-4d0a7-default-rtdb.firebaseio.com",
+    "project_id": "hawker-4d0a7",
+    "storage_bucket": "hawker-4d0a7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62268816372:android:63581a0846127b5b3957a1",
+        "android_client_info": {
+          "package_name": "com.kond94.hawker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62268816372-pehs9s1h3im2q4pi6i259hrbk2qvilkr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxvMEKHyN72qTsV3fL8naAaXXxL5Lpp6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "62268816372-pehs9s1h3im2q4pi6i259hrbk2qvilkr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

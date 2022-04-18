@@ -9,30 +9,29 @@ import React, { useEffect, useState } from "react";
 
 import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
-import Firebase from "../config/firebase";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageView from "react-native-image-viewing";
 import ListItem from "../components/lists/ListItem";
 import { SliderBox } from "react-native-image-slider-box";
 import Text from "../components/Text";
 import colors from "../config/colors";
+import firestore from "@react-native-firebase/firestore";
 
 function ListingDetailsScreen({ route }) {
   const [visible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
-  const [user, setUser] = useState(0);
+  const [author, setAuthor] = useState();
   const listing = route.params;
 
   useEffect(() => {
-    const subscriber = Firebase.firestore()
+    const subscriber = firestore()
       .collection("Users")
       .doc(listing.author)
       .onSnapshot((documentSnapshot) => {
-        setUser(documentSnapshot.data());
+        setAuthor(documentSnapshot.data());
       });
-    console.log(user);
     // Stop listening for updates when no longer required
-    return () => subscriber();
+    subscriber;
   }, []);
 
   return (
@@ -44,8 +43,12 @@ function ListingDetailsScreen({ route }) {
       >
         <View style={styles.userContainer}>
           <ListItem
-            image={{ uri: user.photoURL }}
-            title={user.name}
+            image={{
+              uri: author.photoURL
+                ? author.photoURL
+                : "../assets/avatar-placeholder.png",
+            }}
+            title={author.name}
             subTitle='5 other Listings'
           />
         </View>

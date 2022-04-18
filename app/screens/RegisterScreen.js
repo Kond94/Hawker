@@ -10,15 +10,16 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import ActivityIndicator from "../components/ActivityIndicator";
-import Firebase from "../config/firebase";
 import FormCheckBox from "../components/forms/FormCheckBox";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageInput from "../components/ImageInput";
 import Screen from "../components/Screen";
 import StoreForm from "../components/forms/StoreForm";
 import Text from "../components/Text";
+import UploadFile from "../utility/UploadFile";
 import UploadScreen from "./UploadScreen";
-import uploadFile from "../utility/uploadFile";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required().label("Username"),
@@ -31,25 +32,23 @@ function RegisterScreen() {
   const [profilePhotoURL, setProfilePhotoURL] = useState(null);
   const [storePhotoURL, setStorePhotoURL] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState();
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
+
   async function uploadProfilePhoto(uri) {
     if (uri === null) return setProfilePhotoURL(null);
-    setIsUploading(true);
-    setUploadProgress(0);
-    setProfilePhotoURL(await uploadFile(uri));
-    setUploadProgress(1);
-    setIsUploading(false);
+    await UploadFile(
+      uri,
+      setProfilePhotoURL,
+      setUploadProgress,
+      setIsUploading
+    );
   }
 
   async function uploadStorePhoto(uri) {
     if (uri === null) return setStorePhotoURL(null);
-    setIsUploading(true);
-    setUploadProgress(0);
-    setStorePhotoURL(await uploadFile(uri));
-    setUploadProgress(1);
-    setIsUploading(false);
+    await UploadFile(uri, setStorePhotoURL, setUploadProgress, setIsUploading);
   }
 
   const onHandleSignup = async ({
@@ -65,7 +64,7 @@ function RegisterScreen() {
       if (email !== "" && password !== "") {
         setLoading(true);
 
-        await Firebase.auth()
+        await auth()
           .createUserWithEmailAndPassword(email, password)
           .then((res) => {
             uid = res.user.uid;
@@ -75,7 +74,7 @@ function RegisterScreen() {
                 photoURL: profilePhotoURL,
               })
               .then((res) => {
-                Firebase.firestore()
+                firestore()
                   .collection("Users")
                   .doc(uid)
                   .set({
@@ -86,7 +85,7 @@ function RegisterScreen() {
                   });
 
                 if (hasStore)
-                  Firebase.firestore()
+                  firestore()
                     .collection("Stores")
                     .add({
                       storeName,
@@ -114,7 +113,7 @@ function RegisterScreen() {
       >
         <UploadScreen
           progress={uploadProgress}
-          onDone={() => console.log("Done")}
+          onDone={() => console.log("Done Uploading Image")}
           visible={isUploading}
         />
         {loading && <ActivityIndicator visible={loading} />}

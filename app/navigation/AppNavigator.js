@@ -1,19 +1,18 @@
 import AccountNavigator from "./AccountNavigator";
 import FeedNavigator from "./FeedNavigator";
-import Firebase from "../config/firebase";
 import ListingEditScreen from "../screens/ListingEditScreen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import NewListingButton from "./NewListingButton";
 import React from "react";
+import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import routes from "./routes";
 
 const Tab = createBottomTabNavigator();
-const auth = Firebase.auth();
 
 const AppNavigator = () => {
-  const currentUser = auth.currentUser;
+  const user = auth().currentUser;
   return (
     <Tab.Navigator
       tabBarOptions={{ showLabel: false, activeTintColor: colors.primary }}
@@ -27,7 +26,7 @@ const AppNavigator = () => {
           ),
         }}
       />
-      {!currentUser.isAnonymous && (
+      {!user.isAnonymous && (
         <>
           <Tab.Screen
             name='ListingEdit'

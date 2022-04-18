@@ -10,9 +10,9 @@ import { Image, StyleSheet } from "react-native";
 import React, { useState } from "react";
 
 import ActivityIndicator from "../components/ActivityIndicator";
-import Firebase from "../config/firebase";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import Screen from "../components/Screen";
+import auth from "@react-native-firebase/auth";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -29,7 +29,7 @@ function LoginScreen(props) {
     if (email !== "" && password !== "") {
       setLoginFailed(false);
 
-      await Firebase.auth()
+      await auth()
         .signInWithEmailAndPassword(email, password)
         .then(() => {
           setLoginFailed(false);

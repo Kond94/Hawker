@@ -6,23 +6,19 @@ import {
   FormPicker as Picker,
   SubmitButton,
 } from "../components/forms";
-import React, { useEffect, useState } from "react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
+import React, { useContext, useEffect, useState } from "react";
 
 import ActivityIndicator from "../components/ActivityIndicator";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
-import Firebase from "../config/firebase";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import Screen from "../components/Screen";
 import { StyleSheet } from "react-native";
+import UploadFile from "../utility/UploadFile";
 import UploadScreen from "./UploadScreen";
-import { v4 as uuidv4 } from "uuid";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
@@ -34,11 +30,14 @@ const validationSchema = Yup.object().shape({
 
 function ListingEditScreen() {
   const [categories, setCategories] = useState([]);
+  const [remoteUrl, setRemoteUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState();
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const user = auth().currentUser;
+
   useEffect(() => {
-    const subscriber = Firebase.firestore()
+    const subscriber = firestore()
       .collection("Categories")
       .onSnapshot((querySnapShot) => {
         const categories = [];
@@ -58,54 +57,40 @@ function ListingEditScreen() {
     return () => subscriber();
   }, []);
 
-  async function uploadImageAsync(uri) {
-    // Why are we using XMLHttpRequest? See:
-    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
+  const handleSubmit = async (listing, { resetForm }) => {
+    const promises = listing.images.map(async (imageURI) => {
+      await UploadFile(
+        imageURI,
+        setRemoteUrl,
+        setUploadProgress,
+        setIsUploading
+      );
+      return remoteUrl;
     });
 
-    const fileRef = ref(getStorage(), uuidv4());
+    const imageURLs = await Promise.all(promises);
 
-    const uploadTask = await uploadBytesResumable(fileRef, blob);
-    return await getDownloadURL(fileRef);
-  }
+    console.log(imageURLs.length, listing.images.length);
 
-  const handleSubmit = async (listing, { resetForm }) => {
-    let imageUrls = [];
-    setIsUploading(true);
-    setUploadProgress(0);
-    for (const file of listing.images) {
-      const remoteURL = await uploadImageAsync(file);
-      imageUrls.push(remoteURL);
-    }
-    setTimeout(() => setIsUploading(false), 500);
+    setLoading(true);
+    const timestamp = firestore.FieldValue.serverTimestamp;
 
-    if (imageUrls.length === listing.images.length) {
-      setLoading(true);
-      setUploadProgress(1);
-      await Firebase.firestore().collection("Listings").add({
+    await firestore()
+      .collection("Listings")
+      .add({
         title: listing.title,
         price: listing.price,
         description: listing.description,
         category: listing.category.id,
-        images: imageUrls,
-        author: Firebase.auth().currentUser.uid,
+        images: imageURLs,
+        author: user.uid,
+        createdAt: timestamp(),
+      })
+      .then(() => {
+        console.log("Listing added!");
+        resetForm();
+        setLoading(false);
       });
-
-      resetForm();
-      setLoading(false);
-    }
   };
 
   return (

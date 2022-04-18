@@ -5,29 +5,27 @@ import ActivityIndicator from "../components/ActivityIndicator";
 import AppText from "../components/Text";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import Firebase from "../config/firebase";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import { ListItem } from "../components/lists";
 import Screen from "../components/Screen";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import routes from "../navigation/routes";
 
-const auth = Firebase.auth();
 function ListingsScreen({ navigation }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-    } catch (error) {
-      return console.log(error);
-    }
-    console.log("success");
+    auth()
+      .signOut()
+      .then(() => console.log("User signed out!"));
   };
   useEffect(() => {
-    const subscriber = Firebase.firestore()
+    const subscriber = firestore()
       .collection("Listings")
+      .orderBy("createdAt", "desc")
       .onSnapshot((querySnapShot) => {
         const listings = [];
         querySnapShot.forEach((item) => {
@@ -60,16 +58,13 @@ function ListingsScreen({ navigation }) {
           {false && (
             <>
               <AppText>Couldn't retrieve the listings.</AppText>
-              <Button
-                title='Retry'
-                onPress={() => console.log("Function to get listings")}
-              />
+              <Button title='Retry' onPress={() => {}} />
             </>
           )}
           <FlatList
             showsVerticalScrollIndicator={false}
             refreshing={loading}
-            onRefresh={() => console.log("Pulled To Refresh")}
+            onRefresh={() => {}}
             data={listings}
             keyExtractor={(listing) => listing.id.toString()}
             renderItem={({ item }) => {
