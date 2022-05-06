@@ -46,11 +46,7 @@ function ImageInputCamera({ imageUri, onChangeImage }) {
     <TouchableWithoutFeedback onPress={handlePress}>
       <View style={styles.container}>
         {!imageUri && (
-          <MaterialCommunityIcons
-            color={colors.medium}
-            name='camera'
-            size={40}
-          />
+          <MaterialCommunityIcons color={colors.dark} name='camera' size={40} />
         )}
         {imageUri && (
           <FastImage source={{ uri: imageUri }} style={styles.image} />
@@ -63,7 +59,7 @@ function ImageInputCamera({ imageUri, onChangeImage }) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: colors.light,
+    backgroundColor: colors.medium,
     borderRadius: 15,
     height: 100,
     justifyContent: "center",

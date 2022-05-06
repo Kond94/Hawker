@@ -5,6 +5,7 @@ import React, { useContext } from "react";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import Info from "../components/Info";
 import Screen from "../components/Screen";
 import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
@@ -30,7 +31,6 @@ const menuItems = [
 
 function AccountScreen({ navigation }) {
   const user = auth().currentUser;
-  console.log(user);
   const handleSignOut = async () => {
     auth()
       .signOut()
@@ -44,41 +44,53 @@ function AccountScreen({ navigation }) {
       source={require("../assets/app-background.png")}
     >
       <Screen style={styles.screen}>
-        <View style={styles.container}>
-          <ListItem
-            title={user.displayName}
-            subTitle={user.email}
-            image={{
-              uri: user.photoURL
-                ? user.photoURL
-                : "https://avatars.dicebear.com/api/:human/:seed.svg",
-            }}
+        {auth().currentUser?.isAnonymous ? (
+          <Info
+            information='Please sign in to customize app and user settings'
+            buttonTitle='Sign In'
+            onButtonPress={handleSignOut}
           />
-        </View>
-        <View style={styles.container}>
-          <FlatList
-            data={menuItems}
-            keyExtractor={(menuItem) => menuItem.title}
-            ItemSeparatorComponent={ListItemSeparator}
-            renderItem={({ item }) => (
+        ) : (
+          <>
+            <View style={styles.container}>
               <ListItem
-                title={item.title}
-                IconComponent={
-                  <Icon
-                    name={item.icon.name}
-                    backgroundColor={item.icon.backgroundColor}
-                  />
-                }
-                onPress={() => navigation.navigate(item.targetScreen)}
+                title={user.displayName}
+                subTitle={user.email}
+                image={{
+                  uri: user.photoURL
+                    ? user.photoURL
+                    : "https://avatars.dicebear.com/api/:human/:seed.svg",
+                }}
               />
-            )}
-          />
-        </View>
-        <ListItem
-          title='Log Out'
-          IconComponent={<Icon name='logout' backgroundColor={colors.danger} />}
-          onPress={handleSignOut}
-        />
+            </View>
+            <View style={styles.container}>
+              <FlatList
+                data={menuItems}
+                keyExtractor={(menuItem) => menuItem.title}
+                ItemSeparatorComponent={ListItemSeparator}
+                renderItem={({ item }) => (
+                  <ListItem
+                    title={item.title}
+                    IconComponent={
+                      <Icon
+                        name={item.icon.name}
+                        backgroundColor={item.icon.backgroundColor}
+                      />
+                    }
+                    onPress={() => navigation.navigate(item.targetScreen)}
+                  />
+                )}
+              />
+            </View>
+            <ListItem
+              title='Log Out'
+              IconComponent={
+                <Icon name='logout' backgroundColor={colors.danger} />
+              }
+              onPress={handleSignOut}
+            />
+          </>
+        )}
       </Screen>
     </ImageBackground>
   );
@@ -87,6 +99,7 @@ function AccountScreen({ navigation }) {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: "transparent",
+    padding: 10,
   },
   container: {
     marginVertical: 20,

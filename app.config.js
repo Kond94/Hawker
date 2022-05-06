@@ -3,7 +3,7 @@ import "dotenv/config";
 export default {
   expo: {
     name: "hawker",
-    plugins: ["@react-native-firebase/app"],
+    plugins: ["@react-native-firebase/app", "expo-community-flipper"],
     slug: "hawker",
     jsEngine: "hermes",
     platforms: ["ios", "android", "web"],

@@ -30,9 +30,9 @@ function Card({ title, subTitle, imageUrl, onPress }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 15,
+    borderRadius: 10,
     backgroundColor: colors.light,
-    marginBottom: 20,
+    marginBottom: 10,
     overflow: "hidden",
   },
   detailsContainer: {
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   subTitle: {
-    color: colors.medium,
+    color: colors.secondary,
     fontWeight: "bold",
   },
   title: {

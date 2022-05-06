@@ -1,18 +1,18 @@
-import React, { useState } from "react";
 import {
-  View,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Modal,
   Button,
   FlatList,
+  Modal,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useState } from "react";
 
-import Text from "./Text";
-import defaultStyles from "../config/styles";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PickerItem from "./PickerItem";
 import Screen from "./Screen";
+import Text from "./Text";
+import defaultStyles from "../config/styles";
 
 function AppPicker({
   icon,
@@ -77,7 +77,7 @@ function AppPicker({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: defaultStyles.colors.light,
+    backgroundColor: defaultStyles.colors.medium,
     borderRadius: 25,
     flexDirection: "row",
     padding: 15,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   placeholder: {
-    color: defaultStyles.colors.medium,
+    color: defaultStyles.colors.dark,
     flex: 1,
   },
   text: {

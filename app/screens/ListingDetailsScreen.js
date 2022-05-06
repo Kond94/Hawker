@@ -7,11 +7,11 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 
+import AppTextInput from "../components/TextInput";
 import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageView from "react-native-image-viewing";
-import ListItem from "../components/lists/ListItem";
 import { SliderBox } from "react-native-image-slider-box";
 import Text from "../components/Text";
 import colors from "../config/colors";
@@ -42,7 +42,7 @@ function ListingDetailsScreen({ route }) {
         source={require("../assets/app-background.png")}
       >
         <View style={styles.userContainer}>
-          <ListItem
+          {/* <ListItem
             image={{
               uri: author.photoURL
                 ? author.photoURL
@@ -50,7 +50,7 @@ function ListingDetailsScreen({ route }) {
             }}
             title={author.name}
             subTitle='5 other Listings'
-          />
+          /> */}
         </View>
         <ImageView
           images={listing.images.map((image) => {

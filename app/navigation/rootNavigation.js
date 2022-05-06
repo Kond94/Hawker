@@ -7,7 +7,7 @@ import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { NavigationContainer } from "@react-navigation/native";
 import auth from "@react-native-firebase/auth";
 
-export default function RootNavigator() {
+export default function RootNavigator(props) {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [loggingInAnonymous, setLoggingInAnonymous] = useState(true);
@@ -19,12 +19,16 @@ export default function RootNavigator() {
     if (initializing) setInitializing(false);
   }
 
+  const restoreUser = async () => {
+    // console.log("starting");
+  };
+
   loginAnonymous = async () => {
     setLoggingInAnonymous(true);
     await auth()
       .signInAnonymously()
       .then(() => {
-        console.log("User signed in anonymously");
+        // console.log("User signed in anonymously");
       })
       .catch((error) => {
         if (error.code === "auth/operation-not-allowed") {
@@ -45,8 +49,8 @@ export default function RootNavigator() {
   if (initializing || loggingInAnonymous) {
     return (
       <AppLoading
-        // startAsync={restoreUser}
-        onFinish={() => setIsReady(true)}
+        startAsync={restoreUser}
+        onFinish={() => setInitializing(false)}
         onError={console.warn}
       />
     );

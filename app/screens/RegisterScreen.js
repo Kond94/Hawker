@@ -32,23 +32,17 @@ function RegisterScreen() {
   const [profilePhotoURL, setProfilePhotoURL] = useState(null);
   const [storePhotoURL, setStorePhotoURL] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
 
   async function uploadProfilePhoto(uri) {
     if (uri === null) return setProfilePhotoURL(null);
-    await UploadFile(
-      uri,
-      setProfilePhotoURL,
-      setUploadProgress,
-      setIsUploading
-    );
+    setProfilePhotoURL(await UploadFile(uri, setIsUploading));
   }
 
   async function uploadStorePhoto(uri) {
     if (uri === null) return setStorePhotoURL(null);
-    await UploadFile(uri, setStorePhotoURL, setUploadProgress, setIsUploading);
+    setStorePhotoURL(await UploadFile(uri, setIsUploading));
   }
 
   const onHandleSignup = async ({
@@ -112,7 +106,7 @@ function RegisterScreen() {
         source={require("../assets/app-background.png")}
       >
         <UploadScreen
-          progress={uploadProgress}
+          progress={0}
           onDone={() => console.log("Done Uploading Image")}
           visible={isUploading}
         />

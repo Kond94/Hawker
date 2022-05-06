@@ -13,6 +13,7 @@ import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import Info from "../components/Info";
 import Screen from "../components/Screen";
 import { StyleSheet } from "react-native";
 import UploadFile from "../utility/UploadFile";
@@ -30,7 +31,6 @@ const validationSchema = Yup.object().shape({
 
 function ListingEditScreen() {
   const [categories, setCategories] = useState([]);
-  const [remoteUrl, setRemoteUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -58,19 +58,10 @@ function ListingEditScreen() {
   }, []);
 
   const handleSubmit = async (listing, { resetForm }) => {
-    const promises = listing.images.map(async (imageURI) => {
-      await UploadFile(
-        imageURI,
-        setRemoteUrl,
-        setUploadProgress,
-        setIsUploading
-      );
-      return remoteUrl;
-    });
-
-    const imageURLs = await Promise.all(promises);
-
-    console.log(imageURLs.length, listing.images.length);
+    const imageURLs = [];
+    for (const image of listing.images) {
+      imageURLs.push(await UploadFile(image, setIsUploading));
+    }
 
     setLoading(true);
     const timestamp = firestore.FieldValue.serverTimestamp;
@@ -92,7 +83,11 @@ function ListingEditScreen() {
         setLoading(false);
       });
   };
-
+  const handleSignOut = async () => {
+    auth()
+      .signOut()
+      .then(() => console.log("User signed out!"));
+  };
   return (
     <ImageBackground
       blurRadius={0.5}
@@ -103,46 +98,54 @@ function ListingEditScreen() {
       <Screen style={styles.container}>
         <UploadScreen
           progress={uploadProgress}
-          onDone={() => console.log("Upload Done")}
+          onDone={() => setLoading(false)}
           visible={isUploading}
         />
-        <Form
-          initialValues={{
-            title: "",
-            price: "",
-            description: "",
-            category: null,
-            images: [],
-          }}
-          onSubmit={handleSubmit}
-          validationSchema={validationSchema}
-        >
-          <FormImagePicker name='images' />
-          <FormField maxLength={255} name='title' placeholder='Title' />
-          <FormField
-            keyboardType='numeric'
-            maxLength={8}
-            name='price'
-            placeholder='Price'
-            width={120}
+        {auth().currentUser?.isAnonymous ? (
+          <Info
+            information='Please sign in to post and edit your listings and stores'
+            buttonTitle='Sign In'
+            onButtonPress={handleSignOut}
           />
-          <Picker
-            items={categories}
-            name='category'
-            numberOfColumns={3}
-            PickerItemComponent={CategoryPickerItem}
-            placeholder='Category'
-            width='50%'
-          />
-          <FormField
-            maxLength={255}
-            multiline
-            name='description'
-            numberOfLines={3}
-            placeholder='Description'
-          />
-          <SubmitButton title='Post' />
-        </Form>
+        ) : (
+          <Form
+            initialValues={{
+              title: "",
+              price: "",
+              description: "",
+              category: null,
+              images: [],
+            }}
+            onSubmit={handleSubmit}
+            validationSchema={validationSchema}
+          >
+            <FormImagePicker name='images' />
+            <FormField maxLength={255} name='title' placeholder='Title' />
+            <FormField
+              keyboardType='numeric'
+              maxLength={8}
+              name='price'
+              placeholder='Price'
+              width={120}
+            />
+            <Picker
+              items={categories}
+              name='category'
+              numberOfColumns={3}
+              PickerItemComponent={CategoryPickerItem}
+              placeholder='Category'
+              width='50%'
+            />
+            <FormField
+              maxLength={255}
+              multiline
+              name='description'
+              numberOfLines={3}
+              placeholder='Description'
+            />
+            <SubmitButton title='Post' />
+          </Form>
+        )}
       </Screen>
     </ImageBackground>
   );

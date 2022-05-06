@@ -13,10 +13,12 @@ function UploadScreen({ onDone, progress = 0, visible = false }) {
       <View style={styles.container}>
         {progress < 1 ? (
           <>
-            <Progress.Bar
-              color={colors.primary}
-              progress={progress}
-              width={200}
+            <LottieView
+              autoPlay
+              loop={true}
+              onAnimationFinish={onDone}
+              source={require("../assets/animations/uploading.json")}
+              style={styles.animation}
             />
             <AppText>Uploading...</AppText>
           </>
