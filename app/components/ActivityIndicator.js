@@ -1,7 +1,8 @@
-import React from "react";
+import { StyleSheet, View } from "react-native";
+
+import AppText from "./Text";
 import LottieView from "lottie-react-native";
-import { View, StyleSheet } from "react-native";
-import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import React from "react";
 
 function ActivityIndicator({ visible = false }) {
   if (!visible) return null;
@@ -9,10 +10,12 @@ function ActivityIndicator({ visible = false }) {
   return (
     <View style={styles.overlay}>
       <LottieView
+        style={{ width: 100, height: 100 }}
         autoPlay
         loop
-        source={require("../assets/animations/loader.json")}
+        source={require("../assets/animations/loading.json")}
       />
+      <AppText>Retrieving</AppText>
     </View>
   );
 }
@@ -22,9 +25,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "transparent",
     height: "100%",
-    opacity: 0.8,
     width: "100%",
     zIndex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

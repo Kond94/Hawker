@@ -1,23 +1,28 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { Card, CardContent, CardImage, CardTitle } from "react-native-cards";
+import {
+  FlatList,
+  StyleSheet,
+  TouchableNativeFeedback,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
+import { appUser, signOut } from "../utility/auth";
+import { categoriesCollection, listingsCollection } from "../utility/fireStore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
-import { BlurView } from "expo-blur";
 import Button from "../components/Button";
-import Card from "../components/Card";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import Info from "../components/Info";
 import Screen from "../components/Screen";
 import SelectBox from "react-native-multi-selectbox";
-import auth from "@react-native-firebase/auth";
+import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import colors from "../config/colors";
-import firestore from "@react-native-firebase/firestore";
 import routes from "../navigation/routes";
 import { xorBy } from "lodash";
 
 function ListingsScreen({ navigation }) {
+  const backgroundImage = require("../assets/app-background.png");
   const [searchText, setSearchText] = useState("");
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -26,40 +31,17 @@ function ListingsScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const categoriesSubscriber = firestore()
-      .collection("Categories")
-      .onSnapshot((querySnapShot) => {
-        const categories = [];
-        querySnapShot.forEach(async (item) => {
-          const category = {
-            id: item.id,
-            label: item.data().label,
-            item: item.data().label,
-            icon: item.data().icon,
-            backgroundColor: item.data().backgroundColor,
-          };
-          categories.push(category);
-          setCategories(categories);
-        });
-      });
+    const listingsSubscriber = listingsCollection(
+      setListings,
+      setFilteredListings,
+      setLoading,
+      searchText
+    );
 
-    const subscriber = firestore()
-      .collection("Listings")
-      .orderBy("title", "desc")
-
-      .onSnapshot((querySnapShot) => {
-        const listings = [];
-        querySnapShot.forEach((item) => {
-          listings.push({ id: item.id, ...item.data() });
-        });
-        setListings(listings);
-        setFilteredListings(searchText);
-        setLoading(false);
-      });
-
+    const categoriesSubscribe = categoriesCollection(setCategories);
     // Unsubscribe from events when no longer in use
     return () => {
-      return subscriber(), categoriesSubscriber(); // This worked for me
+      return listingsSubscriber, categoriesSubscribe;
     };
   }, []);
 
@@ -72,126 +54,98 @@ function ListingsScreen({ navigation }) {
     setFilteredListings(filteredListings);
   };
 
-  const handleSignOut = async () => {
-    auth()
-      .signOut()
-      .then(() => console.log("User signed out!"));
-  };
-
-  const onMultiChange = (item) => {
+  const onFilterChange = (item) => {
     setSelectedCategories(xorBy(selectedCategories, [item], "id"));
   };
-  return (
-    <>
-      <ImageBackground
-        blurRadius={0.5}
-        style={{ flex: 1 }}
-        source={require("../assets/app-background.png")}
-      >
-        <ActivityIndicator visible={false} />
 
-        <Screen style={styles.screen}>
-          {false && (
+  return (
+    <ImageBackground
+      blurRadius={0.5}
+      style={{ flex: 1 }}
+      source={backgroundImage}
+    >
+      <ActivityIndicator visible={loading} />
+
+      <Screen style={styles.screen}>
+        {false && (
+          <>
+            <AppText>Couldn't retrieve the listings.</AppText>
+            <Button title='Retry' onPress={() => {}} />
+          </>
+        )}
+        <View style={styles.searchBox}>
+          <AppTextInput
+            placeholder='Search Listings'
+            onChangeText={searchListings}
+          />
+        </View>
+        <FlatList
+          ListHeaderComponent={() => (
             <>
-              <AppText>Couldn't retrieve the listings.</AppText>
-              <Button title='Retry' onPress={() => {}} />
+              {appUser.isAnonymous ? (
+                <UserNotLoggedIn onButtonPress={signOut} />
+              ) : (
+                <></>
+              )}
+              <View style={styles.filterBox}>
+                <SelectBox
+                  label='Filter'
+                  labelStyle={{ fontSize: 15, color: colors.secondary }}
+                  options={categories}
+                  selectedValues={selectedCategories}
+                  onMultiSelect={onFilterChange}
+                  onTapClose={onFilterChange}
+                  isMulti
+                  multiOptionContainerStyle={{ margin: 5 }}
+                />
+              </View>
             </>
           )}
-          <BlurView
-            intensity={100}
-            style={{
-              alignItems: "center",
-              backgroundColor: "white",
-              flexDirection: "row",
-              justifyContent: "center",
-              marginHorizontal: 10,
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <AppTextInput
-                placeholder='Search Hawker'
-                onChangeText={searchListings}
-              />
-            </View>
-          </BlurView>
-          <FlatList
-            ListHeaderComponent={
-              () => (
-                <>
-                  {auth().currentUser?.isAnonymous ? (
-                    <Info
-                      information='Sign in to be able to buy & sell. We will also be able to personalize your experience'
-                      buttonTitle='Sign In'
-                      onButtonPress={handleSignOut}
+          showsVerticalScrollIndicator={false}
+          data={filteredListings ? filteredListings : listings}
+          keyExtractor={(listing) => listing.id.toString()}
+          renderItem={({ item }) => {
+            return (
+              <TouchableNativeFeedback
+                onPress={() =>
+                  navigation.navigate(routes.LISTING_DETAILS, item)
+                }
+              >
+                <View style={styles.card}>
+                  <Card>
+                    <CardImage
+                      source={{ uri: item.images[0] }}
+                      title={"k " + item.price}
                     />
-                  ) : (
-                    <></>
-                  )}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      margin: 17,
-                    }}
-                  >
-                    <SelectBox
-                      label='Filter'
-                      labelStyle={{ fontSize: 15, color: colors.secondary }}
-                      options={categories}
-                      selectedValues={selectedCategories}
-                      onMultiSelect={onMultiChange}
-                      onTapClose={onMultiChange}
-                      isMulti
-                      multiOptionContainerStyle={{ margin: 5 }}
-                    />
-                  </View>
-                </>
-              )
-              // <View style={{ marginVertical: 5 }}>
-              //   <AppText style={{ textAlign: "center" }}>
-              //     Sign in to be able to buy & sell. We will also be able to
-              //     personalize your experience
-              //   </AppText>
-              //   <View
-              //     style={{ flexDirection: "row", justifyContent: "center" }}
-              //   >
-              //     <AppButton
-              //       title={"sign in"}
-              //       width='35%'
-              //       margin={10}
-              //       color='secondary'
-              //       onPress={() => navigation.dispatch.toggleDrawer()}
-              //     />
-              //   </View>
-              // </View>
-            }
-            style={{ marginTop: 10 }}
-            showsVerticalScrollIndicator={false}
-            data={filteredListings ? filteredListings : listings}
-            keyExtractor={(listing) => listing.id.toString()}
-            renderItem={({ item }) => {
-              return (
-                <Card
-                  title={item.title}
-                  subTitle={"$" + item.price}
-                  imageUrl={item.images[0]}
-                  onPress={() =>
-                    navigation.navigate(routes.LISTING_DETAILS, item)
-                  }
-                />
-              );
-            }}
-          />
-        </Screen>
-      </ImageBackground>
-    </>
+                    <CardContent text={item.title} />
+                  </Card>
+                </View>
+              </TouchableNativeFeedback>
+            );
+          }}
+        />
+      </Screen>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  card: { marginVertical: 5 },
   screen: {
     paddingHorizontal: 5,
     backgroundColor: "transparent",
+  },
+  filterBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    margin: 17,
+  },
+  searchBox: {
+    alignItems: "center",
+    backgroundColor: "white",
+    flexDirection: "row",
+    justifyContent: "center",
+    margin: 10,
   },
 });
 

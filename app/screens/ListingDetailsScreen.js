@@ -6,32 +6,37 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import {
+  authorListingCollection,
+  usersCollections,
+} from "../utility/fireStore";
 
-import AppTextInput from "../components/TextInput";
 import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageView from "react-native-image-viewing";
+import ListItem from "../components/lists/ListItem";
 import { SliderBox } from "react-native-image-slider-box";
 import Text from "../components/Text";
 import colors from "../config/colors";
-import firestore from "@react-native-firebase/firestore";
 
 function ListingDetailsScreen({ route }) {
   const [visible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [author, setAuthor] = useState();
+  const [authorListings, setAuthorListings] = useState([]);
   const listing = route.params;
 
   useEffect(() => {
-    const subscriber = firestore()
-      .collection("Users")
-      .doc(listing.author)
-      .onSnapshot((documentSnapshot) => {
-        setAuthor(documentSnapshot.data());
-      });
-    // Stop listening for updates when no longer required
-    subscriber;
+    const authorSubscriber = usersCollections(listing.author, setAuthor);
+    const authorListingsSubscriber = authorListingCollection(
+      listing.author,
+      setAuthorListings
+    );
+    // Unsubscribe from events when no longer in use
+    return () => {
+      return authorSubscriber(), authorListingsSubscriber;
+    };
   }, []);
 
   return (
@@ -42,15 +47,19 @@ function ListingDetailsScreen({ route }) {
         source={require("../assets/app-background.png")}
       >
         <View style={styles.userContainer}>
-          {/* <ListItem
+          <ListItem
             image={{
-              uri: author.photoURL
+              uri: author?.photoURL
                 ? author.photoURL
                 : "../assets/avatar-placeholder.png",
             }}
-            title={author.name}
-            subTitle='5 other Listings'
-          /> */}
+            title={author?.name}
+            subTitle={
+              authorListings.length > 2
+                ? authorListings.length - 1 + " other Listings"
+                : " "
+            }
+          />
         </View>
         <ImageView
           images={listing.images.map((image) => {

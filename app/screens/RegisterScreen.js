@@ -16,7 +16,7 @@ import ImageInput from "../components/ImageInput";
 import Screen from "../components/Screen";
 import StoreForm from "../components/forms/StoreForm";
 import Text from "../components/Text";
-import UploadFile from "../utility/UploadFile";
+import UploadFile from "../utility/uploadFile";
 import UploadScreen from "./UploadScreen";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";

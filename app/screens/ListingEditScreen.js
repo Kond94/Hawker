@@ -13,11 +13,11 @@ import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import Info from "../components/Info";
 import Screen from "../components/Screen";
 import { StyleSheet } from "react-native";
-import UploadFile from "../utility/UploadFile";
+import UploadFile from "../utility/uploadFile";
 import UploadScreen from "./UploadScreen";
+import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 
@@ -102,7 +102,7 @@ function ListingEditScreen() {
           visible={isUploading}
         />
         {auth().currentUser?.isAnonymous ? (
-          <Info
+          <UserNotLoggedIn
             information='Please sign in to post and edit your listings and stores'
             buttonTitle='Sign In'
             onButtonPress={handleSignOut}

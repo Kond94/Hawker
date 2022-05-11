@@ -5,8 +5,8 @@ import React, { useContext } from "react";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import Info from "../components/Info";
 import Screen from "../components/Screen";
+import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
@@ -45,7 +45,7 @@ function AccountScreen({ navigation }) {
     >
       <Screen style={styles.screen}>
         {auth().currentUser?.isAnonymous ? (
-          <Info
+          <UserNotLoggedIn
             information='Please sign in to customize app and user settings'
             buttonTitle='Sign In'
             onButtonPress={handleSignOut}

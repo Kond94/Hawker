@@ -4,10 +4,13 @@ import AppButton from "./Button";
 import AppText from "./Text";
 import { View } from "react-native";
 
-const Info = ({ information, buttonTitle, onButtonPress }) => {
+const UserNotLoggedIn = ({ information, buttonTitle, onButtonPress }) => {
   return (
     <View style={{ margin: 10 }}>
-      <AppText style={{ textAlign: "center" }}>{information}</AppText>
+      <AppText style={{ textAlign: "center" }}>
+        Sign in to be able to buy & sell. We will also be able to personalize
+        your experience
+      </AppText>
       <View style={{ flexDirection: "row", justifyContent: "center" }}>
         <AppButton
           title={"sign in"}
@@ -21,4 +24,4 @@ const Info = ({ information, buttonTitle, onButtonPress }) => {
   );
 };
 
-export default Info;
+export default UserNotLoggedIn;
