@@ -62,6 +62,7 @@ const StoreScreen = () => {
       keyExtractor={(store) => store.id.toString()}
       renderItem={({ item }) => {
         return (
+          // TODO: Store Details Screen
           <Card>
             <CardImage
               source={{ uri: item.storeBackground }}

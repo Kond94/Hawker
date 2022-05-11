@@ -47,6 +47,8 @@ function ListingDetailsScreen({ route }) {
         source={require("../assets/app-background.png")}
       >
         <View style={styles.userContainer}>
+          {/* TODO: Navigate to other listings
+           */}
           <ListItem
             image={{
               uri: author?.photoURL
