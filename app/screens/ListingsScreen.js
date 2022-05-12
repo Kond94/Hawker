@@ -21,7 +21,8 @@ import colors from "../config/colors";
 import routes from "../navigation/routes";
 import { xorBy } from "lodash";
 
-function ListingsScreen({ navigation }) {
+function ListingsScreen({ navigation, authorFilter }) {
+  console.log(appUser());
   const backgroundImage = require("../assets/app-background.png");
   const [searchText, setSearchText] = useState("");
   const [listings, setListings] = useState([]);
@@ -45,12 +46,17 @@ function ListingsScreen({ navigation }) {
     };
   }, []);
 
-  const searchListings = (searchText) => {
+  const filterListings = (searchText) => {
     let filteredListings = listings?.filter(
       (listing) =>
         listing.title.toLowerCase().includes(searchText.toLowerCase()) ||
         listing.description.toLowerCase().includes(searchText.toLowerCase())
     );
+
+    authorFilter
+      ? console.log("Yes, the parameter exists")
+      : console.log("No, theres no parameter set.");
+
     setFilteredListings(filteredListings);
   };
 
@@ -76,13 +82,13 @@ function ListingsScreen({ navigation }) {
         <View style={styles.searchBox}>
           <AppTextInput
             placeholder='Search Listings'
-            onChangeText={searchListings}
+            onChangeText={filterListings}
           />
         </View>
         <FlatList
           ListHeaderComponent={() => (
             <>
-              {appUser.isAnonymous ? (
+              {appUser().isAnonymous ? (
                 <UserNotLoggedIn onButtonPress={signOut} />
               ) : (
                 <></>

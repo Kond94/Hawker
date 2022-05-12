@@ -38,7 +38,7 @@ const StoreScreen = () => {
     <FlatList
       ListHeaderComponent={() => (
         <>
-          {appUser.isAnonymous ? (
+          {appUser().isAnonymous ? (
             <UserNotLoggedIn onButtonPress={signOut} />
           ) : (
             <></>

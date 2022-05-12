@@ -1,9 +1,17 @@
+import React, { useContext, useEffect, useState } from "react";
+
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import auth from "@react-native-firebase/auth";
 
 export const signOut = async () => {
   auth()
     .signOut()
     .then(() => console.log("User signed out!"));
+  setUser(null);
 };
 
-export const appUser = auth().currentUser;
+export const appUser = () => {
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+
+  return user;
+};

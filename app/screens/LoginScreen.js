@@ -24,7 +24,6 @@ function LoginScreen(props) {
   const [loading, setLoading] = useState(false);
 
   const onLogin = async ({ email, password }) => {
-    // TODO: Persist Authentication (Logs in as anonymous after refresh)
     setLoading(true);
 
     if (email !== "" && password !== "") {
