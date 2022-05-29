@@ -10,52 +10,49 @@ import { appUser, signOut } from "../utility/auth";
 import { categoriesCollection, listingsCollection } from "../utility/fireStore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
+import AppButton from "../components/Button";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import InfoWithAction from "../components/InfoWithAction";
 import Screen from "../components/Screen";
 import SelectBox from "react-native-multi-selectbox";
-import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 import { xorBy } from "lodash";
 
-function ListingsScreen({ navigation, authorFilter }) {
-  console.log(appUser());
+function ListingsScreen({ navigation, route }) {
   const backgroundImage = require("../assets/app-background.png");
-  const [searchText, setSearchText] = useState("");
+
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const authorFilter = route.params?.authorListings ? true : false;
+  const author = authorFilter ? route.params?.author : null;
 
   useEffect(() => {
     const listingsSubscriber = listingsCollection(
       setListings,
       setFilteredListings,
-      setLoading,
-      searchText
+      setLoading
     );
 
-    const categoriesSubscribe = categoriesCollection(setCategories);
-    // Unsubscribe from events when no longer in use
-    return () => {
-      return listingsSubscriber, categoriesSubscribe;
-    };
+    const categoriesSubscriber = categoriesCollection(setCategories);
+    return listingsSubscriber, categoriesSubscriber;
   }, []);
 
   const filterListings = (searchText) => {
-    let filteredListings = listings?.filter(
-      (listing) =>
-        listing.title.toLowerCase().includes(searchText.toLowerCase()) ||
-        listing.description.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    authorFilter
-      ? console.log("Yes, the parameter exists")
-      : console.log("No, theres no parameter set.");
+    let filteredListings = listings;
+    searchText.length > 0
+      ? (filteredListings = listings?.filter(
+          (listing) =>
+            listing.title.toLowerCase().includes(searchText.toLowerCase()) ||
+            listing.description.toLowerCase().includes(searchText.toLowerCase())
+        ))
+      : {};
 
     setFilteredListings(filteredListings);
   };
@@ -79,17 +76,28 @@ function ListingsScreen({ navigation, authorFilter }) {
             <Button title='Retry' onPress={() => {}} />
           </>
         )}
-        <View style={styles.searchBox}>
-          <AppTextInput
-            placeholder='Search Listings'
-            onChangeText={filterListings}
+        {authorFilter ? (
+          <InfoWithAction
+            buttonTitle='clear'
+            information={"Viewing listings by: " + author.name}
+            onButtonPress={() =>
+              navigation.navigate("Listings", { authorListings: undefined })
+            }
           />
-        </View>
+        ) : (
+          <View style={styles.searchBox}>
+            <AppTextInput
+              placeholder='Search Listings'
+              onChangeText={filterListings}
+            />
+          </View>
+        )}
+
         <FlatList
           ListHeaderComponent={() => (
             <>
               {appUser().isAnonymous ? (
-                <UserNotLoggedIn onButtonPress={signOut} />
+                <InfoWithAction onButtonPress={() => signOut()} />
               ) : (
                 <></>
               )}
@@ -108,13 +116,15 @@ function ListingsScreen({ navigation, authorFilter }) {
             </>
           )}
           showsVerticalScrollIndicator={false}
-          data={filteredListings ? filteredListings : listings}
+          data={authorFilter ? route.params.authorListings : filteredListings}
           keyExtractor={(listing) => listing.id.toString()}
           renderItem={({ item }) => {
             return (
               <TouchableNativeFeedback
                 onPress={() =>
-                  navigation.navigate(routes.LISTING_DETAILS, item)
+                  navigation.navigate(routes.LISTING_DETAILS, {
+                    item: item,
+                  })
                 }
               >
                 <View style={styles.card}>

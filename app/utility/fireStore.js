@@ -3,7 +3,7 @@ import firestore from "@react-native-firebase/firestore";
 export const categoriesCollection = (setCategories) => {
   const subscriber = firestore()
     .collection("Categories")
-    .onSnapshot((querySnapShot) => {
+    .onSnapshot((querySnapShot, error) => {
       const categories = [];
       querySnapShot.forEach(async (item) => {
         const category = {
@@ -23,8 +23,7 @@ export const categoriesCollection = (setCategories) => {
 export const listingsCollection = (
   setListings,
   setFilteredListings,
-  setLoading,
-  searchText
+  setLoading
 ) => {
   const subscriber = firestore()
     .collection("Listings")
@@ -36,7 +35,7 @@ export const listingsCollection = (
         listings.push({ id: item.id, ...item.data() });
       });
       setListings(listings);
-      setFilteredListings(searchText);
+      setFilteredListings(listings);
       setLoading(false);
     });
   return subscriber;
@@ -72,7 +71,6 @@ export const usersCollections = (author, setAuthor) => {
     .collection("Users")
     .doc(author)
     .onSnapshot((documentSnapshot) => {
-      console.log(documentSnapshot.data());
       setAuthor(documentSnapshot.data());
     });
 

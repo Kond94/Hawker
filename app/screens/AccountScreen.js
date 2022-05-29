@@ -5,8 +5,8 @@ import React, { useContext } from "react";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
+import InfoWithAction from "../components/InfoWithAction";
 import Screen from "../components/Screen";
-import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
@@ -32,9 +32,7 @@ const menuItems = [
 function AccountScreen({ navigation }) {
   const user = auth().currentUser;
   const handleSignOut = async () => {
-    auth()
-      .signOut()
-      .then(() => console.log("User signed out!"));
+    auth().signOut();
   };
 
   return (
@@ -45,7 +43,7 @@ function AccountScreen({ navigation }) {
     >
       <Screen style={styles.screen}>
         {auth().currentUser?.isAnonymous ? (
-          <UserNotLoggedIn
+          <InfoWithAction
             information='Please sign in to customize app and user settings'
             buttonTitle='Sign In'
             onButtonPress={handleSignOut}

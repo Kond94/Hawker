@@ -49,9 +49,7 @@ function WelcomeScreen({ navigation }) {
           onPress={() => {
             auth()
               .signInAnonymously()
-              .then((res) => {
-                console.log("User signed in anonymously");
-              })
+              .then((res) => {})
               .catch((error) => {
                 if (error.code === "auth/operation-not-allowed") {
                   console.log("Enable anonymous in your firebase console.");

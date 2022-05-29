@@ -3,6 +3,8 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  TouchableNativeFeedback,
+  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -19,26 +21,25 @@ import ListItem from "../components/lists/ListItem";
 import { SliderBox } from "react-native-image-slider-box";
 import Text from "../components/Text";
 import colors from "../config/colors";
+import routes from "../navigation/routes";
 
-function ListingDetailsScreen({ route }) {
+function ListingDetailsScreen({ route, navigation }) {
   const [visible, setIsVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [author, setAuthor] = useState();
   const [authorListings, setAuthorListings] = useState([]);
-  const listing = route.params;
-
+  const listing = route.params.item;
   useEffect(() => {
     const authorSubscriber = usersCollections(listing.author, setAuthor);
+
     const authorListingsSubscriber = authorListingCollection(
       listing.author,
       setAuthorListings
     );
     // Unsubscribe from events when no longer in use
-    return () => {
-      return authorSubscriber(), authorListingsSubscriber;
-    };
-  }, []);
 
+    return authorSubscriber, authorListingsSubscriber;
+  }, [navigation]);
   return (
     <>
       <ImageBackground
@@ -47,8 +48,6 @@ function ListingDetailsScreen({ route }) {
         source={require("../assets/app-background.png")}
       >
         <View style={styles.userContainer}>
-          {/* TODO: Navigate to other listings
-           */}
           <ListItem
             image={{
               uri: author?.photoURL
@@ -61,6 +60,13 @@ function ListingDetailsScreen({ route }) {
                 ? authorListings.length - 1 + " other Listings"
                 : " "
             }
+            onPress={() => {
+              try {
+                navigation.navigate("Listings", { authorListings, author });
+              } catch (error) {
+                console.log(error);
+              }
+            }}
           />
         </View>
         <ImageView

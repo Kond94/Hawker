@@ -11,8 +11,8 @@ import React, { useEffect, useState } from "react";
 import { appUser, signOut } from "../utility/auth";
 import { categoriesCollection, storesCollection } from "../utility/fireStore";
 
+import InfoWithAction from "../components/InfoWithAction";
 import SelectBox from "react-native-multi-selectbox";
-import UserNotLoggedIn from "../components/UserNotLoggedIn";
 import colors from "../config/colors";
 
 const StoreScreen = () => {
@@ -39,7 +39,7 @@ const StoreScreen = () => {
       ListHeaderComponent={() => (
         <>
           {appUser().isAnonymous ? (
-            <UserNotLoggedIn onButtonPress={signOut} />
+            <InfoWithAction onButtonPress={signOut} />
           ) : (
             <></>
           )}

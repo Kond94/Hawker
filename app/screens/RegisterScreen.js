@@ -105,11 +105,7 @@ function RegisterScreen() {
         style={{ flex: 1 }}
         source={require("../assets/app-background.png")}
       >
-        <UploadScreen
-          progress={0}
-          onDone={() => console.log("Done Uploading Image")}
-          visible={isUploading}
-        />
+        <UploadScreen progress={0} onDone={() => {}} visible={isUploading} />
         {loading && <ActivityIndicator visible={loading} />}
         <Screen style={styles.container}>
           <ScrollView>
