@@ -5,7 +5,7 @@ import AppText from "./Text";
 import { View } from "react-native";
 
 const InfoWithAction = ({
-  information = "  Sign in to be able to buy & sell. We will also be able to personalizeyour experience",
+  information = "  Sign in to be able to buy & sell. We will also be able to personalize your experience",
   buttonTitle = "sign in",
   onButtonPress,
 }) => {

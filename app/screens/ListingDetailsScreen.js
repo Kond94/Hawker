@@ -8,10 +8,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  authorListingCollection,
-  usersCollections,
-} from "../utility/fireStore";
+import { getUser, getUserListings } from "../utility/fireStore";
 
 import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
@@ -30,9 +27,9 @@ function ListingDetailsScreen({ route, navigation }) {
   const [authorListings, setAuthorListings] = useState([]);
   const listing = route.params.item;
   useEffect(() => {
-    const authorSubscriber = usersCollections(listing.author, setAuthor);
+    const authorSubscriber = getUser(listing.author, setAuthor);
 
-    const authorListingsSubscriber = authorListingCollection(
+    const authorListingsSubscriber = getUserListings(
       listing.author,
       setAuthorListings
     );

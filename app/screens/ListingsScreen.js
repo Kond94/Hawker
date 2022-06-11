@@ -1,13 +1,16 @@
 import { Card, CardContent, CardImage, CardTitle } from "react-native-cards";
 import {
   FlatList,
+  Image,
+  ScrollView,
   StyleSheet,
+  Text,
   TouchableNativeFeedback,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { appUser, signOut } from "../utility/auth";
-import { categoriesCollection, listingsCollection } from "../utility/fireStore";
+import { getCategories, getListings } from "../utility/fireStore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
 import AppButton from "../components/Button";
@@ -20,6 +23,7 @@ import Screen from "../components/Screen";
 import SelectBox from "react-native-multi-selectbox";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
+import { slides } from "../utility/dummyData";
 import { xorBy } from "lodash";
 
 function ListingsScreen({ navigation, route }) {
@@ -34,13 +38,13 @@ function ListingsScreen({ navigation, route }) {
   const author = authorFilter ? route.params?.author : null;
 
   useEffect(() => {
-    const listingsSubscriber = listingsCollection(
+    const listingsSubscriber = getListings(
       setListings,
       setFilteredListings,
       setLoading
     );
 
-    const categoriesSubscriber = categoriesCollection(setCategories);
+    const categoriesSubscriber = getCategories(setCategories);
     return listingsSubscriber, categoriesSubscriber;
   }, []);
 
@@ -55,10 +59,6 @@ function ListingsScreen({ navigation, route }) {
       : {};
 
     setFilteredListings(filteredListings);
-  };
-
-  const onFilterChange = (item) => {
-    setSelectedCategories(xorBy(selectedCategories, [item], "id"));
   };
 
   return (
@@ -85,36 +85,44 @@ function ListingsScreen({ navigation, route }) {
             }
           />
         ) : (
-          <View style={styles.searchBox}>
-            <AppTextInput
-              placeholder='Search Listings'
-              onChangeText={filterListings}
-            />
-          </View>
+          <>
+            <View style={styles.searchBox}>
+              <AppTextInput
+                placeholder='Search Listings'
+                onChangeText={filterListings}
+              />
+            </View>
+            <View style={styles.top_category_bar}>
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+              >
+                {slides.map((item, key) => (
+                  <View key={key} style={styles.top_category_inner_block}>
+                    <Image
+                      source={{
+                        uri: item.uri,
+                      }}
+                      style={styles.top_category_image}
+                    />
+                    <View style={styles.top_category_text_block}>
+                      <Text style={styles.top_category_text}>{item.title}</Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </>
         )}
 
         <FlatList
-          ListHeaderComponent={() => (
-            <>
-              {appUser().isAnonymous ? (
-                <InfoWithAction onButtonPress={() => signOut()} />
-              ) : (
-                <></>
-              )}
-              <View style={styles.filterBox}>
-                <SelectBox
-                  label='Filter'
-                  labelStyle={{ fontSize: 15, color: colors.secondary }}
-                  options={categories}
-                  selectedValues={selectedCategories}
-                  onMultiSelect={onFilterChange}
-                  onTapClose={onFilterChange}
-                  isMulti
-                  multiOptionContainerStyle={{ margin: 5 }}
-                />
-              </View>
-            </>
-          )}
+          ListHeaderComponent={() =>
+            appUser().isAnonymous ? (
+              <InfoWithAction onButtonPress={() => signOut()} />
+            ) : (
+              <></>
+            )
+          }
           showsVerticalScrollIndicator={false}
           data={authorFilter ? route.params.authorListings : filteredListings}
           keyExtractor={(listing) => listing.id.toString()}
@@ -146,6 +154,44 @@ function ListingsScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  top_category_bar: {
+    flexDirection: "row",
+    width: "100%",
+    backgroundColor: "#fff",
+  },
+
+  top_category_inner_block: {
+    margin: 5,
+    marginTop: 0,
+  },
+  box_product: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 105,
+    borderColor: "#f0f0f0",
+    borderWidth: 1,
+    margin: 4,
+  },
+  top_category_image: {
+    resizeMode: "contain",
+    width: 50,
+    height: 50,
+    margin: 2,
+    marginTop: 10,
+  },
+
+  top_category_text_block: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    justifyContent: "center",
+  },
+
+  top_category_text: {
+    color: "#494949",
+    fontWeight: "200",
+    fontSize: 11,
+  },
   card: { marginVertical: 5 },
   screen: {
     paddingHorizontal: 5,
@@ -158,7 +204,7 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "transparent",
     flexDirection: "row",
     justifyContent: "center",
     margin: 10,

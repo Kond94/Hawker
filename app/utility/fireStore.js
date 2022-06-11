@@ -1,6 +1,6 @@
 import firestore from "@react-native-firebase/firestore";
 
-export const categoriesCollection = (setCategories) => {
+export const getCategories = (setCategories) => {
   const subscriber = firestore()
     .collection("Categories")
     .onSnapshot((querySnapShot, error) => {
@@ -20,11 +20,7 @@ export const categoriesCollection = (setCategories) => {
   return subscriber;
 };
 
-export const listingsCollection = (
-  setListings,
-  setFilteredListings,
-  setLoading
-) => {
+export const getListings = (setListings, setFilteredListings, setLoading) => {
   const subscriber = firestore()
     .collection("Listings")
     .orderBy("title", "desc")
@@ -41,7 +37,7 @@ export const listingsCollection = (
   return subscriber;
 };
 
-export const storesCollection = (setStores) => {
+export const getStores = (setStores) => {
   const subscriber = firestore()
     .collection("Stores")
     .onSnapshot((querySnapShot) => {
@@ -66,21 +62,31 @@ export const storesCollection = (setStores) => {
   return subscriber;
 };
 
-export const usersCollections = (author, setAuthor) => {
+export const getUser = (userId, setUser) => {
   const subscriber = firestore()
     .collection("Users")
-    .doc(author)
+    .doc(userId)
     .onSnapshot((documentSnapshot) => {
-      setAuthor(documentSnapshot.data());
+      setUser(documentSnapshot.data());
     });
 
   return subscriber;
 };
 
-export const authorListingCollection = (author, setAuthorListings) => {
+export const getStore = (storeId, setStore) => {
+  const subscriber = firestore()
+    .collection("Stores")
+    .doc(storeId)
+    .onSnapshot((documentSnapshot) => {
+      setStore(documentSnapshot.data());
+    });
+
+  return subscriber;
+};
+export const getUserListings = (userId, setAuthorListings) => {
   const subscriber = firestore()
     .collection("Listings")
-    .where("author", "==", author)
+    .where("author", "==", userId)
     .onSnapshot((querySnapShot) => {
       const listings = [];
       querySnapShot.forEach((item) => {
