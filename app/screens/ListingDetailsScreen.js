@@ -3,8 +3,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TouchableNativeFeedback,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -18,7 +16,6 @@ import ListItem from "../components/lists/ListItem";
 import { SliderBox } from "react-native-image-slider-box";
 import Text from "../components/Text";
 import colors from "../config/colors";
-import routes from "../navigation/routes";
 
 function ListingDetailsScreen({ route, navigation }) {
   const [visible, setIsVisible] = useState(false);

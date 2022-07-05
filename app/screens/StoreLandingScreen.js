@@ -1,18 +1,16 @@
+import { default as AppText, default as Text } from "../components/Text";
 import {
   Dimensions,
   FlatList,
   Image,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 
-import AppText from "../components/Text";
 import Carousel from "react-native-banner-carousel";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import Text from "../components/Text";
 import { getStore } from "../utility/fireStore";
 
 function StoreLandingScreen({ route, navigation }) {

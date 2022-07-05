@@ -6,10 +6,9 @@ import {
   FormPicker as Picker,
   SubmitButton,
 } from "../components/forms";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import ActivityIndicator from "../components/ActivityIndicator";
-import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";

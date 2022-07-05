@@ -5,7 +5,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 const Stack = createStackNavigator();
 
 const ChatNavigator = () => (
-  <Stack.Navigator mode='modal' screenOptions={{ headerShown: false }}>
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, presentation: "modal" }}
+  >
     <Stack.Screen name='Chat' component={MessagesScreen} />
   </Stack.Navigator>
 );

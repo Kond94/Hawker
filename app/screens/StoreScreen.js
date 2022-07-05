@@ -6,13 +6,12 @@ import {
   CardImage,
   CardTitle,
 } from "react-native-cards";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { appUser, signOut } from "../utility/auth";
 import { getCategories, getStores } from "../utility/fireStore";
 
 import InfoWithAction from "../components/InfoWithAction";
-import SelectBox from "react-native-multi-selectbox";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 

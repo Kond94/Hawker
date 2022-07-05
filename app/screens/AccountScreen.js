@@ -1,11 +1,10 @@
 import { FlatList, StyleSheet, View } from "react-native";
 import { ListItem, ListItemSeparator } from "../components/lists";
-import React, { useContext } from "react";
 
-import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import InfoWithAction from "../components/InfoWithAction";
+import React from "react";
 import Screen from "../components/Screen";
 import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";

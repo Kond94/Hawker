@@ -1,4 +1,4 @@
-import { Card, CardContent, CardImage, CardTitle } from "react-native-cards";
+import { Card, CardContent, CardImage } from "react-native-cards";
 import {
   FlatList,
   Image,
@@ -13,18 +13,14 @@ import { appUser, signOut } from "../utility/auth";
 import { getCategories, getListings } from "../utility/fireStore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
-import AppButton from "../components/Button";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
 import Button from "../components/Button";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import InfoWithAction from "../components/InfoWithAction";
 import Screen from "../components/Screen";
-import SelectBox from "react-native-multi-selectbox";
-import colors from "../config/colors";
 import routes from "../navigation/routes";
 import { slides } from "../utility/dummyData";
-import { xorBy } from "lodash";
 
 function ListingsScreen({ navigation, route }) {
   const backgroundImage = require("../assets/app-background.png");
