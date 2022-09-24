@@ -1,6 +1,5 @@
 import { SafeAreaView, StyleSheet, View } from "react-native";
 
-import Constants from "expo-constants";
 import React from "react";
 
 function Screen({ children, style }) {
@@ -17,6 +16,8 @@ const styles = StyleSheet.create({
   },
   view: {
     flex: 1,
+    backgroundColor: "#fff",
+    padding: 13,
   },
 });
 

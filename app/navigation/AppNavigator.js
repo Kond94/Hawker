@@ -29,7 +29,6 @@ const AppNavigator = () => {
       }}
       tabBar={(props) => (
         <BottomFabBar
-          mode={"square"}
           isRtl={false}
           // Add Shadow for active tab bar button
           focusedButtonStyle={{
@@ -60,7 +59,7 @@ const AppNavigator = () => {
         options={{
           tabBarLabel: "Listings",
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name='home' color={color} size={size} />
+            <AntDesign name='home' color={color} size={25} />
           ),
         }}
       />
@@ -71,7 +70,7 @@ const AppNavigator = () => {
           tabBarLabel: "Stores",
 
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name='appstore-o' color={color} size={size} />
+            <AntDesign name='appstore-o' color={color} size={25} />
           ),
         }}
       />
@@ -92,7 +91,7 @@ const AppNavigator = () => {
                 <MaterialCommunityIcons
                   name='plus-circle'
                   color={color}
-                  size={size}
+                  size={25}
                 />
               ),
             })}
@@ -104,7 +103,7 @@ const AppNavigator = () => {
               tabBarLabel: "Messages",
 
               tabBarIcon: ({ color, size }) => (
-                <AntDesign name='message1' color={color} size={size} />
+                <AntDesign name='message1' color={color} size={25} />
               ),
             }}
           />
@@ -114,7 +113,7 @@ const AppNavigator = () => {
             options={{
               tabBarLabel: "Account",
               tabBarIcon: ({ color, size }) => (
-                <AntDesign name='user' color={color} size={size} />
+                <AntDesign name='user' color={color} size={25} />
               ),
             }}
           />

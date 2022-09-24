@@ -10,28 +10,19 @@ import {
 import AppText from "../components/Text";
 import Button from "../components/Button";
 import React from "react";
+import Screen from "../components/Screen";
 import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 
 function WelcomeScreen({ navigation }) {
   return (
-    <ImageBackground
-      blurRadius={0.5}
-      style={styles.background}
-      source={require("../assets/app-background.png")}
-    >
+    <Screen>
       <View style={styles.logoContainer}>
         <Image
           style={styles.logo}
           source={require("../assets/logo-primary.png")}
         />
-        {/* <Image
-          resizeMethod='auto'
-          style={styles.logo2}
-          source={require("../assets/HAWKER.png")}
-        /> */}
-
         <Text style={styles.tagline}>Sell or Buy</Text>
         <Text style={styles.tagline}>Anything from Anywhere!</Text>
       </View>
@@ -45,6 +36,8 @@ function WelcomeScreen({ navigation }) {
           color='secondary'
           onPress={() => navigation.navigate(routes.REGISTER)}
         />
+      </View>
+      <View style={styles.skipLogin}>
         <TouchableNativeFeedback
           onPress={() => {
             auth()
@@ -66,16 +59,11 @@ function WelcomeScreen({ navigation }) {
           </View>
         </TouchableNativeFeedback>
       </View>
-    </ImageBackground>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
   buttonsContainer: {
     padding: 20,
     width: "100%",
@@ -90,12 +78,15 @@ const styles = StyleSheet.create({
     height: 50,
   },
   logoContainer: {
-    position: "absolute",
-    top: 70,
+    marginTop: 70,
     alignItems: "center",
   },
+  skipLogin: {
+    marginVertical: 30,
+    alignSelf: "center",
+  },
   tagline: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "600",
     paddingVertical: 10,
   },

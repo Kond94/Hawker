@@ -27,7 +27,6 @@ function ListingsScreen({ navigation, route }) {
 
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const authorFilter = route.params?.authorListings ? true : false;
@@ -58,146 +57,73 @@ function ListingsScreen({ navigation, route }) {
   };
 
   return (
-    <ImageBackground
-      blurRadius={0.5}
-      style={{ flex: 1 }}
-      source={backgroundImage}
-    >
+    <Screen>
       <ActivityIndicator visible={loading} />
 
-      <Screen style={styles.screen}>
-        {false && (
-          <>
-            <AppText>Couldn't retrieve the listings.</AppText>
-            <Button title='Retry' onPress={() => {}} />
-          </>
-        )}
-        {authorFilter ? (
-          <InfoWithAction
-            buttonTitle='clear'
-            information={"Viewing listings by: " + author.name}
-            onButtonPress={() =>
-              navigation.navigate("Listings", { authorListings: undefined })
-            }
-          />
-        ) : (
-          <>
-            <View style={styles.searchBox}>
-              <AppTextInput
-                placeholder='Search Listings'
-                onChangeText={filterListings}
-              />
-            </View>
-            <View style={styles.top_category_bar}>
-              <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-              >
-                {slides.map((item, key) => (
-                  <View key={key} style={styles.top_category_inner_block}>
-                    <Image
-                      source={{
-                        uri: item.uri,
-                      }}
-                      style={styles.top_category_image}
-                    />
-                    <View style={styles.top_category_text_block}>
-                      <Text style={styles.top_category_text}>{item.title}</Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          </>
-        )}
-
-        <FlatList
-          ListHeaderComponent={() =>
-            appUser().isAnonymous ? (
-              <InfoWithAction onButtonPress={() => signOut()} />
-            ) : (
-              <></>
-            )
+      {false && (
+        <>
+          <AppText>Couldn't retrieve the listings.</AppText>
+          <Button title='Retry' onPress={() => {}} />
+        </>
+      )}
+      {authorFilter ? (
+        <InfoWithAction
+          buttonTitle='clear'
+          information={"Viewing listings by: " + author.name}
+          onButtonPress={() =>
+            navigation.navigate("Listings", { authorListings: undefined })
           }
-          showsVerticalScrollIndicator={false}
-          data={authorFilter ? route.params.authorListings : filteredListings}
-          keyExtractor={(listing) => listing.id.toString()}
-          renderItem={({ item }) => {
-            return (
-              <TouchableNativeFeedback
-                onPress={() =>
-                  navigation.navigate(routes.LISTING_DETAILS, {
-                    item: item,
-                  })
-                }
-              >
-                <View style={styles.card}>
-                  <Card>
-                    <CardImage
-                      source={{ uri: item.images[0] }}
-                      title={"k " + item.price}
-                    />
-                    <CardContent text={item.title} />
-                  </Card>
-                </View>
-              </TouchableNativeFeedback>
-            );
-          }}
         />
-      </Screen>
-    </ImageBackground>
+      ) : (
+        <>
+          <View style={styles.searchBox}>
+            <AppTextInput
+              placeholder='Search Listings'
+              onChangeText={filterListings}
+            />
+          </View>
+          {appUser().isAnonymous ? (
+            <InfoWithAction onButtonPress={() => signOut()} />
+          ) : (
+            <></>
+          )}
+        </>
+      )}
+
+      <FlatList
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        data={authorFilter ? route.params.authorListings : filteredListings}
+        keyExtractor={(listing) => listing.id.toString()}
+        renderItem={({ item }) => {
+          return (
+            <TouchableNativeFeedback
+              onPress={() =>
+                navigation.navigate(routes.LISTING_DETAILS, {
+                  item: item,
+                })
+              }
+            >
+              <View style={styles.card}>
+                <Card>
+                  <CardImage
+                    source={{ uri: item.images[0] }}
+                    title={"k " + item.price}
+                  />
+                  <CardContent text={item.title} />
+                </Card>
+              </View>
+            </TouchableNativeFeedback>
+          );
+        }}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  top_category_bar: {
-    flexDirection: "row",
-    width: "100%",
-    backgroundColor: "#fff",
-  },
-
-  top_category_inner_block: {
-    margin: 5,
-    marginTop: 0,
-  },
-  box_product: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 105,
-    borderColor: "#f0f0f0",
-    borderWidth: 1,
-    margin: 4,
-  },
-  top_category_image: {
-    resizeMode: "contain",
-    width: 50,
-    height: 50,
-    margin: 2,
-    marginTop: 10,
-  },
-
-  top_category_text_block: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    justifyContent: "center",
-  },
-
-  top_category_text: {
-    color: "#494949",
-    fontWeight: "200",
-    fontSize: 11,
-  },
   card: { marginVertical: 5 },
-  screen: {
-    paddingHorizontal: 5,
-    backgroundColor: "transparent",
-  },
-  filterBox: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    margin: 17,
-  },
+
   searchBox: {
     alignItems: "center",
     backgroundColor: "transparent",
