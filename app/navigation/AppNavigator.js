@@ -33,21 +33,20 @@ const AppNavigator = () => {
           // Add Shadow for active tab bar button
           focusedButtonStyle={{
             shadowColor: "#000",
+            backGroundColor: "#0000",
             shadowOffset: {
               width: 0,
               height: 7,
             },
             shadowOpacity: 0.6,
             shadowRadius: 9.11,
-            elevation: 14,
+            elevation: 3,
           }}
           // - You can add the style below to show screen content under the tab-bar
           // - It will makes the "transparent tab bar" effect.
           bottomBarContainerStyle={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
+            height: 50,
+            backgroundColor: "#0000",
           }}
           {...props}
         />

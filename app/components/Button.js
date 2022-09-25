@@ -9,13 +9,27 @@ function AppButton({
   color = "primary",
   width = "100%",
   margin = 0,
+  square = false,
+  outline = false,
 }) {
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: colors[color], width, margin }]}
+      style={[
+        styles.button,
+        {
+          backgroundColor: outline ? "#0000" : colors[color],
+          borderWidth: 1,
+          borderColor: colors[color],
+          width,
+          margin,
+          borderRadius: square ? 10 : 25,
+        },
+      ]}
       onPress={onPress}
     >
-      <Text style={styles.text}>{title}</Text>
+      <Text style={[styles.text, { color: outline ? colors[color] : "#fff" }]}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 }
