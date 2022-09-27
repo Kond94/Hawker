@@ -2,7 +2,7 @@ const defaultOptions = {
   significantDigits: 2,
   thousandsSeparator: ",",
   decimalSeparator: ".",
-  symbol: "Mk",
+  symbol: "K",
 };
 
 export const currencyFormatter = (value, options) => {

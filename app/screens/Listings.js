@@ -3,39 +3,118 @@ import {
   ImageBackground,
   LogBox,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { getCategories, getListings } from "../utility/fireStore";
 
+import AppButton from "../components/Button";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
+import BannerIcon from "../components/BannerIcon";
 import Icon from "../components/Icon";
+import ListingCard from "../components/ListingCard";
+import Modal from "react-native-modal";
 import Screen from "../components/Screen";
+import SortModal from "../components/SortModal";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
+import { filters } from "../../node_modules/css-select/lib/index";
+
+const _ = require("lodash");
 
 const Listings = ({ navigation, route }) => {
+  const [searchText, setSearchText] = useState("");
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [selectedCategories, setFilteredCategories] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const authorFilter = route.params?.authorListings ? true : false;
   const author = authorFilter ? route.params?.author : null;
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const [activeSort, setActiveSort] = useState("Date");
+  const [fromDate, setFromDate] = useState(new Date("2020-12-31T00:00:00"));
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [order, setOrder] = useState("New to Old");
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   useEffect(() => {
     const listingsSubscriber = getListings(
       setListings,
       setFilteredListings,
-      setLoading
+      setLoading,
+      sortListings
     );
 
     const categoriesSubscriber = getCategories(setCategories);
+
     return listingsSubscriber, categoriesSubscriber;
   }, []);
 
-  const filterListings = (searchText) => {
-    let filteredListings = listings;
+  const sortListings = (listings = filteredListings) => {
+    let sortedListings = listings;
+
+    switch (activeSort) {
+      case "Date":
+        sortedListings = sortedListings.filter((l) => l.createdAt >= fromDate);
+
+        sortedListings = _.orderBy(
+          sortedListings,
+          "createdAt",
+          order === "Old to New" ? "asc" : "desc"
+        );
+        break;
+      case "Price":
+        sortedListings = sortedListings.filter(
+          (l) => l.price >= minPrice && l.price <= maxPrice
+        );
+        sortedListings = _.orderBy(
+          sortedListings,
+          "price",
+          order === "Low to High" ? "asc" : "desc"
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    setFilteredListings(sortedListings);
+  };
+  const filterByCategory = (category) => {
+    let filter = [...selectedCategories];
+    if (!filter.includes(category)) {
+      //checking weather array contain the id
+      filter.push(category); //adding to array because value doesnt exists
+    } else {
+      filter.splice(filter.indexOf(category), 1); //deleting
+    }
+    setFilteredCategories(filter);
+    filter.length > 0
+      ? sortListings(
+          listings.filter((listing) =>
+            filter.map((c) => c.id).includes(listing.category.id)
+          )
+        )
+      : setFilteredListings(listings);
+  };
+
+  const filterBySearch = (searchText) => {
+    let filteredListings = [];
+
+    selectedCategories.length > 0
+      ? (filteredListings = listings.filter((listing) =>
+          selectedCategories.map((c) => c.id).includes(listing.category.id)
+        ))
+      : (filteredListings = listings);
+
     searchText.length > 0
       ? (filteredListings = listings?.filter(
           (listing) =>
@@ -47,217 +126,148 @@ const Listings = ({ navigation, route }) => {
     setFilteredListings(filteredListings);
   };
 
-  // return <Routes />;
   return (
     <Screen>
-      <View style={styles.header}>
-        <Icon
-          name='menu'
-          backgroundColor='#0000'
-          iconColor='#000'
-          circle={false}
+      <Modal style={styles.sortModal} isVisible={isModalVisible}>
+        <SortModal
+          toggleModal={toggleModal}
+          sortListings={sortListings}
+          sortDetails={{
+            activeSort: activeSort,
+            setActiveSort: setActiveSort,
+            fromDate: fromDate,
+            setFromDate: setFromDate,
+            minPrice: minPrice,
+            setMinPrice: setMinPrice,
+            maxPrice: maxPrice,
+            setMaxPrice: setMaxPrice,
+            order: order,
+            setOrder: setOrder,
+          }}
+          allListings={listings}
         />
-        <AppText style={styles.headerTitle}>Listings</AppText>
-        <Icon
-          name='filter-remove'
-          backgroundColor='#0000'
-          iconColor={colors.mediumRare}
-          circle={false}
-        />
+      </Modal>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <AppText style={styles.screenHeaderText}>Listings</AppText>
+
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity onPress={toggleModal}>
+            <Icon
+              name='sort'
+              backgroundColor='#0000'
+              iconColor='#000'
+              circle={false}
+            />
+          </TouchableOpacity>
+          {selectedCategories.length > 0 || searchText.trim() !== "" ? (
+            <TouchableOpacity
+              onPress={() => {
+                setSearchText("");
+                setFilteredCategories([]);
+                sortListings(listings);
+              }}
+            >
+              <Icon
+                iconColor={colors.primary}
+                name='filter-remove'
+                backgroundColor='#0000'
+                iconColor={colors.primary}
+                circle={false}
+              />
+            </TouchableOpacity>
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
       <View style={styles.searchBox}>
-        <AppTextInput placeholder='Search Listings' />
+        <AppTextInput
+          icon='magnify'
+          placeholder='Search'
+          onChangeText={(value) => {
+            setSearchText(value), filterBySearch(value);
+          }}
+          value={searchText}
+        />
       </View>
+
       <View style={styles.categoriesContainer}>
-        <View style={styles.categoriesHeader}>
-          <AppText style={{ fontWeight: "bold", color: colors.mediumRare }}>
-            Category
-          </AppText>
-          <AppText style={{ fontWeight: "bold", color: colors.mediumRare }}>
-            See All
-          </AppText>
+        <View style={styles.categoriesHeaderContainer}>
+          <AppText style={styles.categoriesHeaderText}>Category</AppText>
+          <AppText style={styles.categoriesHeaderText}>See All</AppText>
         </View>
+
         <FlatList
           showsHorizontalScrollIndicator={false}
           data={categories}
           horizontal
           renderItem={({ item }) => (
-            <View
-              key={item.id}
-              style={{
-                margin: 10,
-                alignItems: "center",
-              }}
-            >
-              <View
-                style={{
-                  width: 50,
-                  height: 50,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 5,
-                  backgroundColor: item.selected
-                    ? colors.primary
-                    : colors.medium,
-                  shadowColor: colors.dark,
-                  shadowOffset: { width: 2, height: 2 },
-                  shadowOpacity: 1,
-                  shadowRadius: 10,
-                  elevation: 5,
-                  marginBottom: 5,
-                  // background color must be set
-                }}
-              >
-                <Icon
-                  size={60}
-                  name={item.icon}
-                  circle={false}
-                  backgroundColor={colors.invisible}
-                  iconColor={colors.mediumRare}
-                />
-              </View>
-              <AppText style={{ color: colors.mediumRare }}>
-                {item.label}
-              </AppText>
-            </View>
+            <BannerIcon
+              item={item}
+              selectedItems={selectedCategories}
+              filter={filterByCategory}
+              sort={sortListings}
+            />
           )}
         />
       </View>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        data={listings}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              margin: 5,
-              alignItems: "center",
-            }}
-          >
-            {console.log(item)}
+      {filteredListings.length === 0 ? (
+        <View style={styles.noListingsText}>
+          <AppText>Sorry nothing to show..</AppText>
+        </View>
+      ) : (
+        <FlatList
+          style={{ marginVertical: 25 }}
+          showsVerticalScrollIndicator={false}
+          data={authorFilter ? route.params.authorListings : filteredListings}
+          renderItem={({ item }) => (
+            <ListingCard navigation={navigation} item={item} />
+          )}
+          ItemSeparatorComponent={() => (
             <View
               style={{
-                width: "100%",
-                height: 130,
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                borderRadius: 10,
-                borderColor: "#0000",
-                backgroundColor: "#fff",
-                marginBottom: 5,
-                flexDirection: "row",
-                shadowColor: colors.mediumRare,
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 1,
-                shadowRadius: 0,
-                elevation: 3,
+                borderBottomWidth: 1,
+                borderColor: colors.medium,
+                margin: 15,
               }}
-            >
-              <View
-                style={{
-                  width: "40%",
-                  borderRadius: 10,
-                  height: "100%",
-                  overflow: "hidden",
-                }}
-              >
-                <ImageBackground
-                  resizeMode='cover'
-                  source={{ uri: item.images[0] }}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "#000",
-                    shadowColor: colors.dark,
-                    shadowOffset: { width: 5, height: 5 },
-                    shadowOpacity: 1,
-                    shadowRadius: 10,
-                    elevation: 5,
-                  }}
-                />
-              </View>
-              <View
-                style={{
-                  marginLeft: 10,
-                  marginRight: 3,
-                  flexShrink: 1,
-                }}
-              >
-                <AppText
-                  style={{
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    color: "#5d5d5d",
-                  }}
-                >
-                  {item.title}
-                </AppText>
-                <AppText numberOfLines={2} style={{ color: "#5d5d5d" }}>
-                  {item.description}
-                </AppText>
-                <View
-                  style={{
-                    justifyContent: "flex-end",
-                    flex: 1,
-                    marginBottom: 7,
-                  }}
-                >
-                  <AppText
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "bold",
-                      textDecorationLine: "line-through",
-                      textDecorationStyle: "solid",
-                      color: colors.secondary,
-                    }}
-                  >
-                    {item.promotionPrice && currencyFormatter(item.price)}
-                  </AppText>
-                  <AppText
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "bold",
-                      color: colors.primary,
-                    }}
-                  >
-                    {item.promotionPrice
-                      ? currencyFormatter(item.promotionPrice)
-                      : currencyFormatter(parseInt(item.price))}
-                  </AppText>
-                </View>
-              </View>
-            </View>
-          </View>
-        )}
-      />
+            ></View>
+          )}
+        />
+      )}
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  categoriesCard: {},
   categoriesContainer: {
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
-  categoriesHeader: {
+  categoriesHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    height: 30,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-  },
-  headerTitle: {
-    fontSize: 25,
+  categoriesHeaderText: {
     fontWeight: "bold",
+    fontSize: 15,
+    textAlignVertical: "bottom",
     color: colors.mediumRare,
   },
+  noListingsText: { flex: 1, alignItems: "center", justifyContent: "center" },
   searchBox: {
     alignItems: "center",
     backgroundColor: "transparent",
     flexDirection: "row",
     justifyContent: "center",
-    margin: 5,
+  },
+  screenHeaderText: {
+    fontWeight: "bold",
+    fontSize: 30,
+    textAlignVertical: "bottom",
+    color: colors.mediumRare,
+  },
+  sortModal: {
+    justifyContent: "flex-end",
   },
 });
 

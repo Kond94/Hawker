@@ -20,7 +20,12 @@ export const getCategories = (setCategories) => {
   return subscriber;
 };
 
-export const getListings = (setListings, setFilteredListings, setLoading) => {
+export const getListings = (
+  setListings,
+  setFilteredListings,
+  setLoading,
+  sortListings
+) => {
   const subscriber = firestore()
     .collection("Listings")
     .orderBy("title", "desc")
@@ -28,10 +33,17 @@ export const getListings = (setListings, setFilteredListings, setLoading) => {
     .onSnapshot((querySnapShot) => {
       const listings = [];
       querySnapShot.forEach((item) => {
-        listings.push({ id: item.id, ...item.data() });
+        listings.push({
+          id: item.id,
+          ...item.data(),
+          price: parseInt(item.data().price),
+          createdAt: new Date(item.data().createdAt.seconds * 1000),
+        });
       });
       setListings(listings);
       setFilteredListings(listings);
+      sortListings(listings);
+
       setLoading(false);
     });
   return subscriber;

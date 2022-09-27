@@ -1,3 +1,4 @@
+import ListingDetails from "../screens/ListingDetails";
 import ListingDetailsScreen from "../screens/ListingDetailsScreen";
 import Listings from "../screens/Listings";
 import ListingsScreen from "../screens/ListingsScreen";
@@ -11,7 +12,7 @@ const FeedNavigator = () => (
     screenOptions={{ headerShown: false, presentation: "modal" }}
   >
     <Stack.Screen name='Listings' component={Listings} />
-    <Stack.Screen name='ListingDetails' component={ListingDetailsScreen} />
+    <Stack.Screen name='ListingDetails' component={ListingDetails} />
   </Stack.Navigator>
 );
 
