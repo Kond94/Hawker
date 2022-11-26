@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableNativeFeedback,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 import AppText from "./Text";
 import Icon from "./Icon";
@@ -26,20 +32,22 @@ const BannerIcon = ({ item, selectedItems, filter, sort }) => {
           },
         ]}
       >
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           onPress={() => {
             filter(item);
             // sort();
           }}
         >
-          <Icon
-            size={60}
-            name={item.icon}
-            circle={false}
-            backgroundColor={colors.invisible}
-            iconColor={colors.mediumRare}
-          />
-        </TouchableOpacity>
+          <View>
+            <Icon
+              size={60}
+              name={item.icon}
+              circle={false}
+              backgroundColor={colors.invisible}
+              iconColor={colors.mediumRare}
+            />
+          </View>
+        </TouchableWithoutFeedback>
       </View>
       <AppText style={styles.categoryLabel}>{item.label}</AppText>
     </View>

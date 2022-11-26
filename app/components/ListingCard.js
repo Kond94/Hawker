@@ -1,4 +1,9 @@
-import { ImageBackground, TouchableOpacity, View } from "react-native";
+import {
+  ImageBackground,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import React, { Component } from "react";
 
 import AppText from "./Text";
@@ -10,7 +15,7 @@ import routes from "../navigation/routes";
 
 const ListingCard = ({ navigation, item }) => {
   return (
-    <TouchableOpacity
+    <TouchableWithoutFeedback
       onPress={() =>
         navigation.navigate(routes.LISTING_DETAILS, {
           item: item,
@@ -137,7 +142,7 @@ const ListingCard = ({ navigation, item }) => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   );
 };
 

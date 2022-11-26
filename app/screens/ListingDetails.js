@@ -4,57 +4,57 @@ import {
   ImageBackground,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { getUser, getUserListings } from "../utility/fireStore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
 import Icon from "../components/Icon";
-import React from "react";
 import colors from "../config/colors";
+import { currencyFormatter } from "../utility/numberFormat";
 
 const OFFSET = 40;
 const ITEM_WIDTH = Dimensions.get("window").width - OFFSET * 2;
 const ITEM_HEIGHT = 260;
 
-const cards = [
-  {
-    id: 1,
-    title: "Movie 1",
-    posterUrl: require("../assets/samples/tenet.jpeg"),
-  },
-  { title: "Movie 2", posterUrl: require("../assets/samples/1917.jpeg") },
-  {
-    id: 2,
-    title: "Movie 3",
-    posterUrl: require("../assets/samples/spiderman.jpeg"),
-  },
-  {
-    id: 3,
-    title: "Movie 4",
-    posterUrl: require("../assets/samples/mando.jpeg"),
-  },
-];
+export default function ListingDetails({ route, navigation }) {
+  const [author, setAuthor] = useState();
+  const [authorListings, setAuthorListings] = useState([]);
+  const listing = route.params.item;
 
-export default function ListingDetails() {
+  useLayoutEffect(() => {
+    navigation.setOptions({ tabBarVisible: false });
+  }, [navigation]);
+
+  useEffect(() => {
+    const authorSubscriber = getUser(listing.author, setAuthor);
+
+    const authorListingsSubscriber = getUserListings(
+      listing.author,
+      setAuthorListings
+    );
+    // Unsubscribe from events when no longer in use
+
+    return authorSubscriber, authorListingsSubscriber;
+  }, [navigation]);
+
   const scrollX = React.useRef(new Animated.Value(0)).current;
-
   return (
     <View>
       <View style={styles.header}>
-        <Icon
-          name='arrow-left'
-          backgroundColor='#0000'
-          iconColor='#000'
-          circle={false}
-        />
-        <AppText style={styles.headerTitle}>Listing Details</AppText>
-        {/* <Icon
-            name='filter-remove'
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon
+            name='arrow-left'
             backgroundColor='#0000'
-            iconColor={colors.mediumRare}
+            iconColor='#000'
             circle={false}
-          /> */}
+          />
+        </TouchableOpacity>
+        <AppText style={styles.headerTitle}>Listing Details</AppText>
+        <View style={{ width: 40 }} />
       </View>
       <View style={{ marginHorizontal: 13 }}>
         <AppText
@@ -64,110 +64,135 @@ export default function ListingDetails() {
             color: "#5d5d5d",
           }}
         >
-          Title
+          {listing.title}
         </AppText>
-        <AppText numberOfLines={2} style={{ color: "#5d5d5d" }}>
-          Subtitle, blah blah blah...
-        </AppText>
-      </View>
-      <View>
-        <ScrollView
-          horizontal={true}
-          decelerationRate={"normal"}
-          snapToInterval={ITEM_WIDTH}
-          style={{ marginTop: 20, paddingHorizontal: 0 }}
-          showsHorizontalScrollIndicator={false}
-          bounces={true}
-          disableIntervalMomentum
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            { useNativeDriver: false }
-          )}
-          scrollEventThrottle={12}
-        >
-          {cards.map((item, idx) => {
-            const inputRange = [
-              (idx - 1) * ITEM_WIDTH,
-              idx * ITEM_WIDTH,
-              (idx + 1) * ITEM_WIDTH,
-            ];
-
-            const translate = scrollX.interpolate({
-              inputRange,
-              outputRange: [0.85, 1, 0.85],
-            });
-
-            const opacity = scrollX.interpolate({
-              inputRange,
-              outputRange: [0.5, 1, 0.5],
-            });
-
-            return (
-              <Animated.View
-                key={item.id}
-                style={{
-                  width: ITEM_WIDTH,
-                  height: ITEM_HEIGHT,
-                  marginLeft: idx === 0 ? OFFSET : undefined,
-                  marginRight: idx === cards.length - 1 ? OFFSET : undefined,
-                  opacity: opacity,
-                  transform: [{ scale: translate }],
-                }}
-              >
-                <ImageBackground
-                  source={item.posterUrl}
-                  style={{
-                    flex: 1,
-                    resizeMode: "cover",
-                    justifyContent: "center",
-                  }}
-                  imageStyle={{ borderRadius: 6 }}
-                />
-              </Animated.View>
-            );
-          })}
-        </ScrollView>
-      </View>
-      <View style={{ marginHorizontal: 13, marginTop: 20 }}>
-        <AppText
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            color: colors.primary,
-          }}
-        >
-          Mwk 2,000
-        </AppText>
-        <AppText
-          style={{
-            fontSize: 18,
-            marginTop: 20,
-            color: colors.mediumRare,
-          }}
-        >
-          Description
-        </AppText>
-        <AppText
-          style={{
-            marginTop: 10,
-            color: colors.mediumRare,
-          }}
-        >
-          Blah Blah blah scentnce. Blah Blah blah scentnce. Blah Blah blah
-          scentnce. Blah Blah blah scentnce. Blah Blah blah scentnce. Blah Blah
-          blah scentnce.
-        </AppText>
-        <View
-          style={{
-            justifyContent: "space-between",
-            flexDirection: "row",
-            paddingTop: 30,
-          }}
-        >
-          <AppButton square title='Contact Seller' width='45%' outline />
-          <AppButton square title='Buy Now' width='45%' color='primary' />
+        <View style={{ flexDirection: "row" }}>
+          <AppText
+            numberOfLines={2}
+            style={{ color: "#5d5d5d", marginRight: 5 }}
+          >
+            Listed by: {author?.name}
+          </AppText>
+          <AppText style={{ color: colors.secondary, fontWeight: "bold" }}>
+            {authorListings.length > 2
+              ? "View " +
+                (authorListings.length - 1).toString() +
+                " Other Listings"
+              : ""}
+          </AppText>
         </View>
       </View>
+      <ScrollView key='scroll1' style={{ marginVertical: 20 }}>
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            key='scroll2'
+            horizontal={true}
+            decelerationRate={"normal"}
+            snapToInterval={ITEM_WIDTH}
+            style={{ marginTop: 20, paddingHorizontal: 0 }}
+            showsHorizontalScrollIndicator={false}
+            bounces={true}
+            disableIntervalMomentum
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              { useNativeDriver: false }
+            )}
+            scrollEventThrottle={12}
+          >
+            {listing.images.map((item, idx) => {
+              const inputRange = [
+                (idx - 1) * ITEM_WIDTH,
+                idx * ITEM_WIDTH,
+                (idx + 1) * ITEM_WIDTH,
+              ];
+
+              const translate = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.85, 1, 0.85],
+              });
+
+              const opacity = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.5, 1, 0.5],
+              });
+
+              return (
+                <Animated.View
+                  key={item}
+                  style={{
+                    width: ITEM_WIDTH,
+                    height: ITEM_HEIGHT,
+                    marginLeft: idx === 0 ? OFFSET : undefined,
+                    marginRight:
+                      idx === item.images?.length - 1 ? OFFSET : undefined,
+                    opacity: opacity,
+                    transform: [{ scale: translate }],
+                  }}
+                >
+                  <ImageBackground
+                    source={{ uri: item }}
+                    style={{
+                      flex: 1,
+                      resizeMode: "cover",
+                      justifyContent: "center",
+                    }}
+                    imageStyle={{ borderRadius: 6 }}
+                  />
+                </Animated.View>
+              );
+            })}
+          </ScrollView>
+        </View>
+        <View style={{ marginHorizontal: 13, marginTop: 20 }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <AppText
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: colors.primary,
+              }}
+            >
+              {currencyFormatter(listing.price)}
+            </AppText>
+            <Icon
+              name='heart-outline'
+              backgroundColor='#0000'
+              iconColor={colors.mediumRare}
+              circle={false}
+            />
+          </View>
+          <AppText
+            style={{
+              fontSize: 18,
+              marginTop: 20,
+              color: colors.mediumRare,
+            }}
+          >
+            Description
+          </AppText>
+          <AppText
+            numberOfLines={3}
+            style={{
+              marginTop: 10,
+              color: colors.mediumRare,
+            }}
+          >
+            {listing.description}
+          </AppText>
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "row",
+              paddingBottom: 30,
+            }}
+          >
+            <AppButton square title='Contact Seller' width='45%' outline />
+            {/* <AppButton square title='Buy Now' width='45%' color='primary' /> */}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 
@@ -185,6 +210,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
+    marginVertical: 10,
   },
   headerTitle: {
     fontSize: 25,

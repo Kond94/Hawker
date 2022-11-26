@@ -66,8 +66,7 @@ const SortModal = ({ toggleModal, sortListings, sortDetails, allListings }) => {
                 sortDetails.setMinPrice(value);
                 sortDetails.setMaxPrice(value + 1000);
               }}
-              // value={sortDetails.minPrice}
-              step={1000}
+              step={5000}
               minimumTrackTintColor={colors.primary}
               thumbTintColor={colors.primary}
             />
@@ -86,8 +85,7 @@ const SortModal = ({ toggleModal, sortListings, sortDetails, allListings }) => {
               minimumTrackTintColor='#FFFFFF'
               maximumTrackTintColor='#000000'
               onValueChange={(value) => sortDetails.setMaxPrice(value)}
-              // value={sortDetails.maxPrice}
-              step={1000}
+              step={5000}
               minimumTrackTintColor={colors.primary}
               thumbTintColor={colors.primary}
             />

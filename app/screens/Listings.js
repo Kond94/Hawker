@@ -1,9 +1,8 @@
 import {
   FlatList,
-  ImageBackground,
-  LogBox,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -128,7 +127,11 @@ const Listings = ({ navigation, route }) => {
 
   return (
     <Screen>
-      <Modal style={styles.sortModal} isVisible={isModalVisible}>
+      <Modal
+        style={styles.sortModal}
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+      >
         <SortModal
           toggleModal={toggleModal}
           sortListings={sortListings}
@@ -160,21 +163,23 @@ const Listings = ({ navigation, route }) => {
             />
           </TouchableOpacity>
           {selectedCategories.length > 0 || searchText.trim() !== "" ? (
-            <TouchableOpacity
+            <TouchableWithoutFeedback
               onPress={() => {
                 setSearchText("");
                 setFilteredCategories([]);
                 sortListings(listings);
               }}
             >
-              <Icon
-                iconColor={colors.primary}
-                name='filter-remove'
-                backgroundColor='#0000'
-                iconColor={colors.primary}
-                circle={false}
-              />
-            </TouchableOpacity>
+              <View>
+                <Icon
+                  iconColor={colors.primary}
+                  name='filter-remove'
+                  backgroundColor='#0000'
+                  iconColor={colors.primary}
+                  circle={false}
+                />
+              </View>
+            </TouchableWithoutFeedback>
           ) : (
             <></>
           )}
