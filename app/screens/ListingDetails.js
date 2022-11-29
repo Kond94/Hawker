@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { getUser, getUserListings } from "../utility/fireStore";
+import { getListing, getUser, getUserListings } from "../utility/fireStore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
@@ -22,23 +22,21 @@ const ITEM_HEIGHT = 260;
 
 export default function ListingDetails({ route, navigation }) {
   const [author, setAuthor] = useState();
+  const [listing, setListing] = useState();
   const [authorListings, setAuthorListings] = useState([]);
-  const listing = route.params.item;
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ tabBarVisible: false });
-  }, [navigation]);
 
   useEffect(() => {
-    const authorSubscriber = getUser(listing.author, setAuthor);
+    const listingSubscriber = getListing(route.params.listingId, setListing);
+
+    const authorSubscriber = getUser(route.params.listingAuthor, setAuthor);
 
     const authorListingsSubscriber = getUserListings(
-      listing.author,
+      route.params.listingAuthor,
       setAuthorListings
     );
     // Unsubscribe from events when no longer in use
 
-    return authorSubscriber, authorListingsSubscriber;
+    return listingSubscriber, authorSubscriber, authorListingsSubscriber;
   }, [navigation]);
 
   const scrollX = React.useRef(new Animated.Value(0)).current;
@@ -64,7 +62,7 @@ export default function ListingDetails({ route, navigation }) {
             color: "#5d5d5d",
           }}
         >
-          {listing.title}
+          {listing?.title}
         </AppText>
         <View style={{ flexDirection: "row" }}>
           <AppText
@@ -99,7 +97,7 @@ export default function ListingDetails({ route, navigation }) {
             )}
             scrollEventThrottle={12}
           >
-            {listing.images.map((item, idx) => {
+            {listing?.images.map((item, idx) => {
               const inputRange = [
                 (idx - 1) * ITEM_WIDTH,
                 idx * ITEM_WIDTH,
@@ -154,7 +152,7 @@ export default function ListingDetails({ route, navigation }) {
                 color: colors.primary,
               }}
             >
-              {currencyFormatter(listing.price)}
+              {currencyFormatter(listing?.price)}
             </AppText>
             <Icon
               name='heart-outline'
@@ -179,7 +177,7 @@ export default function ListingDetails({ route, navigation }) {
               color: colors.mediumRare,
             }}
           >
-            {listing.description}
+            {listing?.description}
           </AppText>
           <View
             style={{

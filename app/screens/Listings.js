@@ -175,7 +175,6 @@ const Listings = ({ navigation, route }) => {
                   iconColor={colors.primary}
                   name='filter-remove'
                   backgroundColor='#0000'
-                  iconColor={colors.primary}
                   circle={false}
                 />
               </View>

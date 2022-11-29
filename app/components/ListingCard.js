@@ -18,7 +18,8 @@ const ListingCard = ({ navigation, item }) => {
     <TouchableWithoutFeedback
       onPress={() =>
         navigation.navigate(routes.LISTING_DETAILS, {
-          item: item,
+          listingId: item.id,
+          listingAuthor: item.author,
         })
       }
     >

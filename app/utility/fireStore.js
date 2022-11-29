@@ -49,6 +49,17 @@ export const getListings = (
   return subscriber;
 };
 
+export const getListing = (listingId, setListing) => {
+  const subscriber = firestore()
+    .collection("Listings")
+    .doc(listingId)
+    .onSnapshot((documentSnapshot) => {
+      setListing(documentSnapshot.data());
+    });
+
+  return subscriber;
+};
+
 export const getStores = (setStores) => {
   const subscriber = firestore()
     .collection("Stores")

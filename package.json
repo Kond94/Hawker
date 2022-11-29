@@ -73,6 +73,6 @@
     "react-native-snap-carousel": "git.github.com/mondo-mob/react-native-snap-carousel.git#d8fd815"
   },
   "private": true,
-  "name": "hawker-frontend",
+  "name": "hawker",
   "version": "1.0.0"
 }
