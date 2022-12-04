@@ -1,9 +1,4 @@
-import {
-  ImageBackground,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { ImageBackground, TouchableWithoutFeedback, View } from "react-native";
 import React, { Component } from "react";
 
 import AppText from "./Text";

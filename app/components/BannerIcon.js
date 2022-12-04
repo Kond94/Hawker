@@ -28,7 +28,7 @@ const BannerIcon = ({ item, selectedItems, filter, sort }) => {
           {
             backgroundColor: selectedItems.includes(item)
               ? colors.primary
-              : colors.medium,
+              : colors.white,
           },
         ]}
       >
@@ -61,11 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 5,
 
-    shadowColor: colors.dark,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 5,
     marginBottom: 5,
   },
   categoryLabel: { color: colors.mediumRare },

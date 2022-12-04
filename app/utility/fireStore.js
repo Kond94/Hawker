@@ -24,11 +24,12 @@ export const getListings = (
   setListings,
   setFilteredListings,
   setLoading,
-  sortListings
+  sortListings,
+  activeSort
 ) => {
   const subscriber = firestore()
     .collection("Listings")
-    .orderBy("title", "desc")
+    .orderBy(activeSort.field, activeSort.order)
 
     .onSnapshot((querySnapShot) => {
       const listings = [];
@@ -42,7 +43,6 @@ export const getListings = (
       });
       setListings(listings);
       setFilteredListings(listings);
-      sortListings(listings);
 
       setLoading(false);
     });

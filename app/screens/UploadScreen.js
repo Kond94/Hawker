@@ -17,7 +17,7 @@ function UploadScreen({ onDone, progress = 0, visible = false }) {
               source={require("../assets/animations/uploading.json")}
               style={styles.animation}
             />
-            <AppText>Uploading...</AppText>
+            <AppText>Uploading Pictures...</AppText>
           </>
         ) : (
           <LottieView

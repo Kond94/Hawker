@@ -14,6 +14,7 @@ import AppTextInput from "../components/TextInput";
 import BannerIcon from "../components/BannerIcon";
 import Icon from "../components/Icon";
 import ListingCard from "../components/ListingCard";
+import ListingsScreen from "./ListingsScreen";
 import Modal from "react-native-modal";
 import Screen from "../components/Screen";
 import SortModal from "../components/SortModal";
@@ -215,29 +216,29 @@ const Listings = ({ navigation, route }) => {
           )}
         />
       </View>
-      {filteredListings.length === 0 ? (
-        <View style={styles.noListingsText}>
-          <AppText>Sorry nothing to show..</AppText>
-        </View>
-      ) : (
-        <FlatList
-          style={{ marginVertical: 25 }}
-          showsVerticalScrollIndicator={false}
-          data={authorFilter ? route.params.authorListings : filteredListings}
-          renderItem={({ item }) => (
-            <ListingCard navigation={navigation} item={item} />
-          )}
-          ItemSeparatorComponent={() => (
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderColor: colors.medium,
-                margin: 15,
-              }}
-            ></View>
-          )}
-        />
-      )}
+      <FlatList
+        style={{ marginVertical: 10 }}
+        showsVerticalScrollIndicator={false}
+        data={authorFilter ? route.params.authorListings : filteredListings}
+        renderItem={({ item }) => (
+          <ListingCard navigation={navigation} item={item} />
+        )}
+        ItemSeparatorComponent={() => (
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderColor: colors.medium,
+              margin: 15,
+            }}
+          ></View>
+        )}
+        ListFooterComponent={() => <View style={{ height: 90 }} />}
+        ListEmptyComponent={() => (
+          <View style={styles.noListingsText}>
+            <AppText>Sorry nothing to show..</AppText>
+          </View>
+        )}
+      />
     </Screen>
   );
 };

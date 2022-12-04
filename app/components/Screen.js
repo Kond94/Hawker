@@ -17,7 +17,6 @@ const styles = StyleSheet.create({
   view: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 13,
     paddingTop: 13,
   },
 });

@@ -1,317 +1,232 @@
-import React, { Component, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  Dimensions,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import AppButton from "./Button";
-import AppText from "./Text";
-import DatePicker from "react-native-date-picker";
-import Icon from "./Icon";
-import Slider from "@react-native-community/slider";
+import React from "react";
 import colors from "../config/colors";
-import { currencyFormatter } from "../utility/numberFormat";
 
-const sortCritera = ["Date", "Price"];
-const SortModal = ({ toggleModal, sortListings, sortDetails, allListings }) => {
-  const [open, setOpen] = useState(false);
-  const renderActiveSort = () => {
-    switch (sortDetails.activeSort) {
-      case "Date":
-        return (
-          <View style={styles.tabRenderContainer}>
-            <View style={styles.fieldContainer}>
-              <AppText style={styles.labelText}>From: </AppText>
-              <TouchableOpacity
-                onPress={() => setOpen(true)}
-                style={styles.feildValueContainer}
-              >
-                <AppText style={styles.fieldValueText}>
-                  {sortDetails.fromDate.toDateString("dd-mmm-yyyy")}
-                </AppText>
-              </TouchableOpacity>
-            </View>
-            <DatePicker
-              modal
-              open={open}
-              date={sortDetails.fromDate}
-              onConfirm={(date) => {
-                setOpen(false);
-                sortDetails.setFromDate(date);
-              }}
-              onCancel={() => {
-                setOpen(false);
-              }}
-              mode='date'
-              maximumDate={new Date()}
-              // androidVariant='iosClone'
-            />
-          </View>
-        );
-      case "Price":
-        return (
-          <View style={styles.tabRenderContainer}>
-            <View style={styles.fieldContainer}>
-              <AppText style={styles.labelText}>Minimum Price: </AppText>
-              <TouchableOpacity style={styles.feildValueContainer}>
-                <AppText style={styles.fieldValueText}>
-                  {currencyFormatter(sortDetails.minPrice)}
-                </AppText>
-              </TouchableOpacity>
-            </View>
-            <Slider
-              style={{ width: 300, height: 50 }}
-              minimumValue={0}
-              maximumValue={1000000}
-              minimumTrackTintColor='#FFFFFF'
-              maximumTrackTintColor='#000000'
-              onValueChange={(value) => {
-                sortDetails.setMinPrice(value);
-                sortDetails.setMaxPrice(value + 1000);
-              }}
-              step={5000}
-              minimumTrackTintColor={colors.primary}
-              thumbTintColor={colors.primary}
-            />
-            <View style={{ flexDirection: "row" }}>
-              <AppText style={styles.labelText}>Maximum Price: </AppText>
-              <TouchableOpacity style={styles.feildValueContainer}>
-                <AppText style={styles.fieldValueText}>
-                  {currencyFormatter(sortDetails.maxPrice)}
-                </AppText>
-              </TouchableOpacity>
-            </View>
-            <Slider
-              style={{ width: 300, height: 50 }}
-              minimumValue={1000}
-              maximumValue={1001000}
-              minimumTrackTintColor='#FFFFFF'
-              maximumTrackTintColor='#000000'
-              onValueChange={(value) => sortDetails.setMaxPrice(value)}
-              step={5000}
-              minimumTrackTintColor={colors.primary}
-              thumbTintColor={colors.primary}
-            />
-          </View>
-        );
+const { width } = Dimensions.get("window");
 
-      default:
-        return <></>;
+export default class App extends React.Component {
+  state = {
+    active: 0,
+    xTabOne: 0,
+    xTabTwo: 0,
+    translateX: new Animated.Value(0),
+    translateXTabOne: new Animated.Value(0),
+    translateXTabTwo: new Animated.Value(width),
+    translateY: -1000,
+  };
+
+  handleSlide = (type) => {
+    let {
+      active,
+      xTabOne,
+      xTabTwo,
+      translateX,
+      translateXTabOne,
+      translateXTabTwo,
+    } = this.state;
+    Animated.spring(translateX, {
+      toValue: type,
+      duration: 100,
+    }).start();
+    if (active === 0) {
+      Animated.parallel([
+        Animated.spring(translateXTabOne, {
+          toValue: 0,
+          duration: 100,
+        }).start(),
+        Animated.spring(translateXTabTwo, {
+          toValue: width,
+          duration: 100,
+        }).start(),
+      ]);
+    } else {
+      Animated.parallel([
+        Animated.spring(translateXTabOne, {
+          toValue: -width,
+          duration: 100,
+        }).start(),
+        Animated.spring(translateXTabTwo, {
+          toValue: 0,
+          duration: 100,
+        }).start(),
+      ]);
     }
   };
-  return (
-    <View style={styles.container}>
-      <AppText style={styles.header}>Sort By</AppText>
-      <View style={{ alignItems: "center" }}>
-        <View style={styles.tabContainer}>
-          {sortCritera.map((criteria) => (
-            <TouchableOpacity
-              key={criteria}
-              onPress={() => {
-                sortDetails.setActiveSort(criteria);
-                criteria === "Date"
-                  ? sortDetails.setOrder("New to Old")
-                  : sortDetails.setOrder("Low to High");
-              }}
-            >
-              <View
-                style={[
-                  styles.pillContainer,
-                  {
-                    borderTopLeftRadius:
-                      sortCritera.indexOf(criteria) === 0 ? 10 : 0,
-                    borderBottomLeftRadius:
-                      sortCritera.indexOf(criteria) === 0 ? 10 : 0,
-                    borderTopRightRadius:
-                      sortCritera.length === sortCritera.indexOf(criteria)
-                        ? 10
-                        : 0,
-                    borderBottomRightRadius:
-                      sortCritera.length === sortCritera.indexOf(criteria)
-                        ? 10
-                        : 0,
-                    backgroundColor:
-                      sortDetails.activeSort === criteria
-                        ? colors.primary
-                        : "#fff",
-                  },
-                ]}
-              >
-                <AppText
-                  style={[
-                    styles.pillText,
-                    {
-                      color:
-                        sortDetails.activeSort === criteria
-                          ? colors.white
-                          : colors.dark,
-                    },
-                  ]}
-                >
-                  {criteria}
-                </AppText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-        {renderActiveSort()}
+
+  render() {
+    let {
+      xTabOne,
+      xTabTwo,
+      translateX,
+      active,
+      translateXTabOne,
+      translateXTabTwo,
+      translateY,
+    } = this.state;
+    return (
+      <View
+        style={{ flex: 1, backgroundColor: colors.white, borderRadius: 10 }}
+      >
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "flex-start",
-            alignSelf: "flex-start",
-            margin: 13,
+            width: "90%",
+            marginLeft: "auto",
+            marginRight: "auto",
           }}
         >
-          <AppText
+          <View
             style={{
-              fontSize: 18,
-              padding: 3,
-              textAlignVertical: "bottom",
+              flexDirection: "row",
+              marginTop: 40,
+              marginBottom: 20,
+              height: 36,
+              position: "relative",
             }}
           >
-            Order:{" "}
-          </AppText>
-          {sortDetails.activeSort === "Date" ? (
-            <>
-              <TouchableOpacity
-                onPress={() =>
-                  sortDetails.setOrder(
-                    sortDetails.order === "Old to New"
-                      ? "New to Old"
-                      : "Old to New"
-                  )
-                }
+            <Animated.View
+              style={{
+                position: "absolute",
+                width: "50%",
+                height: "100%",
+                top: 0,
+                left: 0,
+                backgroundColor: "#007aff",
+                borderRadius: 4,
+                transform: [
+                  {
+                    translateX,
+                  },
+                ],
+              }}
+            />
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                borderWidth: 1,
+                borderColor: "#007aff",
+                borderRadius: 4,
+                borderRightWidth: 0,
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+              onLayout={(event) =>
+                this.setState({
+                  xTabOne: event.nativeEvent.layout.x,
+                })
+              }
+              onPress={() =>
+                this.setState({ active: 0 }, () => this.handleSlide(xTabOne))
+              }
+            >
+              <Text
                 style={{
-                  borderWidth: 1,
-                  padding: 3,
-                  borderRadius: 10,
-                  borderColor: colors.secondary,
-                  backgroundColor: colors.secondary,
+                  color: active === 0 ? "#fff" : "#007aff",
                 }}
               >
-                <AppText
-                  style={{ fontSize: 18, color: "#fff", fontWeight: "bold" }}
-                >
-                  {sortDetails.order}
-                </AppText>
-              </TouchableOpacity>
-              <Icon
-                name={
-                  sortDetails.order === "Old to New"
-                    ? "sort-calendar-descending"
-                    : "sort-calendar-ascending"
-                }
-                backgroundColor='#0000'
-                iconColor='#000'
-              />
-            </>
-          ) : (
-            <>
-              <TouchableOpacity
-                onPress={() =>
-                  sortDetails.setOrder(
-                    sortDetails.order === "Low to High"
-                      ? "High to Low"
-                      : "Low to High"
-                  )
-                }
+                Tab One
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                borderWidth: 1,
+                borderColor: "#007aff",
+                borderRadius: 4,
+                borderLeftWidth: 0,
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+              onLayout={(event) =>
+                this.setState({
+                  xTabTwo: event.nativeEvent.layout.x,
+                })
+              }
+              onPress={() =>
+                this.setState({ active: 1 }, () => this.handleSlide(xTabTwo))
+              }
+            >
+              <Text
                 style={{
-                  borderWidth: 1,
-                  padding: 3,
-                  borderRadius: 10,
-                  borderColor: colors.secondary,
-                  backgroundColor: colors.secondary,
+                  color: active === 1 ? "#fff" : "#007aff",
                 }}
               >
-                <AppText
-                  style={{ fontSize: 18, color: "#fff", fontWeight: "bold" }}
-                >
-                  {sortDetails.order}
-                </AppText>
-              </TouchableOpacity>
-              <Icon
-                name={
-                  sortDetails.order === "Low to High"
-                    ? "sort-numeric-descending"
-                    : "sort-numeric-ascending"
-                }
-                backgroundColor='#0000'
-                iconColor='#000'
-              />
-            </>
-          )}
+                Tab Two
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView>
+            <Animated.View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                transform: [
+                  {
+                    translateX: translateXTabOne,
+                  },
+                ],
+              }}
+              onLayout={(event) =>
+                this.setState({
+                  translateY: event.nativeEvent.layout.height,
+                })
+              }
+            >
+              <Text>Hi, I am a cute cat</Text>
+              <View style={{ marginTop: 20 }}>
+                <Image
+                  source={require("../assets/logo-primary.png")}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                  }}
+                />
+              </View>
+            </Animated.View>
+
+            <Animated.View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                transform: [
+                  {
+                    translateX: translateXTabTwo,
+                  },
+                  {
+                    translateY: -translateY,
+                  },
+                ],
+              }}
+            >
+              <Text>Hi, I am a cute dog</Text>
+              <View style={{ marginTop: 20 }}>
+                <Image
+                  source={require("../assets/logo-primary.png")}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                  }}
+                />
+              </View>
+            </Animated.View>
+          </ScrollView>
         </View>
       </View>
-      <View
-        style={{ alignItems: "center", justifyContent: "flex-end", flex: 1 }}
-      >
-        <AppButton
-          width='50%'
-          title='Apply'
-          onPress={() => {
-            sortListings(allListings), toggleModal();
-          }}
-        />
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  buttonContainer: {},
-  container: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    flex: 0.7,
-  },
-  fieldContainer: {
-    flexDirection: "row",
-  },
-  feildValueContainer: {
-    borderWidth: 1,
-    padding: 3,
-    borderRadius: 10,
-    borderColor: colors.secondary,
-    backgroundColor: colors.secondary,
-  },
-  fieldValueText: { fontSize: 18, color: "#fff", fontWeight: "bold" },
-  header: {
-    margin: 10,
-    fontSize: 20,
-    fontWeight: "bold",
-    color: colors.mediumRare,
-    textAlign: "center",
-  },
-  labelText: {
-    fontSize: 18,
-    padding: 3,
-    textAlignVertical: "bottom",
-  },
-  pillContainer: {
-    flex: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-    borderBottomWidth: 0,
-    width: 100,
-    height: "100%",
-    borderColor: colors.primary,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pillText: { fontSize: 16 },
-  tabContainer: {
-    marginVertical: 10,
-    borderColor: colors.primary,
-    borderWidth: 2,
-    borderRadius: 10,
-    // width: 300,
-    height: 30,
-    flexDirection: "row",
-  },
-  tabRenderContainer: {
-    alignItems: "flex-start",
-    alignSelf: "flex-start",
-    margin: 13,
-  },
-});
-
-export default SortModal;
+    );
+  }
+}

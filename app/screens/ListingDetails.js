@@ -12,6 +12,7 @@ import { getListing, getUser, getUserListings } from "../utility/fireStore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
+import FastImage from "react-native-fast-image";
 import Icon from "../components/Icon";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
@@ -127,7 +128,7 @@ export default function ListingDetails({ route, navigation }) {
                     transform: [{ scale: translate }],
                   }}
                 >
-                  <ImageBackground
+                  <FastImage
                     source={{ uri: item }}
                     style={{
                       flex: 1,

@@ -1,50 +1,166 @@
-import { Card, CardContent, CardImage } from "react-native-cards";
+import * as Animatable from "react-native-animatable";
+
 import {
+  Dimensions,
   FlatList,
-  Image,
-  ScrollView,
   StyleSheet,
-  Text,
-  TouchableNativeFeedback,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { appUser, signOut } from "../utility/auth";
+import React, { useEffect, useRef, useState } from "react";
 import { getCategories, getListings } from "../utility/fireStore";
 
-import ActivityIndicator from "../components/ActivityIndicator";
+import { Animations } from "../config/Animations";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
-import Button from "../components/Button";
-import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import InfoWithAction from "../components/InfoWithAction";
+import BannerIcon from "../components/BannerIcon";
+import FilterModal from "../components/FilterModal";
+import Icon from "../components/Icon";
+import { ListItem } from "../components/ListItem";
+import Modal from "react-native-modal";
 import Screen from "../components/Screen";
-import routes from "../navigation/routes";
-import { slides } from "../utility/dummyData";
+import SortModal from "../components/SortModal";
+import colors from "../config/colors";
 
-function ListingsScreen({ navigation, route }) {
-  const backgroundImage = require("../assets/app-background.png");
+const orderBy = require("lodash/orderBy");
 
+export default function ListingsScreen({ route, navigation }) {
+  const viewRef = useRef(null);
+  const animation = Animations[6];
+  const [searchText, setSearchText] = useState("");
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [selectedCategories, setFilteredCategories] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const authorFilter = route.params?.authorListings ? true : false;
   const author = authorFilter ? route.params?.author : null;
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const [activeSort, setActiveSort] = useState({
+    field: "createdAt",
+    order: "desc",
+  });
+  const [fromDate, setFromDate] = useState(new Date("2020-12-31T00:00:00"));
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [order, setOrder] = useState("New to Old");
 
   useEffect(() => {
     const listingsSubscriber = getListings(
       setListings,
       setFilteredListings,
-      setLoading
+      setLoading,
+      sortListings,
+      activeSort
     );
 
     const categoriesSubscriber = getCategories(setCategories);
-    return listingsSubscriber, categoriesSubscriber;
-  }, []);
 
-  const filterListings = (searchText) => {
-    let filteredListings = listings;
+    const unsubscribe = navigation.addListener("focus", () => {
+      viewRef.current.animate({ 0: { opacity: 0.5 }, 1: { opacity: 1 } });
+    });
+    // ToastAndroid.show(animation+ ' Animation', ToastAndroid.SHORT);
+    return () => unsubscribe, listingsSubscriber, categoriesSubscriber;
+  }, [navigation]);
+
+  // Render Methods
+
+  const renderListing = ({ item: listing, index }) => (
+    <ListItem
+      item={listing}
+      index={index}
+      animation={animation}
+      navigation={navigation}
+    />
+  );
+
+  const renderEmptyListings = () => {
+    const anim = {
+      0: { translateY: 0 },
+      0.5: { translateY: 50 },
+      1: { translateY: 0 },
+    };
+    return (
+      <View style={[styles.listEmpty]}>
+        <Animatable.Text
+          animation={anim}
+          easing='ease-in-out'
+          duration={2000}
+          style={{ fontSize: 24 }}
+          iterationCount='infinite'
+        >
+          Nothing here unfortunately :(
+        </Animatable.Text>
+      </View>
+    );
+  };
+
+  //Helper Methods
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const sortListings = (listings = filteredListings) => {
+    let sortedListings = listings;
+
+    switch (activeSort) {
+      case "Date":
+        sortedListings = sortedListings.filter((l) => l.createdAt >= fromDate);
+
+        sortedListings = orderBy(
+          sortedListings,
+          "createdAt",
+          order === "Old to New" ? "asc" : "desc"
+        );
+        break;
+      case "Price":
+        sortedListings = sortedListings.filter(
+          (l) => l.price >= minPrice && l.price <= maxPrice
+        );
+        sortedListings = orderBy(
+          sortedListings,
+          "price",
+          order === "Low to High" ? "asc" : "desc"
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    setFilteredListings(sortedListings);
+  };
+
+  const filterByCategory = (category) => {
+    let filter = [...selectedCategories];
+    if (!filter.includes(category)) {
+      //checking weather array contain the id
+      filter.push(category); //adding to array because value doesnt exists
+    } else {
+      filter.splice(filter.indexOf(category), 1); //deleting
+    }
+    setFilteredCategories(filter);
+    filter.length > 0
+      ? sortListings(
+          listings.filter((listing) =>
+            filter.map((c) => c.id).includes(listing.category.id)
+          )
+        )
+      : setFilteredListings(listings);
+  };
+
+  const filterBySearch = (searchText) => {
+    let filteredListings = [];
+
+    selectedCategories.length > 0
+      ? (filteredListings = listings.filter((listing) =>
+          selectedCategories.map((c) => c.id).includes(listing.category.id)
+        ))
+      : (filteredListings = listings);
+
     searchText.length > 0
       ? (filteredListings = listings?.filter(
           (listing) =>
@@ -58,79 +174,151 @@ function ListingsScreen({ navigation, route }) {
 
   return (
     <Screen>
-      <ActivityIndicator visible={loading} />
+      <Modal
+        style={styles.sortModal}
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+      >
+        <FilterModal setActiveSort toggleModal={toggleModal} />
+      </Modal>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <AppText style={styles.screenHeaderText}>Listings</AppText>
 
-      {false && (
-        <>
-          <AppText>Couldn't retrieve the listings.</AppText>
-          <Button title='Retry' onPress={() => {}} />
-        </>
-      )}
-      {authorFilter ? (
-        <InfoWithAction
-          buttonTitle='clear'
-          information={"Viewing listings by: " + author.name}
-          onButtonPress={() =>
-            navigation.navigate("Listings", { authorListings: undefined })
-          }
-        />
-      ) : (
-        <>
-          <View style={styles.searchBox}>
-            <AppTextInput
-              placeholder='Search Listings'
-              onChangeText={filterListings}
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity onPress={toggleModal}>
+            <Icon
+              name='sort'
+              backgroundColor='#0000'
+              iconColor='#000'
+              circle={false}
             />
-          </View>
-          {appUser().isAnonymous ? (
-            <InfoWithAction onButtonPress={() => signOut()} />
-          ) : (
-            <></>
-          )}
-        </>
-      )}
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.searchBox}>
+        <AppTextInput
+          icon='magnify'
+          placeholder='Search'
+          onChangeText={(value) => {
+            setSearchText(value), filterBySearch(value);
+          }}
+          value={searchText}
+        />
+      </View>
 
-      <FlatList
+      <Animatable.View
+        ref={viewRef}
+        easing={"ease-in-out"}
+        duration={1500}
         style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-        data={authorFilter ? route.params.authorListings : filteredListings}
-        keyExtractor={(listing) => listing.id.toString()}
-        renderItem={({ item }) => {
-          return (
-            <TouchableNativeFeedback
-              onPress={() =>
-                navigation.navigate(routes.LISTING_DETAILS, {
-                  item: item,
-                })
-              }
-            >
-              <View style={styles.card}>
-                <Card>
-                  <CardImage
-                    source={{ uri: item.images[0] }}
-                    title={"k " + item.price}
-                  />
-                  <CardContent text={item.title} />
-                </Card>
+      >
+        <FlatList
+          data={authorFilter ? route.params.authorListings : filteredListings}
+          keyExtractor={(a, i) => String(i)}
+          numColumns={2}
+          renderItem={renderListing}
+          showsVerticalScrollIndicator={true}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={renderEmptyListings}
+          ListHeaderComponent={() => (
+            <View style={styles.categoriesContainer}>
+              <View style={styles.categoriesHeaderContainer}>
+                <AppText style={styles.categoriesHeaderText}>
+                  Select Categories
+                </AppText>
+                {selectedCategories.length > 0 || searchText.trim() !== "" ? (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      setSearchText("");
+                      setFilteredCategories([]);
+                      sortListings(listings);
+                    }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      <AppText
+                        style={{
+                          ...styles.categoriesHeaderText,
+                          color: colors.primary,
+                        }}
+                      >
+                        Clear
+                      </AppText>
+
+                      <Icon
+                        iconColor={colors.primary}
+                        name='filter-remove'
+                        backgroundColor='#0000'
+                        circle={false}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                ) : (
+                  <></>
+                )}
               </View>
-            </TouchableNativeFeedback>
-          );
-        }}
-      />
+
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                data={categories}
+                horizontal
+                renderItem={({ item }) => (
+                  <BannerIcon
+                    item={item}
+                    selectedItems={selectedCategories}
+                    filter={filterByCategory}
+                    sort={sortListings}
+                  />
+                )}
+              />
+            </View>
+          )}
+        />
+      </Animatable.View>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  card: { marginVertical: 5 },
+export const styles = StyleSheet.create({
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "rgba(0, 0, 0, .08)",
+  },
+  listEmpty: {
+    height: Dimensions.get("window").height,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
 
+  categoriesContainer: {
+    paddingHorizontal: 10,
+  },
+  categoriesHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    height: 30,
+  },
+  categoriesHeaderText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    textAlignVertical: "bottom",
+    color: colors.mediumRare,
+  },
+  noListingsText: { flex: 1, alignItems: "center", justifyContent: "center" },
   searchBox: {
     alignItems: "center",
     backgroundColor: "transparent",
     flexDirection: "row",
     justifyContent: "center",
-    margin: 10,
+    paddingHorizontal: 10,
+  },
+  screenHeaderText: {
+    fontWeight: "bold",
+    fontSize: 25,
+    textAlignVertical: "bottom",
+    color: colors.mediumRare,
+    marginHorizontal: 10,
+  },
+  sortModal: {
+    justifyContent: "flex-end",
   },
 });
-
-export default ListingsScreen;
