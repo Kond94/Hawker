@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 
-import ListingDetails from "./app/screens/ListingDetails";
-import Listings from "./app/screens/Listings";
 import { LogBox } from "react-native";
 import Routes from "./app/navigation/index";
 
@@ -12,6 +10,4 @@ export default function App() {
   useEffect(() => {}, []);
 
   return <Routes />;
-  // return <Listings />;
-  // return <ListingDetails />;
 }

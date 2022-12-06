@@ -11,7 +11,7 @@ import AppText from "./Text";
 import Icon from "./Icon";
 import colors from "../config/colors";
 
-const BannerIcon = ({ item, selectedItems, filter, sort }) => {
+const BannerIcon = ({ item, selectedItems, filter }) => {
   return (
     <View
       key={item.id}

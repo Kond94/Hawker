@@ -20,7 +20,6 @@ import Icon from "../components/Icon";
 import { ListItem } from "../components/ListItem";
 import Modal from "react-native-modal";
 import Screen from "../components/Screen";
-import SortModal from "../components/SortModal";
 import colors from "../config/colors";
 
 const orderBy = require("lodash/orderBy");
@@ -41,18 +40,14 @@ export default function ListingsScreen({ route, navigation }) {
   const [activeSort, setActiveSort] = useState({
     field: "createdAt",
     order: "desc",
+    from: new Date(),
   });
-  const [fromDate, setFromDate] = useState(new Date("2020-12-31T00:00:00"));
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000000);
-  const [order, setOrder] = useState("New to Old");
 
   useEffect(() => {
     const listingsSubscriber = getListings(
       setListings,
       setFilteredListings,
       setLoading,
-      sortListings,
       activeSort
     );
 
@@ -63,7 +58,7 @@ export default function ListingsScreen({ route, navigation }) {
     });
     // ToastAndroid.show(animation+ ' Animation', ToastAndroid.SHORT);
     return () => unsubscribe, listingsSubscriber, categoriesSubscriber;
-  }, [navigation]);
+  }, [navigation, activeSort]);
 
   // Render Methods
 
@@ -103,37 +98,6 @@ export default function ListingsScreen({ route, navigation }) {
     setModalVisible(!isModalVisible);
   };
 
-  const sortListings = (listings = filteredListings) => {
-    let sortedListings = listings;
-
-    switch (activeSort) {
-      case "Date":
-        sortedListings = sortedListings.filter((l) => l.createdAt >= fromDate);
-
-        sortedListings = orderBy(
-          sortedListings,
-          "createdAt",
-          order === "Old to New" ? "asc" : "desc"
-        );
-        break;
-      case "Price":
-        sortedListings = sortedListings.filter(
-          (l) => l.price >= minPrice && l.price <= maxPrice
-        );
-        sortedListings = orderBy(
-          sortedListings,
-          "price",
-          order === "Low to High" ? "asc" : "desc"
-        );
-        break;
-
-      default:
-        break;
-    }
-
-    setFilteredListings(sortedListings);
-  };
-
   const filterByCategory = (category) => {
     let filter = [...selectedCategories];
     if (!filter.includes(category)) {
@@ -144,7 +108,7 @@ export default function ListingsScreen({ route, navigation }) {
     }
     setFilteredCategories(filter);
     filter.length > 0
-      ? sortListings(
+      ? setFilteredListings(
           listings.filter((listing) =>
             filter.map((c) => c.id).includes(listing.category.id)
           )
@@ -179,7 +143,11 @@ export default function ListingsScreen({ route, navigation }) {
         isVisible={isModalVisible}
         onBackdropPress={() => setModalVisible(false)}
       >
-        <FilterModal setActiveSort toggleModal={toggleModal} />
+        <FilterModal
+          activeSort={activeSort}
+          setActiveSort={setActiveSort}
+          toggleModal={toggleModal}
+        />
       </Modal>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <AppText style={styles.screenHeaderText}>Listings</AppText>
@@ -231,7 +199,7 @@ export default function ListingsScreen({ route, navigation }) {
                     onPress={() => {
                       setSearchText("");
                       setFilteredCategories([]);
-                      sortListings(listings);
+                      setFilteredListings(listings);
                     }}
                   >
                     <View style={{ flexDirection: "row" }}>
@@ -266,7 +234,6 @@ export default function ListingsScreen({ route, navigation }) {
                     item={item}
                     selectedItems={selectedCategories}
                     filter={filterByCategory}
-                    sort={sortListings}
                   />
                 )}
               />

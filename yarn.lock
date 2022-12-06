@@ -1558,11 +1558,6 @@
     find-up "^5.0.0"
     js-yaml "^4.1.0"
 
-"@freakycoder/react-native-helpers@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@freakycoder/react-native-helpers/-/react-native-helpers-1.0.2.tgz#db97b9634d79cd92cfd735a2d797f94c65206dbb"
-  integrity sha512-VBFNOQg7VTCyAP/ty0O2anlOrZtBPThwMXywU0IMbkcUkk38UO1DQ6A93NMstA2vf1ozJ4QqKd/IIv9rgrcR2A==
-
 "@gar/promisify@^1.0.1":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
@@ -1762,6 +1757,11 @@
   dependencies:
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
+
+"@ptomasroos/react-native-multi-slider@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@ptomasroos/react-native-multi-slider/-/react-native-multi-slider-2.2.2.tgz#35a97fb8c355627c6a2ded010b360ac5728b44ad"
+  integrity sha512-HWyCnRD3Z3SbHK2FLWYmBBqd1B4iXipeKv1+AK0FoY/CElEDTEixHE8hN60TsqxalPrznn798LE2Q4tHuCiyaA==
 
 "@react-native-async-storage/async-storage@~1.17.3":
   version "1.17.10"
@@ -1964,11 +1964,6 @@
   version "9.3.5"
   resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-9.3.5.tgz#0c60c798b5e0e14dd3b3fbab629a6e9609f709fd"
   integrity sha512-Mqbh/J8YCfc+EqSjq5OJn2USmcD8On4048pKEfyCsCDty3lQs1SNcmHqJdu9idNU2v//aM73T8F+re59cf78Ig==
-
-"@react-native-community/slider@4.2.4":
-  version "4.2.4"
-  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.2.4.tgz#8d88adceeb32f7997a122feba48d7186fca80346"
-  integrity sha512-uY51UoipQW4ELnFWMU6rTHRc4EUYaW+Z1O9Teijej6NYVYdUcUKq+t7WeBGjMAEc1ipyooMeBqRXToWO5zAU2Q==
 
 "@react-native-firebase/app@~15.4.0":
   version "15.4.0"
@@ -6142,7 +6137,7 @@ prompts@^2.3.2, prompts@^2.4.0:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@*, prop-types@^15.5.10, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@*, prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -6332,18 +6327,6 @@ react-native-gradle-plugin@^0.70.3:
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.70.3.tgz#cbcf0619cbfbddaa9128701aa2d7b4145f9c4fc8"
   integrity sha512-oOanj84fJEXUg9FoEAQomA8ISG+DVIrTZ3qF7m69VQUJyOGYyDZmPqKcjvRku4KXlEH6hWO9i4ACLzNBh8gC0A==
 
-react-native-image-slider-box@^1.1.24:
-  version "1.1.24"
-  resolved "https://registry.yarnpkg.com/react-native-image-slider-box/-/react-native-image-slider-box-1.1.24.tgz#fa035f645a9008d101f6314ab9ad9922bc1bee1f"
-  integrity sha512-RTeSsmIMyukFSFVw7qlw+kQyHDGW1gnd74z8snFY7UMpc6/G60XlTqzBYIj/EVRT9P4GmPL7Y24lduvjgX5kGQ==
-  dependencies:
-    react-native-snap-carousel latest
-
-react-native-image-viewing@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/react-native-image-viewing/-/react-native-image-viewing-0.2.2.tgz#fb26e57d7d3d9ce4559a3af3d244387c0367242b"
-  integrity sha512-osWieG+p/d2NPbAyonOMubttajtYEYiRGQaJA54slFxZ69j1V4/dCmcrVQry47ktVKy8/qpFwCpW1eT6MH5T2Q==
-
 react-native-linear-gradient@^2.5.6:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.6.2.tgz#56598a76832724b2afa7889747635b5c80948f38"
@@ -6403,14 +6386,6 @@ react-native-snap-carousel@git.github.com/mondo-mob/react-native-snap-carousel.g
   integrity sha512-jr6Kesrn+/047FwL32JRwAL6/l4Soz2uw73rFM5LfoGTgZhPatUsw60eTE3bznqFewPhoFIKezYe2m3LypTnIA==
   dependencies:
     "@types/react-addons-shallow-compare" "^0.14.22"
-    react-addons-shallow-compare "15.6.2"
-
-react-native-snap-carousel@latest:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/react-native-snap-carousel/-/react-native-snap-carousel-3.9.1.tgz#6fd9bd8839546c2c6043a41d2035afbc6fe0443e"
-  integrity sha512-xWEGusacIgK1YaDXLi7Gao2+ISLoGPVEBR8fcMf4tOOJQufutlNwkoLu0l6B8Qgsrre0nTxoVZikRgGRDWlLaQ==
-  dependencies:
-    prop-types "^15.6.1"
     react-addons-shallow-compare "15.6.2"
 
 react-native-svg@13.4.0:

@@ -1,5 +1,4 @@
 import ListingDetails from "../screens/ListingDetails";
-import Listings from "../screens/Listings";
 import ListingsScreen from "../screens/ListingsScreen";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";

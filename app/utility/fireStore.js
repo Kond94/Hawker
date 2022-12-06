@@ -24,7 +24,6 @@ export const getListings = (
   setListings,
   setFilteredListings,
   setLoading,
-  sortListings,
   activeSort
 ) => {
   const subscriber = firestore()
