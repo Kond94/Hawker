@@ -15,14 +15,12 @@ import { Animations } from "../config/Animations";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
 import BannerIcon from "../components/BannerIcon";
-import FilterModal from "../components/FilterModal";
 import Icon from "../components/Icon";
 import { ListItem } from "../components/ListItem";
 import Modal from "react-native-modal";
 import Screen from "../components/Screen";
+import SortModal from "../components/SortModal";
 import colors from "../config/colors";
-
-const orderBy = require("lodash/orderBy");
 
 export default function ListingsScreen({ route, navigation }) {
   const viewRef = useRef(null);
@@ -37,10 +35,11 @@ export default function ListingsScreen({ route, navigation }) {
   const author = authorFilter ? route.params?.author : null;
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const [activeSort, setActiveSort] = useState({
-    field: "createdAt",
+  const [sort, setSort] = useState({
     order: "desc",
-    from: new Date(),
+    field: "createdAt",
+    min: new Date(2022, 0, 1),
+    max: new Date(),
   });
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function ListingsScreen({ route, navigation }) {
       setListings,
       setFilteredListings,
       setLoading,
-      activeSort
+      sort
     );
 
     const categoriesSubscriber = getCategories(setCategories);
@@ -58,7 +57,7 @@ export default function ListingsScreen({ route, navigation }) {
     });
     // ToastAndroid.show(animation+ ' Animation', ToastAndroid.SHORT);
     return () => unsubscribe, listingsSubscriber, categoriesSubscriber;
-  }, [navigation, activeSort]);
+  }, [navigation, sort]);
 
   // Render Methods
 
@@ -139,21 +138,46 @@ export default function ListingsScreen({ route, navigation }) {
   return (
     <Screen>
       <Modal
+        testID={"modal"}
+        isVisible={isModalVisible}
+        onSwipeComplete={() => setModalVisible(false)}
+        swipeDirection={["down"]}
+        style={{
+          justifyContent: "flex-end",
+          margin: 0,
+        }}
+      >
+        <SortModal sort={sort} setSort={setSort} toggleModal={toggleModal} />
+      </Modal>
+      {/* <Modal
         style={styles.sortModal}
         isVisible={isModalVisible}
         onBackdropPress={() => setModalVisible(false)}
+        animationInTiming={400}
+        animationOutTiming={500}
       >
-        <FilterModal
-          activeSort={activeSort}
-          setActiveSort={setActiveSort}
+       
+        <SortModal
+          sort={sort}
+          setSort={setSort}
           toggleModal={toggleModal}
         />
-      </Modal>
+      </Modal> */}
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <AppText style={styles.screenHeaderText}>Listings</AppText>
 
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={toggleModal}>
+          <TouchableOpacity
+            onPress={() => {
+              setSort({
+                field: "createdAt",
+                min: new Date(2022, 0, 1),
+                max: new Date(),
+                order: "desc",
+              });
+              toggleModal();
+            }}
+          >
             <Icon
               name='sort'
               backgroundColor='#0000'
@@ -177,7 +201,7 @@ export default function ListingsScreen({ route, navigation }) {
       <Animatable.View
         ref={viewRef}
         easing={"ease-in-out"}
-        duration={1500}
+        duration={2000}
         style={{ flex: 1 }}
       >
         <FlatList

@@ -1,4 +1,5 @@
 import firestore from "@react-native-firebase/firestore";
+import moment from "moment";
 
 export const getCategories = (setCategories) => {
   const subscriber = firestore()
@@ -24,27 +25,42 @@ export const getListings = (
   setListings,
   setFilteredListings,
   setLoading,
-  activeSort
+  sort
 ) => {
   const subscriber = firestore()
     .collection("Listings")
-    .orderBy(activeSort.field, activeSort.order)
-
+    .orderBy(sort.field, sort.order)
     .onSnapshot((querySnapShot) => {
       const listings = [];
       querySnapShot.forEach((item) => {
-        listings.push({
-          id: item.id,
-          ...item.data(),
-          price: parseInt(item.data().price),
-          createdAt: new Date(item.data().createdAt.seconds * 1000),
-        });
+        const createdAt = new Date(item.data().createdAt.seconds * 1000);
+        const price = parseInt(item.data().price);
+        if (sort.field === "createdAt") {
+          if (createdAt >= sort.min && createdAt <= sort.max) {
+            listings.push({
+              id: item.id,
+              ...item.data(),
+              price: parseInt(item.data().price),
+              createdAt: new Date(item.data().createdAt.seconds * 1000),
+            });
+          }
+        } else if (sort.field === "price") {
+          if (price >= sort.min && price <= sort.max) {
+            listings.push({
+              id: item.id,
+              ...item.data(),
+              price: parseInt(item.data().price),
+              createdAt: new Date(item.data().createdAt.seconds * 1000),
+            });
+          }
+        }
       });
       setListings(listings);
       setFilteredListings(listings);
 
       setLoading(false);
     });
+
   return subscriber;
 };
 

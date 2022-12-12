@@ -109,7 +109,7 @@ function ListingEditScreen() {
           <Form
             initialValues={{
               title: "",
-              price: "",
+              price: 0,
               description: "",
               category: null,
               images: [],
