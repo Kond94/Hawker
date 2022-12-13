@@ -20,6 +20,7 @@ import { ListItem } from "../components/ListItem";
 import Modal from "react-native-modal";
 import Screen from "../components/Screen";
 import SortModal from "../components/SortModal";
+import appConfig from "../config/appConfig";
 import colors from "../config/colors";
 
 export default function ListingsScreen({ route, navigation }) {
@@ -38,8 +39,8 @@ export default function ListingsScreen({ route, navigation }) {
   const [sort, setSort] = useState({
     order: "desc",
     field: "createdAt",
-    min: new Date(2022, 0, 1),
-    max: new Date(),
+    min: appConfig.launchDate,
+    max: appConfig.today,
   });
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function ListingsScreen({ route, navigation }) {
   const renderEmptyListings = () => {
     const anim = {
       0: { translateY: 0 },
-      0.5: { translateY: 50 },
+      0.5: { translateY: 5 },
       1: { translateY: 0 },
     };
     return (
@@ -81,21 +82,17 @@ export default function ListingsScreen({ route, navigation }) {
         <Animatable.Text
           animation={anim}
           easing='ease-in-out'
-          duration={2000}
-          style={{ fontSize: 24 }}
-          iterationCount='infinite'
+          duration={1000}
+          style={{ fontSize: 16 }}
+          iterationCount={1}
         >
-          Nothing here unfortunately :(
+          Sorry, nothing to show.
         </Animatable.Text>
       </View>
     );
   };
 
   //Helper Methods
-
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
 
   const filterByCategory = (category) => {
     let filter = [...selectedCategories];
@@ -140,30 +137,25 @@ export default function ListingsScreen({ route, navigation }) {
       <Modal
         testID={"modal"}
         isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
         onSwipeComplete={() => setModalVisible(false)}
         swipeDirection={["down"]}
-        style={{
-          justifyContent: "flex-end",
-          margin: 0,
-        }}
-      >
-        <SortModal sort={sort} setSort={setSort} toggleModal={toggleModal} />
-      </Modal>
-      {/* <Modal
         style={styles.sortModal}
-        isVisible={isModalVisible}
-        onBackdropPress={() => setModalVisible(false)}
-        animationInTiming={400}
-        animationOutTiming={500}
+        animationInTiming={800}
+        animationOutTiming={800}
+        backdropTransitionInTiming={800}
+        backdropTransitionOutTiming={800}
+        backdropColor='#B4B3DB'
+        backdropOpacity={0.8}
       >
-       
         <SortModal
           sort={sort}
           setSort={setSort}
-          toggleModal={toggleModal}
+          toggleModal={() => setModalVisible(false)}
         />
-      </Modal> */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      </Modal>
+
+      <View style={styles.screenHeaderContainer}>
         <AppText style={styles.screenHeaderText}>Listings</AppText>
 
         <View style={{ flexDirection: "row" }}>
@@ -175,7 +167,7 @@ export default function ListingsScreen({ route, navigation }) {
                 max: new Date(),
                 order: "desc",
               });
-              toggleModal();
+              setModalVisible(true);
             }}
           >
             <Icon
@@ -278,6 +270,7 @@ export const styles = StyleSheet.create({
     height: Dimensions.get("window").height,
     alignItems: "center",
     justifyContent: "flex-start",
+    margin: 30,
   },
 
   categoriesContainer: {
@@ -302,6 +295,10 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
   },
+  screenHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   screenHeaderText: {
     fontWeight: "bold",
     fontSize: 25,
@@ -311,5 +308,6 @@ export const styles = StyleSheet.create({
   },
   sortModal: {
     justifyContent: "flex-end",
+    margin: 0,
   },
 });
