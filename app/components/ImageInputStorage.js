@@ -1,5 +1,4 @@
 import * as ImagePicker from "expo-image-picker";
-
 import {
   Alert,
   StyleSheet,
@@ -36,7 +35,7 @@ function ImageInputStorage({ imageUri, onChangeImage }) {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "Images",
       });
-      if (!result.cancelled) onChangeImage(result.uri);
+      if (!result.canceled) onChangeImage(result.assets[0].uri);
     } catch (error) {
       console.log("Error reading an image", error);
     }
