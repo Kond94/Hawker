@@ -8,19 +8,21 @@ import {
 } from "../components/forms";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  updateProfile,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
-import ActivityIndicator from "../components/ActivityIndicator";
 import FormCheckBox from "../components/forms/FormCheckBox";
-import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import ImageInput from "../components/ImageInput";
 import LoadingIndicator from "../components/LoadingIndicator";
 import Screen from "../components/Screen";
 import StoreForm from "../components/forms/StoreForm";
 import Text from "../components/Text";
 import UploadFile from "../utility/uploadFile";
-import UploadScreen from "./UploadScreen";
-import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
+import { database } from "../config/firebase";
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required().label("Username"),
@@ -30,6 +32,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function RegisterScreen() {
+  const auth = getAuth();
   const [profilePhotoURL, setProfilePhotoURL] = useState(null);
   const [storePhotoURL, setStorePhotoURL] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -38,7 +41,14 @@ function RegisterScreen() {
 
   async function uploadProfilePhoto(uri) {
     if (uri === null) return setProfilePhotoURL(null);
-    setProfilePhotoURL(await UploadFile(uri, setIsUploading));
+    setProfilePhotoURL(
+      await UploadFile(
+        uri,
+        "/Profile_Photos/",
+        setIsUploading,
+        setProfilePhotoURL
+      )
+    );
   }
 
   async function uploadStorePhoto(uri) {
@@ -59,37 +69,26 @@ function RegisterScreen() {
       if (email !== "" && password !== "") {
         setLoading(true);
 
-        await auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then((res) => {
-            uid = res.user.uid;
-            res.user
-              .updateProfile({
-                displayName: username,
-                photoURL: profilePhotoURL,
-              })
-              .then((res) => {
-                firestore()
-                  .collection("Users")
-                  .doc(uid)
-                  .set({
-                    name: username,
-                    email: email,
-                    hasStore: hasStore,
-                    photoURL: profilePhotoURL ? profilePhotoURL : "",
-                  });
+        createUserWithEmailAndPassword(auth, email, password).then((res) => {
+          updateProfile(auth.currentUser, {
+            photoURL: profilePhotoURL,
+          }).then((res) => {
+            setDoc(doc(database, "Users", auth.currentUser.uid), {
+              name: username,
+              email: email,
+              hasStore: hasStore,
+              photoURL: profilePhotoURL ? profilePhotoURL : "",
+            });
 
-                if (hasStore)
-                  firestore()
-                    .collection("Stores")
-                    .add({
-                      storeName,
-                      storeDescription,
-                      storeLogo: storePhotoURL ? storePhotoURL : "",
-                      storeOwner: uid,
-                    });
+            if (hasStore)
+              setDoc(doc(database, "Stores"), {
+                storeName,
+                storeDescription,
+                storeLogo: storePhotoURL ? storePhotoURL : "",
+                storeOwner: uid,
               });
           });
+        });
       }
     } catch (error) {
       setLoading(false);

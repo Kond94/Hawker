@@ -9,7 +9,6 @@ import FeedNavigator from "./FeedNavigator";
 import Icon from "../components/Icon";
 import ListingEditScreen from "../screens/ListingEditScreen";
 import StoreNavigator from "./StoreNavigator";
-import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -23,16 +22,16 @@ const TabArr = [
     color: colors.primary,
     alphaClr: colors.secondary,
   },
-  {
-    route: "Stores",
-    label: "Stores",
-    icon: "grid",
-    size: 50,
+  // {
+  //   route: "Stores",
+  //   label: "Stores",
+  //   icon: "grid",
+  //   size: 50,
 
-    component: StoreNavigator,
-    color: colors.green,
-    alphaClr: colors.greenAlpha,
-  },
+  //   component: StoreNavigator,
+  //   color: colors.green,
+  //   alphaClr: colors.greenAlpha,
+  // },
   {
     route: "ListingEdit",
     label: "New",
@@ -128,8 +127,6 @@ const TabButton = (props) => {
 };
 
 const AppNavigator = () => {
-  const user = auth().currentUser;
-
   return (
     <Tab.Navigator
       screenOptions={{

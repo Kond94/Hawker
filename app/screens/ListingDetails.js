@@ -1,48 +1,111 @@
 import {
   Animated,
   Dimensions,
-  ImageBackground,
   ScrollView,
   StyleSheet,
+  TouchableNativeFeedback,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { getListing, getUser, getUserListings } from "../utility/fireStore";
+import React, { useEffect, useState } from "react";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
+import ContactModal from "../components/ContactModal";
+import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
 import Icon from "../components/Icon";
+import ImageView from "react-native-image-viewing";
+import Modal from "react-native-modal";
+import Screen from "../components/Screen";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
+import { database } from "../config/firebase";
+import { getAuth } from "firebase/auth";
+import routes from "../navigation/routes";
 
 const OFFSET = 40;
 const ITEM_WIDTH = Dimensions.get("window").width - OFFSET * 2;
 const ITEM_HEIGHT = 260;
 
 export default function ListingDetails({ route, navigation }) {
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
   const [author, setAuthor] = useState();
   const [listing, setListing] = useState();
   const [authorListings, setAuthorListings] = useState([]);
-
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [isModalVisible, setModalVisible] = useState(false);
   useEffect(() => {
-    const listingSubscriber = getListing(route.params.listingId, setListing);
+    const unSubscribeListings = onSnapshot(
+      doc(database, "Listings", route.params.listingId),
+      (doc) => {
+        setListing(doc.data());
+      }
+    );
 
-    const authorSubscriber = getUser(route.params.listingAuthor, setAuthor);
+    const authorSubscriber = onSnapshot(
+      doc(database, "Users", route.params.listingAuthor),
+      (doc) => {
+        console.log(doc.data());
+        setAuthor(doc.data());
+      }
+    );
 
-    const authorListingsSubscriber = getUserListings(
-      route.params.listingAuthor,
-      setAuthorListings
+    const authorListingsQuery = query(
+      collection(database, "Listings"),
+      where("author", "==", route.params.listingAuthor)
+    );
+
+    const authorListingsSubscriber = onSnapshot(
+      authorListingsQuery,
+      (querySnapshot) => {
+        const authorListings = [];
+        querySnapshot.forEach((doc) => {
+          authorListings.push({ id: doc.id, ...doc.data() });
+        });
+        setAuthorListings(authorListings);
+      }
     );
     // Unsubscribe from events when no longer in use
 
-    return listingSubscriber, authorSubscriber, authorListingsSubscriber;
+    return authorSubscriber, authorListingsSubscriber, unSubscribeListings;
   }, [navigation]);
 
   const scrollX = React.useRef(new Animated.Value(0)).current;
   return (
-    <View>
+    <Screen>
+      <Modal
+        testID={"modal"}
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        onSwipeComplete={() => setModalVisible(false)}
+        swipeDirection={["down"]}
+        style={styles.contactModal}
+        animationInTiming={800}
+        animationOutTiming={800}
+        backdropTransitionInTiming={800}
+        backdropTransitionOutTiming={800}
+        backdropColor='#B4B3DB'
+        backdropOpacity={0.8}
+      >
+        <ContactSellerForm
+          currentUser={currentUser.uid}
+          seller={listing?.author}
+          toggleModal={setModalVisible}
+        />
+      </Modal>
+      <ImageView
+        images={listing?.images.map((image) => {
+          return { uri: image };
+        })}
+        // animationType='slide'
+        imageIndex={imageIndex}
+        visible={imageViewerVisible}
+        onRequestClose={() => setImageViewerVisible(false)}
+      />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
@@ -72,13 +135,22 @@ export default function ListingDetails({ route, navigation }) {
           >
             Listed by: {author?.name}
           </AppText>
-          <AppText style={{ color: colors.secondary, fontWeight: "bold" }}>
-            {authorListings.length > 2
-              ? "View " +
-                (authorListings.length - 1).toString() +
-                " Other Listings"
-              : ""}
-          </AppText>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate(routes.LISTINGS, {
+                author: author,
+                authorListings: authorListings,
+              })
+            }
+          >
+            <AppText style={{ color: colors.secondary, fontWeight: "bold" }}>
+              {authorListings.length > 2
+                ? "View " +
+                  (authorListings.length - 1).toString() +
+                  " Other Listings"
+                : ""}
+            </AppText>
+          </TouchableOpacity>
         </View>
       </View>
       <ScrollView key='scroll1' style={{ marginVertical: 20 }}>
@@ -128,15 +200,21 @@ export default function ListingDetails({ route, navigation }) {
                     transform: [{ scale: translate }],
                   }}
                 >
-                  <FastImage
-                    source={{ uri: item }}
-                    style={{
-                      flex: 1,
-                      resizeMode: "cover",
-                      justifyContent: "center",
+                  <TouchableNativeFeedback
+                    onPress={() => {
+                      setImageViewerVisible(true);
                     }}
-                    imageStyle={{ borderRadius: 6 }}
-                  />
+                  >
+                    <FastImage
+                      source={{ uri: item }}
+                      style={{
+                        flex: 1,
+                        resizeMode: "cover",
+                        justifyContent: "center",
+                      }}
+                      imageStyle={{ borderRadius: 6 }}
+                    />
+                  </TouchableNativeFeedback>
                 </Animated.View>
               );
             })}
@@ -187,12 +265,18 @@ export default function ListingDetails({ route, navigation }) {
               paddingBottom: 30,
             }}
           >
-            <AppButton square title='Contact Seller' width='45%' outline />
+            <AppButton
+              onPress={() => setModalVisible(true)}
+              square
+              title='Contact Seller'
+              width='45%'
+              outline
+            />
             {/* <AppButton square title='Buy Now' width='45%' color='primary' /> */}
           </View>
         </View>
       </ScrollView>
-    </View>
+    </Screen>
   );
 
   // return <Listings />;
@@ -225,5 +309,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     margin: 5,
+  },
+  contactModal: {
+    justifyContent: "flex-end",
+    margin: 0,
   },
 });

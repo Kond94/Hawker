@@ -7,6 +7,9 @@ import {
   SubmitButton,
 } from "../components/forms";
 import React, { useEffect, useState } from "react";
+import { auth, database } from "../config/firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
 import CategoryPickerItem from "../components/CategoryPickerItem";
@@ -17,8 +20,9 @@ import Screen from "../components/Screen";
 import { StyleSheet } from "react-native";
 import UploadFile from "../utility/uploadFile";
 import UploadScreen from "./UploadScreen";
-import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
+import { getAuth } from "firebase/auth";
+import routes from "../navigation/routes";
+import { v4 as uuidv4 } from "uuid";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
@@ -28,58 +32,63 @@ const validationSchema = Yup.object().shape({
   images: Yup.array().min(1, "Please select at least one image."),
 });
 
-function ListingEditScreen() {
+function ListingEditScreen({ navigation }) {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [imageURLs, setImageURLs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const user = auth().currentUser;
 
   useEffect(() => {
-    const subscriber = firestore()
-      .collection("Categories")
-      .onSnapshot((querySnapShot) => {
+    const categoriesQuery = query(collection(database, "Categories"));
+    const unsubscribeCategories = onSnapshot(
+      categoriesQuery,
+      (querySnapshot) => {
         const categories = [];
-        querySnapShot.forEach(async (item) => {
-          const category = {
-            id: item.id,
-            label: item.data().label,
-            icon: item.data().icon,
-            backgroundColor: item.data().backgroundColor,
-          };
-          categories.push(category);
-          setCategories(categories);
+        querySnapshot.forEach((doc) => {
+          categories.push({
+            id: doc.id,
+            label: doc.data().label,
+            icon: doc.data().icon,
+            backgroundColor: doc.data().backgroundColor,
+          });
         });
-      });
+        setCategories(categories);
+      }
+    );
 
     // Unsubscribe from events when no longer in use
-    return () => subscriber();
+    return unsubscribeCategories;
   }, []);
 
   const handleSubmit = async (listing, { resetForm }) => {
-    const imageURLs = [];
-    for (const image of listing.images) {
-      imageURLs.push(await UploadFile(image, setIsUploading));
-    }
-
     setLoading(true);
-    const timestamp = firestore.FieldValue.serverTimestamp;
 
-    await firestore()
-      .collection("Listings")
-      .add({
-        title: listing.title,
-        price: listing.price,
-        description: listing.description,
-        category: listing.category.id,
-        images: imageURLs,
-        author: user.uid,
-        createdAt: timestamp(),
-      })
-      .then(() => {
-        resetForm();
-        setLoading(false);
-      });
+    const imageUrls = await Promise.all(
+      listing.images.map(async (image) => await UploadFile(image))
+    );
+
+    console.log(imageUrls);
+
+    // const id = uuidv4();
+    // setDoc(doc(database, "Listings", id), {
+    //   title: listing.title,
+    //   price: parseInt(listing.price),
+    //   description: listing.description,
+    //   category: "/Categories/" + listing.category.id,
+    //   images: imageURLs,
+    //   author: user.uid,
+    //   createdAt: new Date(),
+    // }).then(() => {
+    //   resetForm();
+    //   navigation.navigate(routes.LISTING_DETAILS, {
+    //     listingId: id,
+    //     listingAuthor: user.uid,
+    //   });
+    //   setLoading(false);
+    // });
   };
   const handleSignOut = async () => {
     auth()
@@ -99,7 +108,7 @@ function ListingEditScreen() {
           onDone={() => setLoading(false)}
           visible={isUploading}
         />
-        {auth().currentUser?.isAnonymous ? (
+        {user.isAnonymous ? (
           <InfoWithAction
             information='Please sign in to post and edit your listings and stores'
             buttonTitle='Sign In'

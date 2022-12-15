@@ -1,19 +1,20 @@
 import * as Yup from "yup";
 
+import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import {
   ErrorMessage,
   Form,
   FormField,
   SubmitButton,
 } from "../components/forms";
-import { Image, StyleSheet } from "react-native";
 import React, { useState } from "react";
 
 import ActivityIndicator from "../components/ActivityIndicator";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import LoadingIndicator from "../components/LoadingIndicator";
 import Screen from "../components/Screen";
-import auth from "@react-native-firebase/auth";
+import { auth } from "../config/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -30,12 +31,12 @@ function LoginScreen(props) {
     if (email !== "" && password !== "") {
       setLoginFailed(false);
 
-      await auth()
-        .signInWithEmailAndPassword(email, password)
+      await signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           setLoginFailed(false);
+          console.log("success");
         })
-        .catch((error) => {
+        .catch((err) => {
           return setLoginFailed(true);
         })
         .finally(() => {

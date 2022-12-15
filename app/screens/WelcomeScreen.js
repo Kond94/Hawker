@@ -11,7 +11,6 @@ import AppText from "../components/Text";
 import Button from "../components/Button";
 import React from "react";
 import Screen from "../components/Screen";
-import auth from "@react-native-firebase/auth";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 
@@ -40,16 +39,15 @@ function WelcomeScreen({ navigation }) {
       <View style={styles.skipLogin}>
         <TouchableNativeFeedback
           onPress={() => {
-            auth()
-              .signInAnonymously()
-              .then((res) => {})
-              .catch((error) => {
-                if (error.code === "auth/operation-not-allowed") {
-                  console.log("Enable anonymous in your firebase console.");
-                }
-
-                console.error(error);
-              });
+            // auth()
+            //   .signInAnonymously()
+            //   .then((res) => {})
+            //   .catch((error) => {
+            //     if (error.code === "auth/operation-not-allowed") {
+            //       console.log("Enable anonymous in your firebase console.");
+            //     }
+            //     console.error(error);
+            //   });
           }}
         >
           <View>

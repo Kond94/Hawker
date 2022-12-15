@@ -9,7 +9,8 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { getCategories, getListings } from "../utility/fireStore";
+import { auth, database } from "../config/firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 import { Animations } from "../config/Animations";
 import AppText from "../components/Text";
@@ -22,6 +23,7 @@ import Screen from "../components/Screen";
 import SortModal from "../components/SortModal";
 import appConfig from "../config/appConfig";
 import colors from "../config/colors";
+import routes from "../navigation/routes";
 
 export default function ListingsScreen({ route, navigation }) {
   const viewRef = useRef(null);
@@ -44,20 +46,60 @@ export default function ListingsScreen({ route, navigation }) {
   });
 
   useEffect(() => {
-    const listingsSubscriber = getListings(
-      setListings,
-      setFilteredListings,
-      setLoading,
-      sort
-    );
+    const listingsQuery = query(collection(database, "Listings"));
 
-    const categoriesSubscriber = getCategories(setCategories);
+    const unsubscribeListings = onSnapshot(listingsQuery, (querySnapshot) => {
+      const listings = [];
+      querySnapshot.forEach((doc) => {
+        const createdAt = new Date(doc.data().createdAt.seconds * 1000);
+
+        const price = doc.data().price;
+        if (sort.field === "createdAt") {
+          if (createdAt >= sort.min && createdAt <= sort.max) {
+            listings.push({
+              id: doc.id,
+              ...doc.data(),
+              price: parseInt(doc.data().price),
+              createdAt: new Date(doc.data().createdAt.seconds * 1000),
+            });
+          }
+        } else if (sort.field === "price") {
+          if (price >= sort.min && price <= sort.max) {
+            listings.push({
+              id: doc.id,
+              ...doc.data(),
+              price: parseInt(doc.data().price),
+              createdAt: new Date(doc.data().createdAt.seconds * 1000),
+            });
+          }
+        }
+      });
+      setListings(listings);
+      setFilteredListings(listings);
+    });
+
+    const categoriesQuery = query(collection(database, "Categories"));
+    const unsubscribeCategories = onSnapshot(
+      categoriesQuery,
+      (querySnapshot) => {
+        const categories = [];
+        querySnapshot.forEach((doc) => {
+          categories.push({
+            id: doc.id,
+            label: doc.data().label,
+            icon: doc.data().icon,
+            backgroundColor: doc.data().backgroundColor,
+          });
+        });
+        setCategories(categories);
+      }
+    );
 
     const unsubscribe = navigation.addListener("focus", () => {
       viewRef.current.animate({ 0: { opacity: 0.5 }, 1: { opacity: 1 } });
     });
     // ToastAndroid.show(animation+ ' Animation', ToastAndroid.SHORT);
-    return () => unsubscribe, listingsSubscriber, categoriesSubscriber;
+    return unsubscribe, unsubscribeListings, unsubscribeCategories;
   }, [navigation, sort]);
 
   // Render Methods
@@ -95,6 +137,7 @@ export default function ListingsScreen({ route, navigation }) {
   //Helper Methods
 
   const filterByCategory = (category) => {
+    console.log(category);
     let filter = [...selectedCategories];
     if (!filter.includes(category)) {
       //checking weather array contain the id
@@ -102,6 +145,7 @@ export default function ListingsScreen({ route, navigation }) {
     } else {
       filter.splice(filter.indexOf(category), 1); //deleting
     }
+    console.log(filter);
     setFilteredCategories(filter);
     filter.length > 0
       ? setFilteredListings(
@@ -204,57 +248,94 @@ export default function ListingsScreen({ route, navigation }) {
           showsVerticalScrollIndicator={true}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={renderEmptyListings}
-          ListHeaderComponent={() => (
-            <View style={styles.categoriesContainer}>
-              <View style={styles.categoriesHeaderContainer}>
-                <AppText style={styles.categoriesHeaderText}>
-                  Select Categories
+          ListHeaderComponent={() =>
+            authorFilter ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <AppText
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    color: "#5d5d5d",
+                    textAlign: "center",
+                  }}
+                >
+                  {" "}
+                  Listings By: {author.name}
                 </AppText>
-                {selectedCategories.length > 0 || searchText.trim() !== "" ? (
-                  <TouchableWithoutFeedback
-                    onPress={() => {
-                      setSearchText("");
-                      setFilteredCategories([]);
-                      setFilteredListings(listings);
-                    }}
-                  >
-                    <View style={{ flexDirection: "row" }}>
-                      <AppText
-                        style={{
-                          ...styles.categoriesHeaderText,
-                          color: colors.primary,
-                        }}
-                      >
-                        Clear
-                      </AppText>
-
-                      <Icon
-                        iconColor={colors.primary}
-                        name='filter-remove'
-                        backgroundColor='#0000'
-                        circle={false}
-                      />
-                    </View>
-                  </TouchableWithoutFeedback>
-                ) : (
-                  <></>
-                )}
-              </View>
-
-              <FlatList
-                showsHorizontalScrollIndicator={false}
-                data={categories}
-                horizontal
-                renderItem={({ item }) => (
-                  <BannerIcon
-                    item={item}
-                    selectedItems={selectedCategories}
-                    filter={filterByCategory}
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate(routes.LISTINGS, {
+                      author: null,
+                      authorListings: null,
+                    })
+                  }
+                >
+                  <Icon
+                    iconColor={colors.primary}
+                    name='close-circle'
+                    backgroundColor='#0000'
+                    circle={false}
                   />
-                )}
-              />
-            </View>
-          )}
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.categoriesContainer}>
+                <View style={styles.categoriesHeaderContainer}>
+                  <AppText style={styles.categoriesHeaderText}>
+                    Select Categories
+                  </AppText>
+                  {selectedCategories.length > 0 || searchText.trim() !== "" ? (
+                    <TouchableWithoutFeedback
+                      onPress={() => {
+                        setSearchText("");
+                        setFilteredCategories([]);
+                        setFilteredListings(listings);
+                      }}
+                    >
+                      <View style={{ flexDirection: "row" }}>
+                        <AppText
+                          style={{
+                            ...styles.categoriesHeaderText,
+                            color: colors.primary,
+                          }}
+                        >
+                          Clear
+                        </AppText>
+
+                        <Icon
+                          iconColor={colors.primary}
+                          name='filter-remove'
+                          backgroundColor='#0000'
+                          circle={false}
+                        />
+                      </View>
+                    </TouchableWithoutFeedback>
+                  ) : (
+                    <></>
+                  )}
+                </View>
+
+                <FlatList
+                  showsHorizontalScrollIndicator={false}
+                  data={categories}
+                  horizontal
+                  renderItem={({ item }) => (
+                    <BannerIcon
+                      item={item}
+                      selectedItems={selectedCategories}
+                      filter={filterByCategory}
+                    />
+                  )}
+                />
+              </View>
+            )
+          }
         />
       </Animatable.View>
     </Screen>

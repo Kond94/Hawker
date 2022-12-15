@@ -6,21 +6,23 @@ import AppNavigator from "./AppNavigator";
 import AuthNavigator from "./AuthNavigator";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { NavigationContainer } from "@react-navigation/native";
-import auth from "@react-native-firebase/auth";
+import { auth } from "../config/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function RootNavigator(props) {
   // Set an initializing state whilst Firebase connects
   const [appIsReady, setAppIsReady] = useState(false);
   const { user, setUser } = useContext(AuthenticatedUserContext);
-
+  const [isLoading, setIsLoading] = useState(true);
   // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    setAppIsReady(true);
-  }
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-
+    const unsubscribeAuth = onAuthStateChanged(
+      auth,
+      async (authenticatedUser) => {
+        authenticatedUser ? setUser(authenticatedUser) : setUser(null);
+        setIsLoading(false);
+      }
+    );
     async function prepare() {
       try {
         // Keep the splash screen visible while we fetch resources
@@ -38,7 +40,7 @@ export default function RootNavigator(props) {
       }
     }
     prepare();
-    return subscriber; // unsubscribe on unmount
+    return unsubscribeAuth; // unsubscribe on unmount
   }, []);
 
   const onLayoutRootView = useCallback(async () => {

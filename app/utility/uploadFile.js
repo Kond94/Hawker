@@ -1,19 +1,29 @@
-import storage from "@react-native-firebase/storage";
-import { v4 as uuidv4 } from "uuid";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
-let UploadFile = async function (uri, setIsUploading) {
-  setIsUploading(true);
+import { v4 as uuidV4 } from "uuid";
 
-  const ref = uuidv4();
-  const reference = storage().ref("/Images/" + ref);
+export async function UploadFile(uri) {
+  // Why are we using XMLHttpRequest? See:
+  // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function (e) {
+      console.log(e);
+      reject(new TypeError("Network request failed"));
+    };
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
+    xhr.send(null);
+  });
 
-  const task = await reference.putFile(uri);
+  const fileRef = ref(getStorage(), uuidV4());
+  const result = await uploadBytes(fileRef, blob);
 
-  const downloadUrl = await storage()
-    .ref("/Images/" + ref)
-    .getDownloadURL();
-  setIsUploading(false);
-  return downloadUrl;
-};
+  // We're done with the blob, close and release it
+  blob.close();
 
-export default UploadFile;
+  return await getDownloadURL(fileRef);
+}

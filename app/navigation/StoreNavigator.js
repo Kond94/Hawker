@@ -1,5 +1,4 @@
 import React from "react";
-import StoreLandingScreen from "../screens/StoreLandingScreen";
 import StoreScreen from "../screens/StoreScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -10,7 +9,6 @@ const StoreNavigator = () => (
     screenOptions={{ headerShown: false, presentation: "modal" }}
   >
     <Stack.Screen name='Store' component={StoreScreen} />
-    <Stack.Screen name='StoreLanding' component={StoreLandingScreen} />
   </Stack.Navigator>
 );
 

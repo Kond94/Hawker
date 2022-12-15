@@ -1,3 +1,5 @@
+import Chat from "../screens/Chat";
+import ChatList from "../screens/ChatList";
 import MessagesScreen from "../screens/MessagesScreen";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -8,7 +10,8 @@ const ChatNavigator = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, presentation: "modal" }}
   >
-    <Stack.Screen name='Chat' component={MessagesScreen} />
+    <Stack.Screen name='Chat' component={ChatList} />
+    <Stack.Screen name='Chats' component={Chat} />
   </Stack.Navigator>
 );
 
