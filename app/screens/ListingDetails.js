@@ -12,7 +12,7 @@ import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
-import ContactModal from "../components/ContactModal";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
 import Icon from "../components/Icon";
@@ -22,22 +22,22 @@ import Screen from "../components/Screen";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
 import { database } from "../config/firebase";
-import { getAuth } from "firebase/auth";
 import routes from "../navigation/routes";
+import { useContext } from "react";
 
 const OFFSET = 40;
 const ITEM_WIDTH = Dimensions.get("window").width - OFFSET * 2;
 const ITEM_HEIGHT = 260;
 
 export default function ListingDetails({ route, navigation }) {
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
+  const { user, setUser } = useContext(AuthenticatedUserContext);
   const [author, setAuthor] = useState();
   const [listing, setListing] = useState();
   const [authorListings, setAuthorListings] = useState([]);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [isModalVisible, setModalVisible] = useState(false);
+
   useEffect(() => {
     const unSubscribeListings = onSnapshot(
       doc(database, "Listings", route.params.listingId),
@@ -49,8 +49,7 @@ export default function ListingDetails({ route, navigation }) {
     const authorSubscriber = onSnapshot(
       doc(database, "Users", route.params.listingAuthor),
       (doc) => {
-        console.log(doc.data());
-        setAuthor(doc.data());
+        setAuthor({ id: doc.id, ...doc.data() });
       }
     );
 
@@ -92,7 +91,7 @@ export default function ListingDetails({ route, navigation }) {
         backdropOpacity={0.8}
       >
         <ContactSellerForm
-          currentUser={currentUser.uid}
+          buyer={user.uid}
           seller={listing?.author}
           toggleModal={setModalVisible}
         />
@@ -133,7 +132,7 @@ export default function ListingDetails({ route, navigation }) {
             numberOfLines={2}
             style={{ color: "#5d5d5d", marginRight: 5 }}
           >
-            Listed by: {author?.name}
+            Listed by: {author?.displayName}
           </AppText>
           <TouchableOpacity
             onPress={() =>
@@ -153,7 +152,7 @@ export default function ListingDetails({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      <ScrollView key='scroll1' style={{ marginVertical: 20 }}>
+      <ScrollView key='scroll1'>
         <View style={{ flex: 1 }}>
           <ScrollView
             key='scroll2'
@@ -265,13 +264,24 @@ export default function ListingDetails({ route, navigation }) {
               paddingBottom: 30,
             }}
           >
-            <AppButton
-              onPress={() => setModalVisible(true)}
-              square
-              title='Contact Seller'
-              width='45%'
-              outline
-            />
+            {user.uid === author?.id ? (
+              <AppButton
+                onPress={() => {}}
+                square
+                title='Edit Listing'
+                width='45%'
+                outline
+              />
+            ) : (
+              <AppButton
+                onPress={() => setModalVisible(true)}
+                square
+                title='Contact Seller'
+                width='45%'
+                outline
+              />
+            )}
+
             {/* <AppButton square title='Buy Now' width='45%' color='primary' /> */}
           </View>
         </View>

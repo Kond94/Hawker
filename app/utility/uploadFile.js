@@ -2,7 +2,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 import { v4 as uuidV4 } from "uuid";
 
-export async function UploadFile(uri) {
+export async function UploadFile(uri, folder) {
   // Why are we using XMLHttpRequest? See:
   // https://github.com/expo/expo/issues/2402#issuecomment-443726662
   const blob = await new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ export async function UploadFile(uri) {
     xhr.send(null);
   });
 
-  const fileRef = ref(getStorage(), uuidV4());
+  const fileRef = ref(getStorage(), folder + uuidV4());
   const result = await uploadBytes(fileRef, blob);
 
   // We're done with the blob, close and release it

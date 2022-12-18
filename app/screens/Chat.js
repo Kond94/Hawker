@@ -1,10 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   addDoc,
   collection,
@@ -13,32 +8,15 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { auth, database } from "../config/firebase";
 
-import { GiftedChat } from "react-native-gifted-chat";
-import { signOut } from "firebase/auth";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import { View } from "react-native";
+import { database } from "../config/firebase";
+import { useContext } from "react";
 
 export default function Chat({ route, navigation, conversationId }) {
   const [messages, setMessages] = useState([]);
-
-  const onSignOut = () => {
-    signOut(auth).catch((error) => console.log("Error logging out: ", error));
-  };
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{
-            marginRight: 10,
-          }}
-          onPress={onSignOut}
-        >
-          <Text>Logout</Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
 
   useEffect(() => {
     const collectionRef = collection(database, "Messages");
@@ -62,6 +40,26 @@ export default function Chat({ route, navigation, conversationId }) {
     return () => unsubscribe();
   }, []);
 
+  const renderBubble = (props) => {
+    return (
+      // Step 3: return the component
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            // Here is the color change
+            backgroundColor: "#6646ee",
+          },
+        }}
+        textStyle={{
+          right: {
+            color: "#fff",
+          },
+        }}
+      />
+    );
+  };
+
   const onSend = useCallback((messages = []) => {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
@@ -78,12 +76,13 @@ export default function Chat({ route, navigation, conversationId }) {
   return (
     <>
       <GiftedChat
+        renderBubble={renderBubble}
         messages={messages}
         showAvatarForEveryMessage={true}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: auth?.currentUser?.email,
-          avatar: "https://i.pravatar.cc/300",
+          _id: user.uid,
+          avatar: user.photoURL,
         }}
       />
       <View style={{ height: 100 }}></View>

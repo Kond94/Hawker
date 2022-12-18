@@ -9,8 +9,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { auth, database } from "../config/firebase";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import { Animations } from "../config/Animations";
 import AppText from "../components/Text";
@@ -23,21 +22,24 @@ import Screen from "../components/Screen";
 import SortModal from "../components/SortModal";
 import appConfig from "../config/appConfig";
 import colors from "../config/colors";
+import { database } from "../config/firebase";
 import routes from "../navigation/routes";
 
 export default function ListingsScreen({ route, navigation }) {
+  const flatListRef = useRef(null);
   const viewRef = useRef(null);
   const animation = Animations[6];
   const [searchText, setSearchText] = useState("");
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setFilteredCategories] = useState([]);
+  const [lastSelectedCategoryIndex, setLastSelectedCategoryIndex] = useState(1);
   const [filteredListings, setFilteredListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const authorFilter = route.params?.authorListings ? true : false;
   const author = authorFilter ? route.params?.author : null;
   const [isModalVisible, setModalVisible] = useState(false);
-
+  const refContainer = useRef(null);
   const [sort, setSort] = useState({
     order: "desc",
     field: "createdAt",
@@ -46,7 +48,10 @@ export default function ListingsScreen({ route, navigation }) {
   });
 
   useEffect(() => {
-    const listingsQuery = query(collection(database, "Listings"));
+    const listingsQuery = query(
+      collection(database, "Listings"),
+      orderBy(sort.field, sort.order)
+    );
 
     const unsubscribeListings = onSnapshot(listingsQuery, (querySnapshot) => {
       const listings = [];
@@ -74,6 +79,7 @@ export default function ListingsScreen({ route, navigation }) {
           }
         }
       });
+
       setListings(listings);
       setFilteredListings(listings);
     });
@@ -96,7 +102,7 @@ export default function ListingsScreen({ route, navigation }) {
     );
 
     const unsubscribe = navigation.addListener("focus", () => {
-      viewRef.current.animate({ 0: { opacity: 0.5 }, 1: { opacity: 1 } });
+      viewRef.current.animate({ 0: { opacity: 0.8 }, 1: { opacity: 1 } });
     });
     // ToastAndroid.show(animation+ ' Animation', ToastAndroid.SHORT);
     return unsubscribe, unsubscribeListings, unsubscribeCategories;
@@ -137,7 +143,7 @@ export default function ListingsScreen({ route, navigation }) {
   //Helper Methods
 
   const filterByCategory = (category) => {
-    console.log(category);
+    setLastSelectedCategoryIndex(categories.indexOf(category));
     let filter = [...selectedCategories];
     if (!filter.includes(category)) {
       //checking weather array contain the id
@@ -145,12 +151,12 @@ export default function ListingsScreen({ route, navigation }) {
     } else {
       filter.splice(filter.indexOf(category), 1); //deleting
     }
-    console.log(filter);
     setFilteredCategories(filter);
+
     filter.length > 0
       ? setFilteredListings(
           listings.filter((listing) =>
-            filter.map((c) => c.id).includes(listing.category.id)
+            filter.map((c) => c.id).includes(listing.category)
           )
         )
       : setFilteredListings(listings);
@@ -266,7 +272,7 @@ export default function ListingsScreen({ route, navigation }) {
                   }}
                 >
                   {" "}
-                  Listings By: {author.name}
+                  Listings By: {author.displayName}
                 </AppText>
                 <TouchableOpacity
                   onPress={() =>
@@ -323,6 +329,17 @@ export default function ListingsScreen({ route, navigation }) {
 
                 <FlatList
                   showsHorizontalScrollIndicator={false}
+                  initialScrollIndex={0}
+                  ref={flatListRef}
+                  onContentSizeChange={() => {
+                    flatListRef.current.scrollToIndex({
+                      animating: false,
+                      index:
+                        lastSelectedCategoryIndex > 1
+                          ? lastSelectedCategoryIndex - 1
+                          : lastSelectedCategoryIndex,
+                    });
+                  }}
                   data={categories}
                   horizontal
                   renderItem={({ item }) => (

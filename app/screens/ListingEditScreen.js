@@ -12,16 +12,15 @@ import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import InfoWithAction from "../components/InfoWithAction";
 import Screen from "../components/Screen";
 import { StyleSheet } from "react-native";
-import UploadFile from "../utility/uploadFile";
-import UploadScreen from "./UploadScreen";
-import { getAuth } from "firebase/auth";
 import routes from "../navigation/routes";
+import { useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const validationSchema = Yup.object().shape({
@@ -33,13 +32,10 @@ const validationSchema = Yup.object().shape({
 });
 
 function ListingEditScreen({ navigation }) {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  const [imageURLs, setImageURLs] = useState([]);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const categoriesQuery = query(collection(database, "Categories"));
@@ -66,29 +62,23 @@ function ListingEditScreen({ navigation }) {
   const handleSubmit = async (listing, { resetForm }) => {
     setLoading(true);
 
-    const imageUrls = await Promise.all(
-      listing.images.map(async (image) => await UploadFile(image))
-    );
-
-    console.log(imageUrls);
-
-    // const id = uuidv4();
-    // setDoc(doc(database, "Listings", id), {
-    //   title: listing.title,
-    //   price: parseInt(listing.price),
-    //   description: listing.description,
-    //   category: "/Categories/" + listing.category.id,
-    //   images: imageURLs,
-    //   author: user.uid,
-    //   createdAt: new Date(),
-    // }).then(() => {
-    //   resetForm();
-    //   navigation.navigate(routes.LISTING_DETAILS, {
-    //     listingId: id,
-    //     listingAuthor: user.uid,
-    //   });
-    //   setLoading(false);
-    // });
+    const id = uuidv4();
+    setDoc(doc(database, "Listings", id), {
+      title: listing.title,
+      price: parseInt(listing.price),
+      description: listing.description,
+      category: listing.category.id,
+      images: listing.images,
+      author: user.uid,
+      createdAt: new Date(),
+    }).then(() => {
+      resetForm();
+      navigation.navigate(routes.LISTING_DETAILS, {
+        listingId: id,
+        listingAuthor: user.uid,
+      });
+      setLoading(false);
+    });
   };
   const handleSignOut = async () => {
     auth()
@@ -103,11 +93,6 @@ function ListingEditScreen({ navigation }) {
     >
       {loading && <ActivityIndicator visible={loading} />}
       <Screen style={styles.container}>
-        <UploadScreen
-          progress={uploadProgress}
-          onDone={() => setLoading(false)}
-          visible={isUploading}
-        />
         {user.isAnonymous ? (
           <InfoWithAction
             information='Please sign in to post and edit your listings and stores'

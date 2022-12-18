@@ -1,16 +1,14 @@
 import * as Yup from "yup";
 
-import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import {
   ErrorMessage,
   Form,
   FormField,
   SubmitButton,
 } from "../components/forms";
+import { Image, StyleSheet } from "react-native";
 import React, { useState } from "react";
 
-import ActivityIndicator from "../components/ActivityIndicator";
-import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import LoadingIndicator from "../components/LoadingIndicator";
 import Screen from "../components/Screen";
 import { auth } from "../config/firebase";
@@ -34,7 +32,6 @@ function LoginScreen(props) {
       await signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           setLoginFailed(false);
-          console.log("success");
         })
         .catch((err) => {
           return setLoginFailed(true);

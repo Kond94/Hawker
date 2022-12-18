@@ -21,11 +21,11 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import Screen from "../components/Screen";
 import StoreForm from "../components/forms/StoreForm";
 import Text from "../components/Text";
-import UploadFile from "../utility/uploadFile";
+import { UploadFile } from "../utility/uploadFile";
 import { database } from "../config/firebase";
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required().label("Username"),
+  displayName: Yup.string().required().label("Display Name"),
   email: Yup.string().required().email().label("Email"),
   password: Yup.string().required().min(4).label("Password"),
   hasStore: Yup.boolean().required(),
@@ -41,25 +41,18 @@ function RegisterScreen() {
 
   async function uploadProfilePhoto(uri) {
     if (uri === null) return setProfilePhotoURL(null);
-    setProfilePhotoURL(
-      await UploadFile(
-        uri,
-        "/Profile_Photos/",
-        setIsUploading,
-        setProfilePhotoURL
-      )
-    );
+    setProfilePhotoURL(await UploadFile(uri, "/Profile_Photos/"));
   }
 
   async function uploadStorePhoto(uri) {
     if (uri === null) return setStorePhotoURL(null);
-    setStorePhotoURL(await UploadFile(uri, setIsUploading));
+    setStorePhotoURL(await UploadFile(uri, "/Store_Photos/"));
   }
 
   const onHandleSignup = async ({
     email,
     password,
-    username,
+    displayName,
     hasStore,
     storeName,
     storeDescription,
@@ -72,9 +65,10 @@ function RegisterScreen() {
         createUserWithEmailAndPassword(auth, email, password).then((res) => {
           updateProfile(auth.currentUser, {
             photoURL: profilePhotoURL,
+            displayName: displayName,
           }).then((res) => {
             setDoc(doc(database, "Users", auth.currentUser.uid), {
-              name: username,
+              displayName: displayName,
               email: email,
               hasStore: hasStore,
               photoURL: profilePhotoURL ? profilePhotoURL : "",
@@ -126,7 +120,7 @@ function RegisterScreen() {
 
         <Form
           initialValues={{
-            username: "",
+            displayName: "",
             email: "",
             password: "",
             hasStore: false,
@@ -139,8 +133,8 @@ function RegisterScreen() {
           <FormField
             autoCorrect={false}
             icon='account'
-            name='username'
-            placeholder='Username'
+            name='displayName'
+            placeholder='Display Name'
           />
           <FormField
             autoCapitalize='none'

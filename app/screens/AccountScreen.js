@@ -1,15 +1,15 @@
 import { FlatList, StyleSheet, View } from "react-native";
 import { ListItem, ListItemSeparator } from "../components/lists";
 
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
-import InfoWithAction from "../components/InfoWithAction";
 import React from "react";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
-import { getAuth } from "firebase/auth";
 import routes from "../navigation/routes";
 import { signOut } from "firebase/auth";
+import { useContext } from "react";
 
 const menuItems = [
   {
@@ -30,8 +30,7 @@ const menuItems = [
 ];
 
 function AccountScreen({ navigation }) {
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const { user, setUser } = useContext(AuthenticatedUserContext);
 
   return (
     <ImageBackground
