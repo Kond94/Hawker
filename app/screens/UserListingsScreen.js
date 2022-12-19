@@ -8,7 +8,6 @@ import { useContext } from "react";
 
 function UserListingsScreen({ navigation }) {
   const { userListings, setUserListings } = useContext(UserListingsContext);
-  console.log(userListings);
   return (
     <Screen>
       <FlatList

@@ -12,10 +12,12 @@ import {
 
 import AccountNavigator from "./AccountNavigator";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import { CategoriesContext } from "../context/CategoriesProvider";
 import ChatNavigator from "./ChatNavigator";
 import FeedNavigator from "./FeedNavigator";
 import Icon from "../components/Icon";
 import ListingEditScreen from "../screens/ListingEditScreen";
+import { ListingsContext } from "../context/ListingsProvider";
 import StoreNavigator from "./StoreNavigator";
 import { UserListingsContext } from "../context/UserListingsProvider";
 import colors from "../config/colors";

@@ -24,14 +24,12 @@ import { useState } from "react";
 const { width } = Dimensions.get("window");
 
 function SortModal({ toggleModal, sort, setSort }) {
+  const [tempSort, setTempSort] = useState(sort);
   const [fromDate, setFromDate] = useState(appConfig.launchDate);
   const [toDate, setToDate] = useState(appConfig.today);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
-  const [multiSliderValue, setMultiSliderValue] = useState([
-    sort.min,
-    sort.max,
-  ]);
+  const [multiSliderValue, setMultiSliderValue] = useState([0, 500000]);
   const [active, setActive] = useState(0);
   const [xTabOne, setXTabOne] = useState(0);
   const [xTabTwo, setXTabTwo] = useState(0);
@@ -104,7 +102,7 @@ function SortModal({ toggleModal, sort, setSort }) {
           onLayout={(event) => setXTabOne(event.nativeEvent.layout.x)}
           onPress={() => {
             setActive(0);
-            setSort({
+            setTempSort({
               ...sort,
               field: "createdAt",
               min: new Date(2022, 0, 1),
@@ -125,7 +123,7 @@ function SortModal({ toggleModal, sort, setSort }) {
           onLayout={(event) => setXTabTwo(event.nativeEvent.layout.x)}
           onPress={() => {
             setActive(1);
-            setSort({
+            setTempSort({
               ...sort,
               field: "price",
               min: 0,
@@ -171,7 +169,7 @@ function SortModal({ toggleModal, sort, setSort }) {
           date={fromDate}
           onConfirm={(date) => {
             setFromDate(date);
-            setSort({ ...sort, min: date });
+            setTempSort({ ...sort, min: date });
             setIsFromDatePickerOpen(false);
           }}
           onCancel={() => {
@@ -199,7 +197,7 @@ function SortModal({ toggleModal, sort, setSort }) {
           date={fromDate}
           onConfirm={(date) => {
             setToDate(date);
-            setSort({
+            setTempSort({
               ...sort,
               max: date,
             });
@@ -216,15 +214,15 @@ function SortModal({ toggleModal, sort, setSort }) {
           <AppText style={styles.labelText}>Order: </AppText>
           <TouchableOpacity
             onPress={() => {
-              setSort({
-                ...sort,
-                order: sort.order === "asc" ? "desc" : "asc",
+              setTempSort({
+                ...tempSort,
+                order: tempSort.order === "asc" ? "desc" : "asc",
               });
             }}
             style={styles.fieldValueContainer}
           >
             <AppText style={styles.fieldValueText}>
-              {sort.order === "asc" ? "Old to New" : "New to Old"}
+              {tempSort.order === "asc" ? "Old to New" : "New to Old"}
             </AppText>
           </TouchableOpacity>
         </View>
@@ -287,16 +285,16 @@ function SortModal({ toggleModal, sort, setSort }) {
           <AppText style={styles.labelText}>Order: </AppText>
           <TouchableOpacity
             onPress={() => {
-              setSort({
-                ...sort,
+              setTempSort({
+                ...tempSort,
                 field: "price",
-                order: sort.order === "asc" ? "desc" : "asc",
+                order: tempSort.order === "asc" ? "desc" : "asc",
               });
             }}
             style={styles.fieldValueContainer}
           >
             <AppText style={styles.fieldValueText}>
-              {sort.order === "asc" ? "Low to High" : "High to Low"}
+              {tempSort.order === "asc" ? "Low to High" : "High to Low"}
             </AppText>
           </TouchableOpacity>
         </View>
@@ -306,16 +304,16 @@ function SortModal({ toggleModal, sort, setSort }) {
       >
         <AppButton
           onPress={() => {
-            sort.field === "price"
+            tempSort.field === "price"
               ? setSort({
-                  ...sort,
+                  ...tempSort,
                   min: multiSliderValue[0],
                   max:
                     multiSliderValue[1] >= 499999
                       ? 10000000
                       : multiSliderValue[1],
                 })
-              : {};
+              : setSort(tempSort);
             toggleModal();
           }}
           title={"Apply"}

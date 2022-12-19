@@ -6,13 +6,13 @@ import {
   FormPicker as Picker,
   SubmitButton,
 } from "../components/forms";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, database } from "../config/firebase";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import { CategoriesContext } from "../context/CategoriesProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
 import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
@@ -32,32 +32,10 @@ const validationSchema = Yup.object().shape({
 });
 
 function ListingEditScreen({ navigation }) {
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user } = useContext(AuthenticatedUserContext);
+  const { categories } = useContext(CategoriesContext);
 
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const categoriesQuery = query(collection(database, "Categories"));
-    const unsubscribeCategories = onSnapshot(
-      categoriesQuery,
-      (querySnapshot) => {
-        const categories = [];
-        querySnapshot.forEach((doc) => {
-          categories.push({
-            id: doc.id,
-            label: doc.data().label,
-            icon: doc.data().icon,
-            backgroundColor: doc.data().backgroundColor,
-          });
-        });
-        setCategories(categories);
-      }
-    );
-
-    // Unsubscribe from events when no longer in use
-    return unsubscribeCategories;
-  }, []);
 
   const handleSubmit = async (listing, { resetForm }) => {
     setLoading(true);
