@@ -6,6 +6,7 @@ import AppNavigator from "./AppNavigator";
 import AuthNavigator from "./AuthNavigator";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { NavigationContainer } from "@react-navigation/native";
+import { UserListingsProvider } from "../context/UserListingsProvider";
 import { auth } from "../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -16,10 +17,14 @@ export default function RootNavigator(props) {
   const [isLoading, setIsLoading] = useState(true);
   // Handle user state changes
   useEffect(() => {
+    let unsubscribeUserListings;
+
     const unsubscribeAuth = onAuthStateChanged(
       auth,
       async (authenticatedUser) => {
-        authenticatedUser ? setUser(authenticatedUser) : setUser(null);
+        if (authenticatedUser) {
+          setUser(authenticatedUser);
+        } else setUser(null);
         setIsLoading(false);
       }
     );
@@ -40,7 +45,7 @@ export default function RootNavigator(props) {
       }
     }
     prepare();
-    return unsubscribeAuth; // unsubscribe on unmount
+    return unsubscribeAuth, unsubscribeUserListings; // unsubscribe on unmount
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
@@ -60,7 +65,13 @@ export default function RootNavigator(props) {
 
   return (
     <NavigationContainer onReady={onLayoutRootView}>
-      {user ? <AppNavigator /> : <AuthNavigator />}
+      {user ? (
+        <UserListingsProvider>
+          <AppNavigator />
+        </UserListingsProvider>
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 }

@@ -1,16 +1,26 @@
 import * as Animatable from "react-native-animatable";
 
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 
 import AccountNavigator from "./AccountNavigator";
+import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import ChatNavigator from "./ChatNavigator";
 import FeedNavigator from "./FeedNavigator";
 import Icon from "../components/Icon";
 import ListingEditScreen from "../screens/ListingEditScreen";
 import StoreNavigator from "./StoreNavigator";
+import { UserListingsContext } from "../context/UserListingsProvider";
 import colors from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { database } from "../config/firebase";
 
 const TabArr = [
   {
@@ -127,6 +137,33 @@ const TabButton = (props) => {
 };
 
 const AppNavigator = () => {
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { userListings, setUserListings } = useContext(UserListingsContext);
+
+  useEffect(() => {
+    const listingsQuery = query(
+      collection(database, "Listings"),
+      where("author", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribeUserListings = onSnapshot(
+      listingsQuery,
+      (querySnapshot) => {
+        const listings = [];
+        querySnapshot.forEach((doc) => {
+          listings.push({
+            id: doc.id,
+            ...doc.data(),
+            price: parseInt(doc.data().price),
+            createdAt: new Date(doc.data().createdAt.seconds * 1000),
+          });
+        });
+
+        setUserListings(listings);
+      }
+    );
+    return unsubscribeUserListings; //
+  }, []);
   return (
     <Tab.Navigator
       screenOptions={{

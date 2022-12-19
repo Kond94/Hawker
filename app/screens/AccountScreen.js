@@ -6,6 +6,7 @@ import Icon from "../components/Icon";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import React from "react";
 import Screen from "../components/Screen";
+import { auth } from "../config/firebase";
 import colors from "../config/colors";
 import routes from "../navigation/routes";
 import { signOut } from "firebase/auth";
@@ -18,11 +19,12 @@ const menuItems = [
       name: "format-list-bulleted",
       backgroundColor: colors.primary,
     },
+    targetScreen: routes.USER_LISTINGS,
   },
   {
-    title: "My Messages",
+    title: "My Favorites",
     icon: {
-      name: "email",
+      name: "heart",
       backgroundColor: colors.secondary,
     },
     targetScreen: routes.MESSAGING,
