@@ -12,7 +12,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PickerItem from "./PickerItem";
 import Screen from "./Screen";
 import Text from "./Text";
-import defaultStyles from "../config/styles";
+import defaultStyles from "../config/Appstyles";
 
 function AppPicker({
   icon,

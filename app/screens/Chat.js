@@ -85,7 +85,6 @@ export default function Chat({ route, navigation, conversationId }) {
           avatar: user.photoURL,
         }}
       />
-      <View style={{ height: 100 }}></View>
     </>
   );
 }

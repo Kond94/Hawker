@@ -48,7 +48,7 @@ export default function ListingsScreen({ route, navigation }) {
 
   useEffect(() => {
     if (selectedCategories.length !== 0) {
-      console.log("Filtering in progress, will add listing when filter clear");
+      // BUG: Listings wont sort when categories are selected
     } else {
       switch (sort.field) {
         case "createdAt":

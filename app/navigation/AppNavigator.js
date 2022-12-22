@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 
 import AccountNavigator from "./AccountNavigator";
+import Appstyles from "../config/Appstyles";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { CategoriesContext } from "../context/CategoriesProvider";
 import ChatNavigator from "./ChatNavigator";
@@ -174,14 +175,7 @@ const AppNavigator = () => {
         tabBarActiveBackgroundColor: colors.medium,
         tabBarInactiveTintColor: colors.black,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: {
-          height: 60,
-          position: "absolute",
-          bottom: 16,
-          right: 16,
-          left: 16,
-          borderRadius: 16,
-        },
+        tabBarStyle: Appstyles.tabBarStyle,
       }}
     >
       {TabArr.map((item, index) => {

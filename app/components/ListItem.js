@@ -11,7 +11,7 @@ import {
 import FastImage from "react-native-fast-image";
 import Icon from "./Icon";
 import React from "react";
-import colorAr from "../config/styles";
+import colorAr from "../config/Appstyles";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
 import routes from "../navigation/routes";

@@ -5,6 +5,14 @@ import colors from "./colors";
 
 export default {
   colors,
+  tabBarStyle: {
+    height: 60,
+    position: "absolute",
+    bottom: 16,
+    right: 16,
+    left: 16,
+    borderRadius: 16,
+  },
   text: {
     color: colors.dark,
     fontSize: 14,
