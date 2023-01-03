@@ -11,10 +11,11 @@ const Stack = createStackNavigator();
 const FeedNavigator = ({ navigation, route }) => {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
+
     if (routeName === "ListingDetails") {
-      navigation.setOptions({ display: "none" });
+      navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
-      navigation.setOptions(Appstyles.tabBarStyle);
+      navigation.setOptions({ tabBarStyle: Appstyles.tabBarStyle });
     }
   }, [navigation, route]);
 
@@ -23,13 +24,7 @@ const FeedNavigator = ({ navigation, route }) => {
       screenOptions={{ headerShown: false, presentation: "modal" }}
     >
       <Stack.Screen name='Listings' component={ListingsScreen} />
-      <Stack.Screen
-        name='ListingDetails'
-        component={ListingDetails}
-        options={{
-          tabBarStyle: { display: "none" },
-        }}
-      />
+      <Stack.Screen name='ListingDetails' component={ListingDetails} />
     </Stack.Navigator>
   );
 };

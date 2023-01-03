@@ -12,10 +12,11 @@ const Stack = createStackNavigator();
 const ChatNavigator = ({ navigation, route }) => {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
+
     if (routeName === "Chats") {
-      navigation.setOptions({ display: "none" });
+      navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
-      navigation.setOptions(Appstyles.tabBarStyle);
+      navigation.setOptions({ tabBarStyle: Appstyles.tabBarStyle });
     }
   }, [navigation, route]);
   return (

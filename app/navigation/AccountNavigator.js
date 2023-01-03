@@ -7,15 +7,16 @@ import UserListingsScreen from "../screens/UserListingsScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
-const Stack = createStackNavigator({ navigation, route });
+const Stack = createStackNavigator();
 
 const AccountNavigator = ({ navigation, route }) => {
   useLayoutEffect(() => {
-    const routeName = getFocusedRouteNameFromRoute(route);
-    if (routeName === "Chats") {
-      navigation.setOptions({ display: "none" });
+    const tabHiddenRoutes = ["UserListings", "Favorites"];
+
+    if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route))) {
+      navigation.setOptions({ tabBarStyle: { display: "none" } });
     } else {
-      navigation.setOptions(Appstyles.tabBarStyle);
+      navigation.setOptions({ tabBarStyle: Appstyles.tabBarStyle });
     }
   }, [navigation, route]);
   return (
