@@ -90,48 +90,54 @@ function ListingEditScreen({ navigation }) {
             onButtonPress={handleSignOut}
           />
         ) : (
-          <Form
-            initialValues={{
-              title: "",
-              price: 0,
-              description: "",
-              category: null,
-              images: [],
-            }}
-            onSubmit={handleSubmit}
-            validationSchema={validationSchema}
-          >
-            <FormImagePicker name='images' />
-            <FormField maxLength={255} name='title' placeholder='Title' />
-            <FormField
-              keyboardType='numeric'
-              maxLength={8}
-              name='price'
-              placeholder='Price'
-              width={120}
-            />
-            <Picker
-              items={categories}
-              name='category'
-              numberOfColumns={3}
-              PickerItemComponent={CategoryPickerItem}
-              placeholder='Category'
-              width='50%'
-            />
-            <FormField
-              maxLength={255}
-              multiline
-              name='description'
-              numberOfLines={3}
-              placeholder='Description'
-            />
-            <SubmitButton title='Post' />
-          </Form>
+          <View style={styles.form}>
+            <Form
+              initialValues={{
+                title: "",
+                price: 0,
+                description: "",
+                category: null,
+                images: [],
+              }}
+              onSubmit={handleSubmit}
+              validationSchema={validationSchema}
+            >
+              <FormImagePicker name='images' />
+              <FormField maxLength={255} name='title' placeholder='Title' />
+              <FormField
+                keyboardType='numeric'
+                maxLength={8}
+                name='price'
+                placeholder='Price'
+                width={120}
+              />
+              <Picker
+                items={categories}
+                name='category'
+                numberOfColumns={3}
+                PickerItemComponent={CategoryPickerItem}
+                placeholder='Category'
+                width='50%'
+              />
+              <FormField
+                maxLength={255}
+                multiline
+                name='description'
+                numberOfLines={3}
+                placeholder='Description'
+              />
+              <SubmitButton title='Post' />
+            </Form>
+          </View>
         )}
       </Screen>
     </>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  form: {
+    paddingHorizontal: 10,
+  },
+});
 export default ListingEditScreen;
