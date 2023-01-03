@@ -117,88 +117,92 @@ function RegisterScreen() {
             setImageURI={uploadProfilePhoto}
           />
         </View>
+        <View style={styles.form}>
+          <Form
+            initialValues={{
+              displayName: "",
+              email: "",
+              password: "",
+              hasStore: false,
+            }}
+            onSubmit={onHandleSignup}
+            validationSchema={validationSchema}
+          >
+            <ErrorMessage error={error} visible={error} />
 
-        <Form
-          initialValues={{
-            displayName: "",
-            email: "",
-            password: "",
-            hasStore: false,
-          }}
-          onSubmit={onHandleSignup}
-          validationSchema={validationSchema}
-        >
-          <ErrorMessage error={error} visible={error} />
-
-          <FormField
-            autoCorrect={false}
-            icon='account'
-            name='displayName'
-            placeholder='Display Name'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='email'
-            keyboardType='email-address'
-            name='email'
-            placeholder='Email'
-            textContentType='emailAddress'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='lock'
-            name='password'
-            placeholder='Password'
-            secureTextEntry
-            textContentType='password'
-          />
-          <FormCheckBox name='hasStore' text='I have a Store/Brand' />
-
-          <StoreForm>
-            <Text style={styles.heading}>
-              Tap the
-              {storePhotoURL
-                ? " Logo to change it"
-                : " Icons below to upload your store's Logo"}
-            </Text>
-            <View
-              style={{
-                alignSelf: "center",
-                alignItems: "center",
-                justifyContent: "center",
-                height: 120,
-                borderRadius: 75,
-              }}
-            >
-              <ImageInput
-                imageURI={storePhotoURL}
-                setImageURI={uploadStorePhoto}
-              />
-            </View>
             <FormField
               autoCorrect={false}
-              icon='store'
-              name='storeName'
-              placeholder='Store Name'
+              icon='account'
+              name='displayName'
+              placeholder='Display Name'
             />
             <FormField
-              maxLength={255}
-              multiline
-              name='storeDescription'
-              numberOfLines={3}
-              placeholder='Store Description'
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='email'
+              keyboardType='email-address'
+              name='email'
+              placeholder='Email'
+              textContentType='emailAddress'
             />
-          </StoreForm>
-          <SubmitButton title='Register' />
-        </Form>
+            <FormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='lock'
+              name='password'
+              placeholder='Password'
+              secureTextEntry
+              textContentType='password'
+            />
+            <FormCheckBox name='hasStore' text='I have a Store/Brand' />
+
+            <StoreForm>
+              <Text style={styles.heading}>
+                Tap the
+                {storePhotoURL
+                  ? " Logo to change it"
+                  : " Icons below to upload your store's Logo"}
+              </Text>
+              <View
+                style={{
+                  alignSelf: "center",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 120,
+                  borderRadius: 75,
+                }}
+              >
+                <ImageInput
+                  imageURI={storePhotoURL}
+                  setImageURI={uploadStorePhoto}
+                />
+              </View>
+              <FormField
+                autoCorrect={false}
+                icon='store'
+                name='storeName'
+                placeholder='Store Name'
+              />
+              <FormField
+                maxLength={255}
+                multiline
+                name='storeDescription'
+                numberOfLines={3}
+                placeholder='Store Description'
+              />
+            </StoreForm>
+            <SubmitButton title='Register' />
+          </Form>
+        </View>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  form: {
+    paddingHorizontal: 10,
+  },
   row: {
     flex: 1,
     alignItems: "center",

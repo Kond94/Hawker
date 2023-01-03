@@ -6,7 +6,7 @@ import {
   FormField,
   SubmitButton,
 } from "../components/forms";
-import { Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 
 import LoadingIndicator from "../components/LoadingIndicator";
@@ -51,35 +51,37 @@ function LoginScreen(props) {
           style={styles.logo}
           source={require("../assets/logo-primary.png")}
         />
-        <Form
-          initialValues={{ email: "", password: "" }}
-          onSubmit={onLogin}
-          validationSchema={validationSchema}
-        >
-          <ErrorMessage
-            error='Invalid email and/or password.'
-            visible={loginFailed}
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='email'
-            keyboardType='email-address'
-            name='email'
-            placeholder='Email'
-            textContentType='emailAddress'
-          />
-          <FormField
-            autoCapitalize='none'
-            autoCorrect={false}
-            icon='lock'
-            name='password'
-            placeholder='Password'
-            secureTextEntry
-            textContentType='password'
-          />
-          <SubmitButton title='Login' />
-        </Form>
+        <View style={styles.form}>
+          <Form
+            initialValues={{ email: "", password: "" }}
+            onSubmit={onLogin}
+            validationSchema={validationSchema}
+          >
+            <ErrorMessage
+              error='Invalid email and/or password.'
+              visible={loginFailed}
+            />
+            <FormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='email'
+              keyboardType='email-address'
+              name='email'
+              placeholder='Email'
+              textContentType='emailAddress'
+            />
+            <FormField
+              autoCapitalize='none'
+              autoCorrect={false}
+              icon='lock'
+              name='password'
+              placeholder='Password'
+              secureTextEntry
+              textContentType='password'
+            />
+            <SubmitButton title='Login' />
+          </Form>
+        </View>
       </Screen>
     </>
   );
@@ -92,6 +94,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 50,
     marginBottom: 20,
+  },
+  form: {
+    paddingHorizontal: 10,
   },
 });
 

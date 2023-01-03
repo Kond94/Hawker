@@ -1,5 +1,6 @@
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import React, { useCallback, useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 import {
   addDoc,
   collection,
@@ -11,15 +12,22 @@ import {
   where,
 } from "firebase/firestore";
 
+import AppText from "../components/Text";
+import Appstyles from "../config/Appstyles";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
-import { View } from "react-native";
+import Icon from "../components/Icon";
+import Screen from "../components/Screen";
 import { database } from "../config/firebase";
 import { useContext } from "react";
 
-export default function ChatScreen({ route, navigation, conversationId }) {
+export default function ChatScreen({ route, navigation }) {
   const [messages, setMessages] = useState([]);
   const { user, setUser } = useContext(AuthenticatedUserContext);
-
+  const conversation = route.params.conversation;
+  const displayUser =
+    user.uid === conversation.buyer._id
+      ? conversation.seller
+      : conversation.buyer;
   useEffect(() => {
     const collectionRef = collection(database, "Messages");
     const messagesQuery = query(
@@ -84,7 +92,31 @@ export default function ChatScreen({ route, navigation, conversationId }) {
     );
   }, []);
   return (
-    <>
+    <Screen>
+      <View style={Appstyles.screenHeaderContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon
+            name='arrow-left'
+            backgroundColor='#0000'
+            iconColor='#000'
+            circle={false}
+          />
+        </TouchableOpacity>
+        <AppText style={Appstyles.screenHeaderText}>
+          {displayUser.displayName}
+        </AppText>
+
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity onPress={() => {}}>
+            {/* <Icon
+                name='sort'
+                backgroundColor='#0000'
+                iconColor='#000'
+                circle={false}
+              /> */}
+          </TouchableOpacity>
+        </View>
+      </View>
       <GiftedChat
         renderBubble={renderBubble}
         messages={messages}
@@ -95,6 +127,6 @@ export default function ChatScreen({ route, navigation, conversationId }) {
           avatar: user.photoURL,
         }}
       />
-    </>
+    </Screen>
   );
 }

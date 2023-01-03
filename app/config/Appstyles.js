@@ -21,10 +21,11 @@ export default {
   screenHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-end",
   },
   screenHeaderText: {
     fontWeight: "bold",
-    fontSize: 25,
+    fontSize: 23,
     textAlignVertical: "bottom",
     color: colors.mediumRare,
     marginHorizontal: 10,

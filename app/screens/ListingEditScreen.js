@@ -7,7 +7,7 @@ import {
   SubmitButton,
 } from "../components/forms";
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { auth, database } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -69,67 +69,69 @@ function ListingEditScreen({ navigation }) {
     <>
       {loading && <ActivityIndicator visible={loading} />}
       <Screen>
-        <View style={Appstyles.screenHeaderContainer}>
-          <AppText style={Appstyles.screenHeaderText}>Add Listing</AppText>
+        <ScrollView>
+          <View style={Appstyles.screenHeaderContainer}>
+            <AppText style={Appstyles.screenHeaderText}>Add Listing</AppText>
 
-          <View style={{ flexDirection: "row" }}>
-            <TouchableOpacity onPress={() => {}}>
-              {/* <Icon
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => {}}>
+                {/* <Icon
                 name='sort'
                 backgroundColor='#0000'
                 iconColor='#000'
                 circle={false}
               /> */}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-        {user.isAnonymous ? (
-          <InfoWithAction
-            information='Please sign in to post and edit your listings and stores'
-            buttonTitle='Sign In'
-            onButtonPress={handleSignOut}
-          />
-        ) : (
-          <View style={styles.form}>
-            <Form
-              initialValues={{
-                title: "",
-                price: 0,
-                description: "",
-                category: null,
-                images: [],
-              }}
-              onSubmit={handleSubmit}
-              validationSchema={validationSchema}
-            >
-              <FormImagePicker name='images' />
-              <FormField maxLength={255} name='title' placeholder='Title' />
-              <FormField
-                keyboardType='numeric'
-                maxLength={8}
-                name='price'
-                placeholder='Price'
-                width={120}
-              />
-              <Picker
-                items={categories}
-                name='category'
-                numberOfColumns={3}
-                PickerItemComponent={CategoryPickerItem}
-                placeholder='Category'
-                width='50%'
-              />
-              <FormField
-                maxLength={255}
-                multiline
-                name='description'
-                numberOfLines={3}
-                placeholder='Description'
-              />
-              <SubmitButton title='Post' />
-            </Form>
-          </View>
-        )}
+          {user.isAnonymous ? (
+            <InfoWithAction
+              information='Please sign in to post and edit your listings and stores'
+              buttonTitle='Sign In'
+              onButtonPress={handleSignOut}
+            />
+          ) : (
+            <View style={styles.form}>
+              <Form
+                initialValues={{
+                  title: "",
+                  price: 0,
+                  description: "",
+                  category: null,
+                  images: [],
+                }}
+                onSubmit={handleSubmit}
+                validationSchema={validationSchema}
+              >
+                <FormImagePicker name='images' />
+                <FormField maxLength={255} name='title' placeholder='Title' />
+                <FormField
+                  keyboardType='numeric'
+                  maxLength={8}
+                  name='price'
+                  placeholder='Price'
+                  width={120}
+                />
+                <Picker
+                  items={categories}
+                  name='category'
+                  numberOfColumns={3}
+                  PickerItemComponent={CategoryPickerItem}
+                  placeholder='Category'
+                  width='50%'
+                />
+                <FormField
+                  maxLength={255}
+                  multiline
+                  name='description'
+                  numberOfLines={3}
+                  placeholder='Description'
+                />
+                <SubmitButton title='Post' />
+              </Form>
+            </View>
+          )}
+        </ScrollView>
       </Screen>
     </>
   );

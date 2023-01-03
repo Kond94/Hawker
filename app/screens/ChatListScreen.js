@@ -76,6 +76,7 @@ function ChatListScreen({ navigation }) {
               }
               onPress={() =>
                 navigation.navigate(routes.CHATS, {
+                  conversation: item,
                   conversationId: item._id,
                 })
               }

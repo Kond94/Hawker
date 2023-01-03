@@ -5,7 +5,6 @@ import AppText from "../components/Text";
 import Appstyles from "../config/Appstyles";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import Icon from "../components/Icon";
-import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import React from "react";
 import Screen from "../components/Screen";
 import { auth } from "../config/firebase";
@@ -79,15 +78,19 @@ function AccountScreen({ navigation }) {
             onPress={() => navigation.navigate(item.targetScreen)}
           />
         )}
-      />
-      <ListItem
-        title='Log Out'
-        IconComponent={<Icon name='logout' backgroundColor={colors.danger} />}
-        onPress={() =>
-          signOut(auth).catch((error) =>
-            console.log("Error logging out: ", error)
-          )
-        }
+        ListFooterComponent={() => (
+          <ListItem
+            title='Log Out'
+            IconComponent={
+              <Icon name='logout' backgroundColor={colors.danger} />
+            }
+            onPress={() =>
+              signOut(auth).catch((error) =>
+                console.log("Error logging out: ", error)
+              )
+            }
+          />
+        )}
       />
     </Screen>
   );
