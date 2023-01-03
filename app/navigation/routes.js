@@ -4,6 +4,7 @@ export default Object.freeze({
   LOGIN: "Login",
   MESSAGING: "Messaging",
   CHATS: "Chats",
+  CHATLIST: "ChatList",
   REGISTER: "Register",
   ACCOUNT: "Account",
   USER_LISTINGS: "UserListings",

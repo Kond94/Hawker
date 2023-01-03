@@ -45,11 +45,11 @@ function AccountScreen({ navigation }) {
           <ListItem
             title={user?.displayName}
             subTitle={user?.email}
-            image={{
-              uri: user?.photoURL
+            image={
+              user?.photoURL
                 ? user?.photoURL
-                : "https://avatars.dicebear.com/api/:human/:seed.svg",
-            }}
+                : "https://avatars.dicebear.com/api/:human/:seed.svg"
+            }
           />
         </View>
         <View style={styles.container}>

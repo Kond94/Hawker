@@ -3,9 +3,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   addDoc,
   collection,
+  doc,
   onSnapshot,
   orderBy,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
 
@@ -14,19 +16,19 @@ import { View } from "react-native";
 import { database } from "../config/firebase";
 import { useContext } from "react";
 
-export default function Chat({ route, navigation, conversationId }) {
+export default function ChatScreen({ route, navigation, conversationId }) {
   const [messages, setMessages] = useState([]);
   const { user, setUser } = useContext(AuthenticatedUserContext);
 
   useEffect(() => {
     const collectionRef = collection(database, "Messages");
-    const q = query(
+    const messagesQuery = query(
       collectionRef,
       orderBy("createdAt", "desc"),
       where("conversationId", "==", route.params.conversationId)
     );
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
       setMessages(
         querySnapshot.docs.map((doc) => ({
           _id: doc.data()._id,
@@ -72,6 +74,14 @@ export default function Chat({ route, navigation, conversationId }) {
       user,
       conversationId: route.params.conversationId,
     });
+    setDoc(
+      doc(database, "Conversations", route.params.conversationId),
+      {
+        lastMessage: text,
+        editedAt: createdAt,
+      },
+      { merge: true }
+    );
   }, []);
   return (
     <>

@@ -3,6 +3,8 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import AppText from "../components/Text";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
+import ListItem from "../components/lists/ListItem";
+import ListItemDeleteAction from "../components/lists/ListItemDeleteAction";
 import ListItemSeparator from "../components/lists/ListItemSeparator";
 import React from "react";
 import { database } from "../config/firebase";
@@ -11,7 +13,7 @@ import { useContext } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 
-function ChatList({ navigation }) {
+function ChatListScreen({ navigation }) {
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [conversations, setConversations] = useState([]);
 
@@ -37,21 +39,27 @@ function ChatList({ navigation }) {
         data={conversations}
         keyExtractor={(conversation) => conversation._id.toString()}
         renderItem={({ item }) => (
-          <View style={{ margin: 30, alignItems: "center" }}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate(routes.CHATS, {
-                  conversationId: item._id,
-                })
-              }
-            >
-              <AppText>
-                {user.uid === item.buyer._id
-                  ? item.seller.displayName
-                  : item.buyer.displayName}
-              </AppText>
-            </TouchableOpacity>
-          </View>
+          <ListItem
+            title={
+              user.uid === item.buyer._id
+                ? item.seller.displayName
+                : item.buyer.displayName
+            }
+            subTitle={item.lastMessage}
+            image={
+              user.uid === item.buyer._id
+                ? item.seller.photoURL
+                : item.buyer.photoURL
+            }
+            onPress={() =>
+              navigation.navigate(routes.CHATS, {
+                conversationId: item._id,
+              })
+            }
+            renderRightActions={() => (
+              <ListItemDeleteAction onPress={() => handleDelete(item)} />
+            )}
+          />
         )}
         ItemSeparatorComponent={ListItemSeparator}
       />
@@ -59,7 +67,9 @@ function ChatList({ navigation }) {
   );
 }
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    margin: 10,
+  },
 });
 
-export default ChatList;
+export default ChatListScreen;

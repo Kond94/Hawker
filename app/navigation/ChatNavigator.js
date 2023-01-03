@@ -1,8 +1,8 @@
 import React, { useLayoutEffect } from "react";
 
 import Appstyles from "../config/Appstyles";
-import Chat from "../screens/Chat";
-import ChatList from "../screens/ChatList";
+import ChatListScreen from "../screens/ChatListScreen";
+import ChatScreen from "../screens/ChatScreen";
 import MessagesScreen from "../screens/MessagesScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
@@ -23,8 +23,8 @@ const ChatNavigator = ({ navigation, route }) => {
     <Stack.Navigator
       screenOptions={{ headerShown: false, presentation: "modal" }}
     >
-      <Stack.Screen name='Chat' component={ChatList} />
-      <Stack.Screen name='Chats' component={Chat} />
+      <Stack.Screen name='ChatList' component={ChatListScreen} />
+      <Stack.Screen name='Chats' component={ChatScreen} />
     </Stack.Navigator>
   );
 };

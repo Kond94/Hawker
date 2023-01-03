@@ -3,7 +3,13 @@ import * as Yup from "yup";
 import { Form, FormField, SubmitButton } from "./forms";
 import { Keyboard, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { addDoc, collection, doc, onSnapshot, query } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
 
 import colors from "../config/colors";
 import { database } from "../config/firebase";
@@ -33,7 +39,6 @@ function ContactSellerForm({ buyer, seller, toggleModal }) {
   const handleSubmit = async ({ message }, { resetForm }) => {
     addDoc(collection(database, "Messages"), {
       _id: uuidv4(),
-
       conversationId: buyer + "_" + seller,
       createdAt: new Date(),
       text: message,
@@ -42,11 +47,12 @@ function ContactSellerForm({ buyer, seller, toggleModal }) {
         avatar: buyerDetails.photoURL,
       },
     }).then(function (docRef) {
-      addDoc(collection(database, "Conversations"), {
+      setDoc(doc(database, "Conversations", buyer + "_" + seller), {
         _id: buyer + "_" + seller,
         editedAt: new Date(),
         buyer: { _id: buyer, ...buyerDetails },
         seller: { _id: seller, ...sellerDetails },
+        lastMessage: message,
       });
     });
 
