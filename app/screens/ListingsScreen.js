@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animations } from "../config/Animations";
 import AppText from "../components/Text";
 import AppTextInput from "../components/TextInput";
+import Appstyles from "../config/Appstyles";
 import BannerIcon from "../components/BannerIcon";
 import { CategoriesContext } from "../context/CategoriesProvider";
 import Icon from "../components/Icon";
@@ -201,18 +202,12 @@ export default function ListingsScreen({ route, navigation }) {
         />
       </Modal>
 
-      <View style={styles.screenHeaderContainer}>
-        <AppText style={styles.screenHeaderText}>Listings</AppText>
+      <View style={Appstyles.screenHeaderContainer}>
+        <AppText style={Appstyles.screenHeaderText}>Listings</AppText>
 
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity
             onPress={() => {
-              // setSort({
-              //   field: "createdAt",
-              //   min: new Date(2022, 0, 1),
-              //   max: new Date(),
-              //   order: "desc",
-              // });
               setModalVisible(true);
             }}
           >
@@ -379,17 +374,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
   },
-  screenHeaderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  screenHeaderText: {
-    fontWeight: "bold",
-    fontSize: 25,
-    textAlignVertical: "bottom",
-    color: colors.mediumRare,
-    marginHorizontal: 10,
-  },
+
   sortModal: {
     justifyContent: "flex-end",
     margin: 0,

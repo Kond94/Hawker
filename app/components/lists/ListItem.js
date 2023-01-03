@@ -9,6 +9,7 @@ import colors from "../../config/colors";
 
 function ListItem({
   title,
+  titleRight,
   subTitle,
   image,
   IconComponent,
@@ -22,9 +23,16 @@ function ListItem({
           {IconComponent}
           {image && <FastImage style={styles.image} source={{ uri: image }} />}
           <View style={styles.detailsContainer}>
-            <Text style={styles.title} numberOfLines={1}>
-              {title}
-            </Text>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Text style={styles.title} numberOfLines={1}>
+                {title}
+              </Text>
+              {titleRight && (
+                <Text style={styles.titleRight}>{titleRight}</Text>
+              )}
+            </View>
             {subTitle && (
               <Text style={styles.subTitle} numberOfLines={2}>
                 {subTitle}
@@ -64,6 +72,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "500",
+  },
+  titleRight: {
+    fontSize: 11,
+    color: colors.mediumRare,
   },
 });
 

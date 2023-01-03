@@ -18,6 +18,17 @@ export default {
     fontSize: 14,
     fontFamily: Platform.OS === "android" ? "Roboto" : "Avenir",
   },
+  screenHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  screenHeaderText: {
+    fontWeight: "bold",
+    fontSize: 25,
+    textAlignVertical: "bottom",
+    color: colors.mediumRare,
+    marginHorizontal: 10,
+  },
   Styles: StyleSheet.create({
     container: {
       flex: 1,

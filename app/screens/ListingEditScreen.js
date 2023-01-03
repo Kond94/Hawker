@@ -7,10 +7,13 @@ import {
   SubmitButton,
 } from "../components/forms";
 import React, { useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { auth, database } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 import ActivityIndicator from "../components/ActivityIndicator";
+import AppText from "../components/Text";
+import Appstyles from "../config/Appstyles";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { CategoriesContext } from "../context/CategoriesProvider";
 import CategoryPickerItem from "../components/CategoryPickerItem";
@@ -18,7 +21,6 @@ import FormImagePicker from "../components/forms/FormImagePicker";
 import ImageBackground from "react-native/Libraries/Image/ImageBackground";
 import InfoWithAction from "../components/InfoWithAction";
 import Screen from "../components/Screen";
-import { StyleSheet } from "react-native";
 import routes from "../navigation/routes";
 import { useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -64,13 +66,23 @@ function ListingEditScreen({ navigation }) {
       .then(() => console.log("User signed out!"));
   };
   return (
-    <ImageBackground
-      blurRadius={0.5}
-      style={{ flex: 1 }}
-      source={require("../assets/app-background.png")}
-    >
+    <>
       {loading && <ActivityIndicator visible={loading} />}
-      <Screen style={styles.container}>
+      <Screen>
+        <View style={Appstyles.screenHeaderContainer}>
+          <AppText style={Appstyles.screenHeaderText}>Add Listing</AppText>
+
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity onPress={() => {}}>
+              {/* <Icon
+                name='sort'
+                backgroundColor='#0000'
+                iconColor='#000'
+                circle={false}
+              /> */}
+            </TouchableOpacity>
+          </View>
+        </View>
         {user.isAnonymous ? (
           <InfoWithAction
             information='Please sign in to post and edit your listings and stores'
@@ -117,14 +129,9 @@ function ListingEditScreen({ navigation }) {
           </Form>
         )}
       </Screen>
-    </ImageBackground>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-    backgroundColor: "transparent",
-  },
-});
+const styles = StyleSheet.create({});
 export default ListingEditScreen;
