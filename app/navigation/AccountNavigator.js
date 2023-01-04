@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from "react";
 
 import AccountScreen from "../screens/AccountScreen";
 import Appstyles from "../config/Appstyles";
+import LikedListingsScreen from "../screens/LikedListingsScreen";
 import MessagesScreen from "../screens/MessagesScreen";
 import UserListingsScreen from "../screens/UserListingsScreen";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -11,7 +12,7 @@ const Stack = createStackNavigator();
 
 const AccountNavigator = ({ navigation, route }) => {
   useLayoutEffect(() => {
-    const tabHiddenRoutes = ["UserListings", "Favorites"];
+    const tabHiddenRoutes = ["UserListings", "LikedListings"];
 
     if (tabHiddenRoutes.includes(getFocusedRouteNameFromRoute(route))) {
       navigation.setOptions({ tabBarStyle: { display: "none" } });
@@ -23,6 +24,7 @@ const AccountNavigator = ({ navigation, route }) => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name='Account' component={AccountScreen} />
       <Stack.Screen name='UserListings' component={UserListingsScreen} />
+      <Stack.Screen name='LikedListings' component={LikedListingsScreen} />
     </Stack.Navigator>
   );
 };

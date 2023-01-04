@@ -18,7 +18,7 @@ const menuItems = [
     title: "My Listings",
     icon: {
       name: "format-list-bulleted",
-      backgroundColor: colors.primary,
+      backgroundColor: colors.secondary,
     },
     targetScreen: routes.USER_LISTINGS,
   },
@@ -26,9 +26,9 @@ const menuItems = [
     title: "My Favorites",
     icon: {
       name: "heart",
-      backgroundColor: colors.secondary,
+      backgroundColor: colors.primary,
     },
-    targetScreen: routes.MESSAGING,
+    targetScreen: routes.LIKED_LISTINGS,
   },
 ];
 

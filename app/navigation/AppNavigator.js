@@ -13,13 +13,11 @@ import {
 import AccountNavigator from "./AccountNavigator";
 import Appstyles from "../config/Appstyles";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
-import { CategoriesContext } from "../context/CategoriesProvider";
 import ChatNavigator from "./ChatNavigator";
 import FeedNavigator from "./FeedNavigator";
 import Icon from "../components/Icon";
+import { LikedListingsContext } from "../context/LikedListingsProvider";
 import ListingEditScreen from "../screens/ListingEditScreen";
-import { ListingsContext } from "../context/ListingsProvider";
-import StoreNavigator from "./StoreNavigator";
 import { UserListingsContext } from "../context/UserListingsProvider";
 import colors from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -140,8 +138,9 @@ const TabButton = (props) => {
 };
 
 const AppNavigator = () => {
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user } = useContext(AuthenticatedUserContext);
   const { userListings, setUserListings } = useContext(UserListingsContext);
+  const { likedListings, setLikedListings } = useContext(LikedListingsContext);
 
   useEffect(() => {
     const listingsQuery = query(
@@ -165,7 +164,27 @@ const AppNavigator = () => {
         setUserListings(listings);
       }
     );
-    return unsubscribeUserListings; //
+
+    const likedListingsQuery = query(
+      collection(database, "LikedListings"),
+      where("uid", "==", user.uid)
+    );
+
+    const unsubscribeLikedListings = onSnapshot(
+      likedListingsQuery,
+      (querySnapshot) => {
+        const likedListings = [];
+        querySnapshot.forEach((doc) => {
+          likedListings.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        });
+
+        setLikedListings(likedListings);
+      }
+    );
+    return unsubscribeUserListings, unsubscribeLikedListings; //
   }, []);
   return (
     <Tab.Navigator

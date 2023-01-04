@@ -27,6 +27,7 @@ const ListingCard = ({ navigation, item }) => {
           borderColor: "#0000",
           backgroundColor: "#fff",
           flexDirection: "row",
+          margin: 5,
         }}
       >
         <View
@@ -71,15 +72,7 @@ const ListingCard = ({ navigation, item }) => {
             >
               {item.title}
             </AppText>
-            <View style={{ alignItems: "flex-end", marginVertical: 5 }}>
-              <Icon
-                name='heart-outline'
-                circle={false}
-                backgroundColor={colors.invisible}
-                iconColor={colors.mediumRare}
-                size={30}
-              />
-            </View>
+
             <View>
               <AppText numberOfLines={2} style={{ color: "#5d5d5d" }}>
                 {item.description}

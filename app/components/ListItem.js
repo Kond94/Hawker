@@ -14,6 +14,7 @@ import React from "react";
 import colorAr from "../config/Appstyles";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
+import moment from "moment";
 import routes from "../navigation/routes";
 
 export function ListItem({ item, index, animation, navigation }) {
@@ -56,6 +57,10 @@ export function ListItem({ item, index, animation, navigation }) {
             </Text>
           </View>
         </View>
+        <Text style={styles.time}>
+          Listed {moment(item.createdAt).fromNow()}
+        </Text>
+
         <View style={styles.detailsContainer}>
           <Text style={styles.name}>{item.title}</Text>
         </View>
@@ -84,10 +89,14 @@ const styles = StyleSheet.create({
     color: "black",
   },
   detailsContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  time: {
+    paddingHorizontal: 10,
+    fontSize: 10,
+    fontStyle: "italic",
   },
 });

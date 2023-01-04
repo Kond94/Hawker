@@ -53,12 +53,9 @@ export default function ListingsScreen({ route, navigation }) {
     } else {
       switch (sort.field) {
         case "createdAt":
-          console.log("Sorting by date:", sort);
           filterByDate();
           break;
         case "price":
-          console.log("Sorting by price:", sort);
-
           filterByPrice();
           break;
 

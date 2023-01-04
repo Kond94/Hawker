@@ -41,20 +41,7 @@ function ChatListScreen({ navigation }) {
       <View style={Appstyles.screenHeaderContainer}>
         <AppText style={Appstyles.screenHeaderText}>Messages</AppText>
 
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => {
-              console.log(true);
-            }}
-          >
-            {/* <Icon
-              name='sort'
-              backgroundColor='#0000'
-              iconColor='#000'
-              circle={false}
-            /> */}
-          </TouchableOpacity>
-        </View>
+        <View style={{ flexDirection: "row" }}></View>
       </View>
       <FlatList
         data={conversations}

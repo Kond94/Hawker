@@ -72,6 +72,7 @@ function RegisterScreen() {
               email: email,
               hasStore: hasStore,
               photoURL: profilePhotoURL ? profilePhotoURL : "",
+              likedListings: [],
             });
 
             if (hasStore)

@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 function Icon({
   name,
-  size = 40,
+  size = 35,
   backgroundColor = "#000",
   iconColor = "#fff",
   circle = true,

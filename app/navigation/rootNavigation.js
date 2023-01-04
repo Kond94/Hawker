@@ -7,6 +7,7 @@ import AppNavigator from "./AppNavigator";
 import AuthNavigator from "./AuthNavigator";
 import { AuthenticatedUserContext } from "../auth/AuthenticatedUserProvider";
 import { CategoriesContext } from "../context/CategoriesProvider";
+import { LikedListingsProvider } from "../context/LikedListingsProvider";
 import { ListingsContext } from "../context/ListingsProvider";
 import { NavigationContainer } from "@react-navigation/native";
 import { UserListingsProvider } from "../context/UserListingsProvider";
@@ -109,7 +110,9 @@ export default function RootNavigator(props) {
     <NavigationContainer onReady={onLayoutRootView}>
       {user ? (
         <UserListingsProvider>
-          <AppNavigator />
+          <LikedListingsProvider>
+            <AppNavigator />
+          </LikedListingsProvider>
         </UserListingsProvider>
       ) : (
         <AuthNavigator />

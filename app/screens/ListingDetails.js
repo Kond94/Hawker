@@ -8,7 +8,15 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 
 import AppButton from "../components/Button";
 import AppText from "../components/Text";
@@ -17,11 +25,13 @@ import ContactSellerForm from "../components/ContactSellerForm";
 import FastImage from "react-native-fast-image";
 import Icon from "../components/Icon";
 import ImageView from "react-native-image-viewing";
+import { LikedListingsContext } from "../context/LikedListingsProvider";
 import Modal from "react-native-modal";
 import Screen from "../components/Screen";
 import colors from "../config/colors";
 import { currencyFormatter } from "../utility/numberFormat";
 import { database } from "../config/firebase";
+import moment from "moment";
 import routes from "../navigation/routes";
 import { useContext } from "react";
 
@@ -33,11 +43,17 @@ export default function ListingDetails({ route, navigation }) {
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [author, setAuthor] = useState();
   const [listing, setListing] = useState();
+  const { likedListings } = useContext(LikedListingsContext);
+
   const [authorListings, setAuthorListings] = useState([]);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
   const [isModalVisible, setModalVisible] = useState(false);
-
+  const liked = likedListings
+    .map((l) => l.listingId)
+    .includes(route.params.listingId)
+    ? true
+    : false;
   useEffect(() => {
     const unSubscribeListings = onSnapshot(
       doc(database, "Listings", route.params.listingId),
@@ -71,7 +87,40 @@ export default function ListingDetails({ route, navigation }) {
     // Unsubscribe from events when no longer in use
 
     return authorSubscriber, authorListingsSubscriber, unSubscribeListings;
-  }, [navigation]);
+  }, [navigation, likedListings]);
+
+  const likeListing = async () => {
+    if (liked) {
+      await deleteDoc(
+        doc(database, "LikedListings", user.uid + "_" + route.params.listingId)
+      ).then(() => {
+        setDoc(
+          doc(database, "Listings", route.params.listingId),
+          {
+            likedCount: listing.likedCount - 1,
+          },
+          { merge: true }
+        );
+      });
+    } else {
+      await setDoc(
+        doc(database, "LikedListings", user.uid + "_" + route.params.listingId),
+        {
+          uid: user.uid,
+          listingId: route.params.listingId,
+        },
+        { merge: true }
+      ).then(() => {
+        setDoc(
+          doc(database, "Listings", route.params.listingId),
+          {
+            likedCount: listing.likedCount + 1,
+          },
+          { merge: true }
+        );
+      });
+    }
+  };
 
   const scrollX = React.useRef(new Animated.Value(0)).current;
   return (
@@ -232,12 +281,17 @@ export default function ListingDetails({ route, navigation }) {
             >
               {currencyFormatter(listing?.price)}
             </AppText>
-            <Icon
-              name='heart-outline'
-              backgroundColor='#0000'
-              iconColor={colors.mediumRare}
-              circle={false}
-            />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <TouchableOpacity onPress={() => likeListing()}>
+                <Icon
+                  name={liked ? "heart" : "heart-outline"}
+                  backgroundColor='#0000'
+                  iconColor={liked ? colors.primary : colors.mediumRare}
+                  circle={false}
+                />
+              </TouchableOpacity>
+              <AppText>{listing?.likedCount}</AppText>
+            </View>
           </View>
           <AppText
             style={{
@@ -247,6 +301,14 @@ export default function ListingDetails({ route, navigation }) {
             }}
           >
             Description
+          </AppText>
+          <AppText
+            style={{
+              fontStyle: "italic",
+              color: colors.mediumRare,
+            }}
+          >
+            Listed {moment(listing?.createdAt.toDate()).fromNow()}
           </AppText>
           <AppText
             numberOfLines={3}

@@ -49,6 +49,7 @@ function ListingEditScreen({ navigation }) {
       description: listing.description,
       category: listing.category.id,
       images: listing.images,
+      likedCount: 0,
       author: user.uid,
       createdAt: new Date(),
     }).then(() => {
