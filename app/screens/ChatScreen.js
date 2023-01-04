@@ -105,17 +105,6 @@ export default function ChatScreen({ route, navigation }) {
         <AppText style={Appstyles.screenHeaderText}>
           {displayUser.displayName}
         </AppText>
-
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => {}}>
-            {/* <Icon
-                name='sort'
-                backgroundColor='#0000'
-                iconColor='#000'
-                circle={false}
-              /> */}
-          </TouchableOpacity>
-        </View>
       </View>
       <GiftedChat
         renderBubble={renderBubble}

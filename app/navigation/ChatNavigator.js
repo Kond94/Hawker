@@ -3,7 +3,7 @@ import React, { useLayoutEffect } from "react";
 import Appstyles from "../config/Appstyles";
 import ChatListScreen from "../screens/ChatListScreen";
 import ChatScreen from "../screens/ChatScreen";
-import MessagesScreen from "../screens/MessagesScreen";
+import { TransitionPresets } from "@react-navigation/stack";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
@@ -14,17 +14,28 @@ const ChatNavigator = ({ navigation, route }) => {
     const routeName = getFocusedRouteNameFromRoute(route);
 
     if (routeName === "Chats") {
-      navigation.setOptions({ tabBarStyle: { display: "none" } });
+      navigation.setOptions({
+        tabBarStyle: { display: "none" },
+        headerShown: false,
+      });
     } else {
       navigation.setOptions({ tabBarStyle: Appstyles.tabBarStyle });
     }
   }, [navigation, route]);
   return (
     <Stack.Navigator
-      screenOptions={{ headerShown: false, presentation: "modal" }}
+      screenOptions={{
+        ...TransitionPresets.SlideFromRightIOS,
+      }}
     >
       <Stack.Screen name='ChatList' component={ChatListScreen} />
-      <Stack.Screen name='Chats' component={ChatScreen} />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name='Chats'
+        component={ChatScreen}
+      />
     </Stack.Navigator>
   );
 };

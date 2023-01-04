@@ -1,6 +1,12 @@
-import { ImageBackground, TouchableWithoutFeedback, View } from "react-native";
+import {
+  ImageBackground,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import React, { Component } from "react";
 
+import AppButton from "./Button";
 import AppText from "./Text";
 import Icon from "./Icon";
 import colors from "../config/colors";
@@ -8,7 +14,7 @@ import { currencyFormatter } from "../utility/numberFormat";
 import moment from "../../node_modules/moment/moment";
 import routes from "../navigation/routes";
 
-const ListingCard = ({ navigation, item }) => {
+const ListingCard = ({ navigation, item, editable }) => {
   return (
     <TouchableWithoutFeedback
       onPress={() =>
@@ -77,6 +83,34 @@ const ListingCard = ({ navigation, item }) => {
               <AppText numberOfLines={2} style={{ color: "#5d5d5d" }}>
                 {item.description}
               </AppText>
+              {editable && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-evenly",
+                  }}
+                >
+                  <TouchableOpacity onPress={() => editable.onEdit(item)}>
+                    <Icon
+                      name='note-edit-outline'
+                      backgroundColor='#0000'
+                      iconColor={colors.secondary}
+                      circle={false}
+                      size={50}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => editable.onDelete(item)}>
+                    <Icon
+                      name='delete'
+                      backgroundColor='#0000'
+                      iconColor={colors.red}
+                      circle={false}
+                      size={50}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
 

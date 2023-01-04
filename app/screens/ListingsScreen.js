@@ -185,12 +185,12 @@ export default function ListingsScreen({ route, navigation }) {
         onSwipeComplete={() => setModalVisible(false)}
         swipeDirection={["down"]}
         style={styles.sortModal}
-        animationInTiming={800}
-        animationOutTiming={800}
-        backdropTransitionInTiming={800}
-        backdropTransitionOutTiming={800}
         backdropColor='#B4B3DB'
         backdropOpacity={0.8}
+        animationInTiming={600}
+        animationOutTiming={600}
+        backdropTransitionInTiming={600}
+        backdropTransitionOutTiming={600}
       >
         <SortModal
           sort={sort}
@@ -199,24 +199,6 @@ export default function ListingsScreen({ route, navigation }) {
         />
       </Modal>
 
-      <View style={Appstyles.screenHeaderContainer}>
-        <AppText style={Appstyles.screenHeaderText}>Listings</AppText>
-
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(true);
-            }}
-          >
-            <Icon
-              name='sort'
-              backgroundColor='#0000'
-              iconColor='#000'
-              circle={false}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
       <View style={styles.searchBox}>
         <AppTextInput
           icon='magnify'
@@ -284,6 +266,18 @@ export default function ListingsScreen({ route, navigation }) {
                   <AppText style={styles.categoriesHeaderText}>
                     Select Categories
                   </AppText>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(true);
+                    }}
+                  >
+                    <Icon
+                      name='sort'
+                      backgroundColor='#0000'
+                      iconColor='#000'
+                      circle={false}
+                    />
+                  </TouchableOpacity>
                   {selectedCategories.length > 0 || searchText.trim() !== "" ? (
                     <TouchableWithoutFeedback
                       onPress={() => {

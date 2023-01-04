@@ -132,12 +132,12 @@ export default function ListingDetails({ route, navigation }) {
         onSwipeComplete={() => setModalVisible(false)}
         swipeDirection={["down"]}
         style={styles.contactModal}
-        animationInTiming={800}
-        animationOutTiming={800}
-        backdropTransitionInTiming={800}
-        backdropTransitionOutTiming={800}
         backdropColor='#B4B3DB'
         backdropOpacity={0.8}
+        animationInTiming={600}
+        animationOutTiming={600}
+        backdropTransitionInTiming={600}
+        backdropTransitionOutTiming={600}
       >
         <ContactSellerForm
           buyer={user.uid}
@@ -154,18 +154,6 @@ export default function ListingDetails({ route, navigation }) {
         visible={imageViewerVisible}
         onRequestClose={() => setImageViewerVisible(false)}
       />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon
-            name='arrow-left'
-            backgroundColor='#0000'
-            iconColor='#000'
-            circle={false}
-          />
-        </TouchableOpacity>
-        <AppText style={styles.headerTitle}>Listing Details</AppText>
-        <View style={{ width: 40 }} />
-      </View>
       <View style={{ marginHorizontal: 13 }}>
         <AppText
           style={{

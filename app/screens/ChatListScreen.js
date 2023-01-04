@@ -38,11 +38,6 @@ function ChatListScreen({ navigation }) {
 
   return (
     <Screen>
-      <View style={Appstyles.screenHeaderContainer}>
-        <AppText style={Appstyles.screenHeaderText}>Messages</AppText>
-
-        <View style={{ flexDirection: "row" }}></View>
-      </View>
       <FlatList
         data={conversations}
         keyExtractor={(conversation) => conversation._id.toString()}

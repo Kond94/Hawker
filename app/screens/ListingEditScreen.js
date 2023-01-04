@@ -71,20 +71,6 @@ function ListingEditScreen({ navigation }) {
       {loading && <ActivityIndicator visible={loading} />}
       <Screen>
         <ScrollView>
-          <View style={Appstyles.screenHeaderContainer}>
-            <AppText style={Appstyles.screenHeaderText}>Add Listing</AppText>
-
-            <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity onPress={() => {}}>
-                {/* <Icon
-                name='sort'
-                backgroundColor='#0000'
-                iconColor='#000'
-                circle={false}
-              /> */}
-              </TouchableOpacity>
-            </View>
-          </View>
           {user.isAnonymous ? (
             <InfoWithAction
               information='Please sign in to post and edit your listings and stores'

@@ -1,6 +1,6 @@
 import * as Animatable from "react-native-animatable";
 
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
   collection,
@@ -22,6 +22,7 @@ import { UserListingsContext } from "../context/UserListingsProvider";
 import colors from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { database } from "../config/firebase";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 const TabArr = [
   {
@@ -32,6 +33,7 @@ const TabArr = [
     component: FeedNavigator,
     color: colors.primary,
     alphaClr: colors.secondary,
+    headerShown: false,
   },
   // {
   //   route: "Stores",
@@ -52,6 +54,7 @@ const TabArr = [
     component: ListingEditScreen,
     color: colors.red,
     alphaClr: colors.redAlpha,
+    headerShown: true,
   },
   {
     route: "Messaging",
@@ -62,12 +65,14 @@ const TabArr = [
     component: ChatNavigator,
     color: colors.purple,
     alphaClr: colors.purpleAlpha,
+    headerShown: true,
   },
   {
     route: "AccountEdit",
     label: "Account",
     icon: "account",
     size: 50,
+    headerShown: true,
 
     component: AccountNavigator,
     color: colors.purple,
@@ -204,6 +209,7 @@ const AppNavigator = () => {
             name={item.route}
             component={item.component}
             options={{
+              headerShown: item.headerShown,
               tabBarShowLabel: false,
               tabBarButton: (props) => <TabButton {...props} item={item} />,
             }}

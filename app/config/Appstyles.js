@@ -20,13 +20,13 @@ export default {
   },
   screenHeaderContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
+    justifyContent: "flex-start",
   },
   screenHeaderText: {
     fontWeight: "bold",
     fontSize: 23,
     textAlignVertical: "bottom",
+    alignSelf: "center",
     color: colors.mediumRare,
     marginHorizontal: 10,
   },
